@@ -1,0 +1,28 @@
+{
+  "targets": {
+    "edge": "79",
+    "firefox": "60",
+    "chrome": "66",
+    "opera": "53",
+    "safari": "12.2"
+  },
+  "presets": [
+    ["@babel/preset-env", {
+      "bugfixes": true
+    }]
+  ],
+  "plugins": [
+    ["@babel/transform-runtime", {
+      "version": "^7.14.0"
+    }],
+    ["polyfill-corejs3", {
+      "method": "usage-pure",
+      "exclude": [
+        "web.url",
+        "es.array.reduce",
+        "es.promise",
+        "es.object.assign"
+      ]
+    }]
+  ]
+}

@@ -1,0 +1,14 @@
+# Mac and Windows
+.DS_Store
+desktop.ini
+
+# IntelliJ
+.idea/
+
+# Node
+node_modules/
+
+# Generate in development
+coverage/
+dist/
+*.log

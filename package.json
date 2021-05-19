@@ -1,0 +1,56 @@
+{
+  "name": "@sliphua/pjax",
+  "version": "0.7.1",
+  "description": "Easily enable fast AJAX navigation (using Fetch + pushState)",
+  "keywords": [
+    "pjax",
+    "pushstate",
+    "ajax",
+    "fetch",
+    "navigation",
+    "transition"
+  ],
+  "bugs": "https://github.com/PaperStrike/Pjax/issues",
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src",
+    "*.config.*",
+    ".eslintrc.*",
+    "CHANGELOG.*"
+  ],
+  "browser": "./dist/pjax.min.js",
+  "repository": "github:PaperStrike/Pjax",
+  "dependencies": {
+    "@babel/runtime": "^7.14.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/core": "^7.14.3",
+    "@babel/eslint-parser": "^7.14.3",
+    "@babel/plugin-transform-runtime": "^7.14.3",
+    "@babel/preset-env": "^7.14.2",
+    "@babel/runtime-corejs3": "^7.14.0",
+    "babel-loader": "^8.2.2",
+    "babel-plugin-polyfill-corejs3": "^0.2.0",
+    "eslint": "^7.26.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.2",
+    "jest": "^26.6.3",
+    "nock": "^13.0.11",
+    "node-fetch": "^2.6.1",
+    "webpack": "^5.37.0",
+    "webpack-bundle-analyzer": "^4.4.2",
+    "webpack-cli": "^4.7.0"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "build": "webpack && webpack --mode production --output-filename pjax.min.js",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "prepare": "npm run build"
+  }
+}
