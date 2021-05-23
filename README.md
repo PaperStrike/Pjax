@@ -430,7 +430,7 @@ After page switches, Pjax compares it with `window.location` to decide whether t
 
 ### `abortController` ([AbortController][mdn-abortcontroller-api] | null, default: `null`)
 
-The abort controller that can abort the last page loading of Pjax.
+The abort controller that can abort the last page navigation handling or handled by Pjax.
 
 ## Events
 
