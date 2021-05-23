@@ -1,11 +1,15 @@
 import Script from './Script';
 
-// Evaluate script regardless of the result.
-const evalScript = (script) => script.eval().catch(() => {});
+/**
+ * Find and execute scripts in order.
+ * Needed since innerHTML does not run scripts.
+ * @param {Iterable<HTMLScriptElement>} scriptEleList
+ * @param {Object} [options]
+ * @param {AbortSignal} [options.signal]
+ */
+export default async function executeScripts(scriptEleList, { signal } = {}) {
+  if (signal?.aborted) throw new DOMException('Aborted execution', 'AbortError');
 
-// Find and execute scripts in order (used for newly added elements).
-// Needed since innerHTML does not run scripts
-export default function executeScripts(scriptEleList) {
   const validScripts = [...scriptEleList]
     .map((scriptEle) => new Script(scriptEle))
     .filter((script) => script.evaluable);
@@ -15,6 +19,12 @@ export default function executeScripts(scriptEleList) {
   validScripts.forEach((script) => {
     (script.blocking ? blockingScripts : asyncScripts).push(script);
   });
+
+  // Evaluate script. Throw only when aborted.
+  const evalScript = async (script) => {
+    if (signal?.aborted) return;
+    await script.eval().catch(() => {});
+  };
 
   // Evaluate external blocking scripts first
   // to help browsers fetch them in parallel.
@@ -27,8 +37,16 @@ export default function executeScripts(scriptEleList) {
     return promise.then(() => evalScript(script));
   }, Promise.resolve());
 
-  return Promise.all([
-    blockingPromise,
-    ...asyncScripts.map(evalScript),
+  // Reject as soon as possible on abort.
+  return Promise.race([
+    Promise.all([
+      blockingPromise,
+      ...asyncScripts.map(evalScript),
+    ]),
+    new Promise((resolve, reject) => {
+      signal?.addEventListener('abort', () => {
+        reject(new DOMException('Aborted execution', 'AbortError'));
+      });
+    }),
   ]);
 }

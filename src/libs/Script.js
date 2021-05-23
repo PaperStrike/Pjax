@@ -1,7 +1,7 @@
 /**
  * Follow
  * https://html.spec.whatwg.org/multipage/scripting.html#prepare-a-script
- * excluding steps concerning obsoleted attributes
+ * excluding steps concerning obsoleted attributes.
  */
 
 /**
@@ -33,10 +33,10 @@ class Script {
 
     this.target = scriptEle;
 
-    // Process empty
+    // Process empty.
     if (!scriptEle.hasAttribute('src') && !scriptEle.text) return;
 
-    // Process type
+    // Process type.
     const typeString = scriptEle.type ? scriptEle.type.trim() : 'text/javascript';
     if (MIMETypes.includes(typeString)) {
       this.type = 'classic';
@@ -46,17 +46,17 @@ class Script {
       return;
     }
 
-    // Process no module
+    // Process no module.
     if (scriptEle.noModule && this.type === 'classic') {
       return;
     }
 
-    // Process external
+    // Process external.
     if (scriptEle.hasAttribute('src')) {
       const src = scriptEle.getAttribute('src');
 
       // An empty src attribute not results in external status
-      // and the script is not executable
+      // and the script is not executable.
       if (!src) return;
 
       this.external = true;
@@ -69,37 +69,47 @@ class Script {
       }
     }
 
-    // Process blocking
-    this.blocking = this.type === 'classic'
-      && (!this.external || (!this.target.async && !this.target.defer));
+    // Process blocking.
+    this.blocking = true;
+    if (this.type !== 'classic') {
+      this.blocking = false;
+    } else if (this.external) {
+      if (scriptEle.hasAttribute('async')) {
+        this.blocking = false;
+      } else if (scriptEle.hasAttribute('defer')) {
+        this.blocking = false;
+      }
+    }
 
     this.evaluable = true;
   }
 
   eval() {
     return new Promise((resolve, reject) => {
-      if (!this.evaluable) resolve();
-
       const oldEle = this.target;
       const newEle = document.createElement('script');
 
       newEle.onerror = reject;
 
-      // Clone attributes and inner text
+      // Clone attributes and inner text.
       oldEle.getAttributeNames().forEach((name) => {
         newEle.setAttribute(name, oldEle.getAttribute(name));
       });
       newEle.text = oldEle.text;
 
       if (this.external) {
-        // Reset async of external scripts to force synchronous loading
-        // Needed since it defaults to true on dynamically injected scripts
+        // Reset async of external scripts to force synchronous loading.
+        // Needed since it defaults to true on dynamically injected scripts.
         if (!newEle.hasAttribute('async')) newEle.async = false;
+
+        // Defer a dynamically inserted script is meaningless
+        // and may cause the script not to be executed in some environments.
+        newEle.defer = false;
 
         newEle.onload = resolve;
       }
 
-      // Execute
+      // Execute.
       if (document.contains(oldEle)) {
         oldEle.replaceWith(newEle);
       } else {

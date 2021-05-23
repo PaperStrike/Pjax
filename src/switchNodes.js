@@ -2,22 +2,25 @@
  * @callback Pjax.Switch
  * @param {Node} oldNode
  * @param {Node} newNode
- * @return {Promise<*>|void}
+ * @return {Promise<any>|void}
  */
 
 /**
  * @typedef {Object} SwitchResult
  * @property {boolean} focusCleared
- * @property {Array<Promise<*>>} outcomes
+ * @property {Array<*>} outcomes
  */
 
 /**
  * @this {Pjax}
  * @param {Document} sourceDocument
- * @param {Partial<Pjax.options>} overrideOptions
+ * @param {Partial<Pjax.options>} [overrideOptions]
  * @return {Promise<SwitchResult>}
  */
 export default async function switchNodes(sourceDocument, overrideOptions = {}) {
+  const signal = this.status.abortController?.signal;
+  if (signal?.aborted) throw new DOMException('Aborted switches', 'AbortError');
+
   const options = { ...this.options, ...overrideOptions };
 
   let focusCleared = false;
@@ -46,20 +49,23 @@ export default async function switchNodes(sourceDocument, overrideOptions = {}) 
       // Argument defined switch is prior to default switch.
       const targetSwitch = options.switches[selector] || this.constructor.switches.default;
 
-      // Start switching. Package to promise. Ignore results.
+      // Start switching. Package to promise. Ignore switch errors.
       const switchPromise = Promise.resolve()
         .then(() => targetSwitch(targetNode, sourceNodeList[index]))
-        .then(() => {
-          // Trigger after each switch.
-          window.dispatchEvent(new Event('resize'));
-          window.dispatchEvent(new Event('scroll'));
-        })
         .catch(() => {});
       switchesList.push(switchPromise);
     });
   });
 
-  const outcomes = await Promise.all(switchesList);
+  // Reject as soon as possible on abort.
+  const outcomes = await Promise.race([
+    Promise.all(switchesList),
+    new Promise((resolve, reject) => {
+      signal?.addEventListener('abort', () => {
+        reject(new DOMException('Aborted switches', 'AbortError'));
+      });
+    }),
+  ]);
 
   return {
     focusCleared,

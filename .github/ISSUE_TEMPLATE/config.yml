@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Request a feature
+    url: https://github.com/PaperStrike/Pjax/discussions/categories/ideas
+    about: Share your idea for this project in Ideas Discussions
+  - name:
+  - name: Ask a question
+    url: https://github.com/PaperStrike/Pjax/discussions/categories/q-a
+    about: Find answers of this project in Q&A Discussions

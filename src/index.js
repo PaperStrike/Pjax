@@ -3,20 +3,16 @@ import LazyHistory from './libs/LazyHistory';
 import Switches from './utils/Switches';
 import DefaultTrigger from './utils/DefaultTrigger';
 
-import sendRequest from './sendRequest';
-import parseResponse from './parseResponse';
+import fetchDocument from './fetchDocument';
 import switchNodes from './switchNodes';
 import preparePage from './preparePage';
+import weakLoadURL from './weakLoadURL';
 
 class Pjax {
   static switches = Switches;
 
   static reload() {
     window.location.reload();
-  }
-
-  static normalLoad(href) {
-    window.location.assign(href);
   }
 
   /**
@@ -45,15 +41,11 @@ class Pjax {
 
   /**
    * @property {URL} location
-   * @property {?Request} request
    * @property {?AbortController} abortController
-   * @property {?Response} response
    */
   status = {
     location: new URL(window.location.href),
-    request: null,
     abortController: null,
-    response: null,
   };
 
   /**
@@ -116,54 +108,27 @@ class Pjax {
     document.dispatchEvent(event);
   }
 
+  fetchDocument = fetchDocument;
+
   switchNodes = switchNodes;
-
-  sendRequest = sendRequest;
-
-  parseResponse = parseResponse;
 
   preparePage = preparePage;
 
+  weakLoadURL = weakLoadURL;
+
+  /**
+   * Load a URL in Pjax way. Navigate normally on errors except AbortError.
+   * @param {string} url
+   * @param {Partial<Pjax.options>} [overrideOptions]
+   * @return {Promise<void>}
+   */
   async loadURL(url, overrideOptions = {}) {
-    const parsedURL = new URL(url, document.URL);
-
-    // External URL.
-    if (parsedURL.origin !== window.location.origin) {
-      Pjax.normalLoad(parsedURL.href);
+    try {
+      await this.weakLoadURL(url, overrideOptions);
+    } catch (e) {
+      if (e.name === 'AbortError') throw e;
+      window.location.assign(url);
     }
-
-    // Store scroll position.
-    this.storeScrollPosition();
-
-    // Abort any previous request.
-    this.status.abortController?.abort();
-
-    // No fetch request and switches on same page.
-    const targetPath = parsedURL.pathname + parsedURL.search;
-    const currentPath = this.status.location.pathname + this.status.location.search;
-    if (targetPath === currentPath) {
-      this.status.location = parsedURL;
-      return this.preparePage(null, overrideOptions);
-    }
-
-    this.fire('send');
-
-    // Do the request and switches.
-    return this.sendRequest(new Request(url), overrideOptions)
-      .then((res) => this.parseResponse(res))
-      .then((newDocument) => this.switchNodes(newDocument, overrideOptions))
-      .then((switchResult) => this.preparePage(switchResult, overrideOptions))
-      .then(() => {
-        this.fire('success');
-      })
-      .catch((e) => {
-        this.fire('error');
-        if (e.name === 'AbortError') throw e;
-        Pjax.normalLoad(this.status.response.url);
-      })
-      .finally(() => {
-        this.fire('complete');
-      });
   }
 }
 

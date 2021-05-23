@@ -3,31 +3,24 @@ import executeScripts from './libs/executeScripts';
 /**
  * After page elements are updated.
  * @this {Pjax}
- * @param {?SwitchResult} switchResults
- * @param {Partial<Pjax.options>} overrideOptions
+ * @param {?SwitchResult} switchResult
+ * @param {Partial<Pjax.options>} [overrideOptions]
  * @return {Promise<void>}
  */
-export default async function preparePage(switchResults = null, overrideOptions = {}) {
+export default async function preparePage(switchResult, overrideOptions = {}) {
   const options = { ...this.options, ...overrideOptions };
 
-  // Push history state if URL not matched.
-  if (this.status.location.href !== window.location.href) {
-    this.history.push({}, document.title, this.status.location.href);
-  }
-
   // If page elements are switched.
-  if (switchResults) {
+  if (switchResult) {
     // Focus the FIRST autofocus if the previous focus is cleared.
     // https://html.spec.whatwg.org/multipage/interaction.html#the-autofocus-attribute
-    if (switchResults.focusCleared) {
-      const autofocusEl = document.querySelectorAll('[autofocus]')[0];
-      if (autofocusEl && document.activeElement !== autofocusEl) {
-        autofocusEl.focus();
-      }
+    if (switchResult.focusCleared) {
+      document.querySelectorAll('[autofocus]')[0]?.focus();
     }
 
     // List newly added and labeled scripts
-    const scripts = [...document.querySelectorAll(options.scripts)];
+    const scripts = [...document.querySelectorAll(options.scripts)]
+      .filter((node) => node instanceof HTMLScriptElement);
     options.selectors.forEach((selector) => {
       document.body.querySelectorAll(selector).forEach((element) => {
         element.querySelectorAll('script').forEach((script) => {
@@ -46,7 +39,7 @@ export default async function preparePage(switchResults = null, overrideOptions 
     ));
 
     // Execute.
-    await executeScripts(scripts);
+    await executeScripts(scripts, { signal: this.status.abortController?.signal });
   }
 
   // Parse required scroll position.
@@ -55,7 +48,7 @@ export default async function preparePage(switchResults = null, overrideOptions 
   // When required to scroll.
   if (scrollTo !== false) {
     // If switched, default to left top. Otherwise, default to no scroll.
-    let parsedScrollTo = switchResults ? [0, 0] : false;
+    let parsedScrollTo = switchResult ? [0, 0] : false;
 
     if (Array.isArray(scrollTo)) {
       parsedScrollTo = scrollTo;

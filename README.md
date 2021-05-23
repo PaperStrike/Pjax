@@ -207,9 +207,11 @@ document.addEventListener((event) => {
 });
 ```
 
-### `loadURL(href, [overrideOptions])`
+### `loadURL(url, [overrideOptions])`
 
-With this method, you can manually abort the last Pjax request and trigger the loading of a URL. Any error other than `AbortError` leads to a normal navigation. Note that the `AbortError` happens on timeout, too.
+With this method, you can manually abort the last Pjax request and trigger the loading of a URL.
+
+Any error other than `AbortError` leads to a normal navigation (via `window.location.assign`). Note that the `AbortError` happens on timeout, too.
 
 ```js
 const pjax = new Pjax();
@@ -230,47 +232,54 @@ pjax.loadURL('/your-url')
   });
 ```
 
-### `parseResponse(response)`
+### `weakLoadURL(url, [overrideOptions])`
 
-This method returns a promise. It takes the raw response, processes the URL, and generates the new document as the resolve value.
+This method behaves almost the same as `loadURL`, except that it won't use normal navigation on errors — it throws regardless of the error's type.
 
-It receives:
-
-* **response** ([Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)): A raw response. Usually the resolved value of a Fetch promise.
-
-It assigns:
-
-* `pjax.status.location` to a [URL object](https://developer.mozilla.org/en-US/docs/Web/API/URL) representing the new URL to switch to. It will include the hash, if any. You may also get the hash though `pjax.status.request`, which stores the raw request object.
-* `pjax.status.response` to the response given in the argument.
-
-It returns:
-
-* a HTML document ([Document](https://developer.mozilla.org/en-US/docs/Web/API/Document)): The source document used to update current document.
-
-You can override this if you want to process the data on your own, as long as you assign and return as above.
-
-You may want to proxy it more than override it. For example, to check for a custom JSON response and do something before parsing, you could do the following:
+Useful when you need to handle all the errors on your own.
 
 ```js
 const pjax = new Pjax();
 
-const nativeParse = pjax.parseResponse.bind(pjax);
-
-pjax.parseResponse = (response) => {
-  if (response.headers.get('Content-Type') === 'application/json') {
-    // handle your custom JSON response here
-  }
-  return nativeParse(response);
-}
+// use case
+pjax.weakLoadURL('/your-url')
+  .then(() => {
+    onSuccess();
+  })
+  .catch((e) => {
+    onError(e);
+  });
 ```
 
+### `fetchDocument(url, [overrideOptions])`
 
-### `normalLoad(href)`
+This method accepts the URL string of the target document, set up the timeout, and sends the request with Pjax headers.
 
-A helper shortcut for `window.location.assign`, a static member of Pjax. Used to load a page normally.
+It returns a promise that resolves with an object of the following properties:
+
+- `document` ([Document][mdn-document-api]): The parsed HTML document of the target URL.
+- `location` ([URL][mdn-url-api]): The URL object of the response.
+
+If you want to fetch and process the data on your own, override the implementation while keeping:
+
+- [integrated](https://dom.spec.whatwg.org/#abortcontroller-api-integration) with `status.abortController`.
+- the resolve object structure.
+
+Code below shows an extendable example:
 
 ```js
-Pjax.normalLoad('https://example.com');
+const pjax = new Pjax();
+
+pjax.fetchDocument = async function customFetch(url) {
+  const res = await fetch(url, {
+    signal: this.status.abortController.signal,
+  });
+  return {
+    // `Body.text` integrates with the fetch signal natively.
+    document: new DOMParser().parseFromString(await res.text()),
+    location: new URL(res.url),
+  };
+};
 ```
 
 ### `reload()`
@@ -326,15 +335,15 @@ Callbacks may return a promise to make Pjax recognize when the switch has done. 
 
 ### Existing Switch Callbacks
 
-- `Pjax.switches.innerHTML`:
+- `Pjax.switches.innerHTML` —
   Replace HTML contents by using [`Element.innerHTML`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML).
-- `Pjax.switches.textContent`:
+- `Pjax.switches.textContent` —
   Replace all text by using [`Node.textContent`](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent).
-- `Pjax.switches.innerText`:
+- `Pjax.switches.innerText` —
   Replace readable text by using [`HTMLElement.innerText`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/innerText).
-- `Pjax.switches.attributes`:
+- `Pjax.switches.attributes` —
   Rewrite all attributes, leaving inner HTML untouched.
-- `Pjax.switches.replaceWith`:
+- `Pjax.switches.replaceWith` —
   The default behavior, replace elements by using [`ChildNode.replaceWith`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith).
 
 ### Creating a Switch Callback
@@ -363,7 +372,7 @@ const customSwitch = (oldEle, newEle) => {
 };
 ```
 
-**NOTE:** _Pjax may handle a next page navigation before the last finishes._
+**NOTE:** _Pjax waits for the switches in a navigation, but may abort the whole navigation when the next one happens (e.g. user triggering the “Back” button)._
 
 ### `scripts` (String, default: `'script[data-pjax]'`)
 
@@ -391,7 +400,7 @@ When set to a number, this represents the vertical value (in px from the top of 
 
 When set to an array of 2 numbers (\[x, y\]), this represents the value to scroll both horizontally and vertically.
 
-Set this to `true` to make Pjax decide the scroll position. Pjax will try to act as the browsers' default behavior, such as scroll the element into view when hash changes to its id, scroll to page left top when navigating to a new page without a valid hash.
+Set this to `true` to make Pjax decide the scroll position. Pjax will try to act as the browsers' default behavior, such as scroll the element into view when hash changing to its id, scroll to page left top when navigating to a new page without a valid hash.
 
 Set this to `false` to disable all scrolling by Pjax.
 
@@ -413,36 +422,28 @@ The time in _milliseconds_ to abort the fetch requests. Set to `0` to disable.
 
 Accessible via the `status` property of the Pjax instance.
 
-### `location` (URL, default: `new URL(window.location.href)` when instantiate)
+### `location` ([URL][mdn-url-api], default: `new URL(window.location.href)` when instantiate)
 
-Contains the last URL handled by Pjax.
+Contains the last URL recognized by Pjax.
 
 After page switches, Pjax compares it with `window.location` to decide whether to call `pushState` or not, as to avoid redundant push when the URL has already changed (like, in `popstate` events).
 
-### `request` (Request | null, default: `null`)
+### `abortController` ([AbortController][mdn-abortcontroller-api] | null, default: `null`)
 
-The last request sent by Pjax.
-
-### `abortController` (AbortController | null, default: `null`)
-
-The abort controller that can abort the last request sent by Pjax.
-
-### `response` (Response | null, default: `null`)
-
-The last response received by Pjax.
+The abort controller that can abort the last page loading of Pjax.
 
 ## Events
 
-When calling `loadURL` to load a page that within the same origin while with different path or search string, Pjax fires a number of events.
+When calling Pjax to load a URL that within the same origin while with different path or search string, Pjax fires a number of events.
 
 All events fire from the _document_, not the clicked anchor nor the caller function. You can get a status copy of the Pjax instance of that time via `event.detail`.
 
-* `pjax:send` Fired after the Pjax request begins.
-* `pjax:complete` Fired after the Pjax request finishes.
-* `pjax:success` Fired after the Pjax request succeeds.
-* `pjax:error` Fired after the Pjax request fails.
+* `pjax:send` — Fired after the Pjax request begins.
+* `pjax:complete` — Fired after the Pjax request and switches finish.
+* `pjax:success` — Fired after the Pjax request and switches succeed.
+* `pjax:error` — Fired after the Pjax request or switches fail.
 
-If you use a loading indicator (eg: [topbar](https://buunguyen.github.io/topbar/)), a pair of `send` and `complete` events may suit you well.
+If you use a loading indicator (e.g. [topbar](https://buunguyen.github.io/topbar/)), a pair of `send` and `complete` events may suit you well.
 
 ```js
 document.addEventListener('pjax:send', topbar.show)
@@ -453,10 +454,10 @@ document.addEventListener('pjax:complete', topbar.hide)
 
 Pjax uses several custom headers when it sends HTTP requests. If the requests goes to your server, you can use those headers for some meta information about the response.
 
-- `X-Requested-With: "Fetch"`
-- `X-PJAX: "true"`
+- `X-Requested-With: Fetch`
+- `X-PJAX: true`
 - `X-PJAX-Selectors` —
-    A serialized JSON array of selectors, taken from `options.selectors`. You can use this to send back only the elements that Pjax will use to switch, instead of sending the whole page. Note that you may need to deserialize this on the server (Such as by using `JSON.parse()`)
+    A serialized JSON array of selectors, taken from `options.selectors`. You can use this to send back only the elements that Pjax will use to switch, instead of sending the whole page. Note that you may need to deserialize this on the server (Such as by using `JSON.parse`)
 
 ## DOM Ready State
 
@@ -642,10 +643,14 @@ If you dislike wrapping the Disqus snippet in the way of method one, you may:
 ## CONTRIBUTING
 
 - ⇄ Pull requests and ★ Stars are always welcome!
-- For questions and feature requests, checkout our [Discussions](https://github.com/PaperStrike/Pjax/discussions).
+- For questions and feature requests, join our [Discussions](https://github.com/PaperStrike/Pjax/discussions).
 - For bugs, check the existing issues and feel free to open one if none similar.
 - Pull requests must pass all automatic checks.
 
 ## [CHANGELOG](CHANGELOG.md)
 
 ## [LICENSE](LICENSE)
+
+[mdn-document-api]: https://developer.mozilla.org/en-US/docs/Web/API/Document
+[mdn-url-api]: https://developer.mozilla.org/en-US/docs/Web/API/URL
+[mdn-abortcontroller-api]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
