@@ -39,7 +39,7 @@ export default async function preparePage(switchResult, overrideOptions = {}) {
     ));
 
     // Execute.
-    await executeScripts(scripts, { signal: this.status.abortController?.signal });
+    await executeScripts(scripts, { signal: this.abortController?.signal });
   }
 
   // Parse required scroll position.
@@ -56,7 +56,7 @@ export default async function preparePage(switchResult, overrideOptions = {}) {
       parsedScrollTo = [window.scrollX, scrollTo];
     } else {
       // Parse target.
-      const hashId = decodeURIComponent(this.status.location.hash.slice(1));
+      const hashId = decodeURIComponent(this.location.hash.slice(1));
 
       if (hashId) {
         const target = document.getElementById(hashId) || document.getElementsByName(hashId)[0];

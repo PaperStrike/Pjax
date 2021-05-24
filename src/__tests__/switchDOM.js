@@ -1,7 +1,7 @@
 import fetch, { Request, Response } from 'node-fetch';
 import nock from 'nock';
 
-import fetchDocument from '../fetchDocument';
+import switchDOM from '../switchDOM';
 
 if (!global.fetch) global.fetch = fetch;
 if (!global.Request) global.Request = Request;
@@ -27,11 +27,11 @@ class SimplePjax {
     selectors: ['div.pjax', 'div.container'],
   };
 
-  status = {
-    abortController: null,
-  };
+  location = new URL(window.location.href);
 
-  fetchDocument = fetchDocument;
+  fire = () => {};
+
+  switchDOM = switchDOM;
 }
 
 test('partial document response', async () => {
@@ -40,12 +40,11 @@ test('partial document response', async () => {
     .reply(200, '<body class="partial"></body>');
 
   const pjax = new SimplePjax();
+  pjax.options.selectors = ['body'];
 
-  const {
-    document: newDocument,
-  } = await pjax.fetchDocument('https://partial');
-  expect(newDocument).toBeInstanceOf(Document);
-  expect(newDocument.body.className).toBe('partial');
+  await pjax.switchDOM('https://partial');
+  expect(document.body.className).toBe('partial');
+  expect(pjax.location.href).toBe('https://partial/');
 });
 
 test('empty body response', async () => {
@@ -55,32 +54,28 @@ test('empty body response', async () => {
 
   const pjax = new SimplePjax();
 
-  const {
-    document: newDocument,
-  } = await pjax.fetchDocument('https://empty');
-  expect(newDocument).toBeInstanceOf(Document);
-  expect(newDocument.body.children).toHaveLength(0);
+  await pjax.switchDOM('https://empty');
+  expect(document.body.children).toHaveLength(0);
+  expect(pjax.location.href).toBe('https://empty/');
 });
 
-test('redirect request', async () => {
+test('redirect request and preserve hash', async () => {
   nock('https://from')
-    .get('/foo')
+    .get('/')
     .reply(302, undefined, {
-      Location: 'https://to/bar',
+      Location: 'https://to/',
     });
   nock('https://to')
-    .get('/bar')
+    .get('/')
     .reply(200, '<body class="redirected"></body>');
 
   const pjax = new SimplePjax();
+  pjax.options.selectors = ['body'];
 
-  const {
-    document: newDocument,
-    location: newLocation,
-  } = await pjax.fetchDocument('https://from/foo');
+  await pjax.switchDOM('https://from/#foo');
 
-  expect(newLocation.href).toBe('https://to/bar');
-  expect(newDocument.body.className).toBe('redirected');
+  expect(document.body.className).toBe('redirected');
+  expect(pjax.location.href).toBe('https://to/#foo');
 });
 
 test('request headers', async () => {
@@ -99,7 +94,7 @@ test('request headers', async () => {
 
   const pjax = new SimplePjax();
 
-  await pjax.fetchDocument('https://headers');
+  await pjax.switchDOM('https://headers');
 
   expect(getHeader('X-Requested-With')).toBe('Fetch');
   expect(getHeader('X-Pjax')).toBe('true');
@@ -114,9 +109,9 @@ test('throw on abort', async () => {
 
   const pjax = new SimplePjax();
   const abortController = new AbortController();
-  pjax.status.abortController = abortController;
+  pjax.abortController = abortController;
 
-  const abortPromise = pjax.fetchDocument('https://delay');
+  const abortPromise = pjax.switchDOM('https://delay');
   abortController.abort();
   await expect(abortPromise).rejects.toMatchObject({ name: 'AbortError' });
 });
@@ -129,10 +124,10 @@ test('throw on aborted signal', async () => {
 
   const pjax = new SimplePjax();
   const abortController = new AbortController();
-  pjax.status.abortController = abortController;
+  pjax.abortController = abortController;
   abortController.abort();
 
-  await expect(pjax.fetchDocument('https://delay'))
+  await expect(pjax.switchDOM('https://delay'))
     .rejects.toMatchObject({ name: 'AbortError' });
 });
 
@@ -144,15 +139,15 @@ test('do abort on timeout while pending', async () => {
     .replyWithError('Not Aborted.');
 
   const pjax = new SimplePjax();
-  pjax.status.abortController = new AbortController();
+  pjax.abortController = new AbortController();
 
-  const timeoutPromise = pjax.fetchDocument('https://delay', {
+  const timeoutPromise = pjax.switchDOM('https://delay', {
     timeout: 50,
   });
 
   jest.runAllTimers();
   await expect(timeoutPromise).rejects.toMatchObject({ name: 'AbortError' });
-  expect(pjax.status.abortController.signal.aborted).toBe(true);
+  expect(pjax.abortController.signal.aborted).toBe(true);
 });
 
 test('do not abort on timeout while not pending', async () => {
@@ -162,12 +157,12 @@ test('do not abort on timeout while not pending', async () => {
     .reply(200);
 
   const pjax = new SimplePjax();
-  pjax.status.abortController = new AbortController();
+  pjax.abortController = new AbortController();
 
-  await expect(pjax.fetchDocument('https://resolve', {
+  await expect(pjax.switchDOM('https://resolve', {
     timeout: 50,
   })).resolves.not.toThrow();
 
   jest.runAllTimers();
-  expect(pjax.status.abortController.signal.aborted).toBe(false);
+  expect(pjax.abortController.signal.aborted).toBe(false);
 });

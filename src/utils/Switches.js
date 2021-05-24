@@ -1,5 +1,7 @@
+/**
+ * @type {Readonly<Object<string, Pjax.Switch>>}
+ */
 const Switches = {
-
   /**
    * Replace HTML contents by using innerHTML.
    * @param oldNode {Element}

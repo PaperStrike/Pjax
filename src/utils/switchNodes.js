@@ -1,3 +1,5 @@
+import Switches from './Switches';
+
 /**
  * @callback Pjax.Switch
  * @param {Node} oldNode
@@ -12,21 +14,24 @@
  */
 
 /**
- * @this {Pjax}
  * @param {Document} sourceDocument
- * @param {Partial<Pjax.options>} [overrideOptions]
+ * @param {Object} options
+ * @param {Array<string>} options.selectors
+ * @param {Object<string, Pjax.Switch>} [options.switches]
+ * @param {AbortSignal} [options.signal]
  * @return {Promise<SwitchResult>}
  */
-export default async function switchNodes(sourceDocument, overrideOptions = {}) {
-  const signal = this.status.abortController?.signal;
+export default async function switchNodes(sourceDocument, {
+  selectors,
+  switches,
+  signal,
+}) {
   if (signal?.aborted) throw new DOMException('Aborted switches', 'AbortError');
-
-  const options = { ...this.options, ...overrideOptions };
 
   let focusCleared = false;
   const switchesList = [];
 
-  options.selectors.forEach((selector) => {
+  selectors.forEach((selector) => {
     const sourceNodeList = sourceDocument.querySelectorAll(selector);
     const targetNodeList = document.querySelectorAll(selector);
 
@@ -47,7 +52,7 @@ export default async function switchNodes(sourceDocument, overrideOptions = {}) 
       }
 
       // Argument defined switch is prior to default switch.
-      const targetSwitch = options.switches[selector] || this.constructor.switches.default;
+      const targetSwitch = switches?.[selector] || Switches.default;
 
       // Start switching. Package to promise. Ignore switch errors.
       const switchPromise = Promise.resolve()

@@ -3,8 +3,7 @@ import LazyHistory from './libs/LazyHistory';
 import Switches from './utils/Switches';
 import DefaultTrigger from './utils/DefaultTrigger';
 
-import fetchDocument from './fetchDocument';
-import switchNodes from './switchNodes';
+import switchDOM from './switchDOM';
 import preparePage from './preparePage';
 import weakLoadURL from './weakLoadURL';
 
@@ -39,20 +38,41 @@ class Pjax {
 
   history = new LazyHistory('pjax');
 
+  #location;
+
   /**
-   * @property {URL} location
-   * @property {?AbortController} abortController
+   * The last URL recognized by Pjax.
+   * @type {Readonly<URL>}
    */
-  status = {
-    location: new URL(window.location.href),
-    abortController: null,
-  };
+  get location() {
+    return this.#location;
+  }
+
+  /**
+   * Froze copy the given location. Push history if URL not match.
+   * @param {URL} newLocation
+   */
+  set location({ href }) {
+    this.#location = Object.freeze(new URL(href));
+
+    if (window.location.href !== href) {
+      this.history.push({}, document.title, href);
+    }
+  }
+
+  /**
+   * Pjax navigation abort controller.
+   * @type {?AbortController}
+   */
+  abortController = null;
 
   /**
    * @param {Partial<Pjax.options>} options
    */
   constructor(options = {}) {
     Object.assign(this.options, options);
+
+    this.location = new URL(window.location.href);
 
     if (this.options.scrollRestoration) {
       window.history.scrollRestoration = 'manual';
@@ -102,15 +122,15 @@ class Pjax {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,
-      // Make a copy
-      detail: { ...this.status },
+      detail: {
+        abortController: this.abortController,
+        location: new URL(this.location.href),
+      },
     });
     document.dispatchEvent(event);
   }
 
-  fetchDocument = fetchDocument;
-
-  switchNodes = switchNodes;
+  fetchDOM = switchDOM;
 
   preparePage = preparePage;
 

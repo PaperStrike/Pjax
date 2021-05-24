@@ -7,26 +7,10 @@ class SimplePjax {
     scrollTo: false,
   };
 
-  status = {
-    location: window.location,
-    abortController: null,
-  };
+  location = new URL(window.location.href);
 
   preparePage = preparePage;
 }
-// TODO: Move to weakLoadURL test suite.
-// describe('history', () => {
-//   test('being pushed with changed url', async () => {
-//     const push = jest.fn();
-//
-//     const pjax = new SimplePjax();
-//     pjax.status.location = new URL('https://example.com/new');
-//     pjax.history.push = push;
-//
-//     await pjax.preparePage(null);
-//     expect(push.mock.calls[0][2]).toBe('https://example.com/new');
-//   });
-// });
 
 describe('autofocus', () => {
   const prepareUnfocusedAutofocus = () => {
@@ -132,8 +116,7 @@ describe('scroll', () => {
 
   test('to element with match hash and disabled when desired', async () => {
     document.body.innerHTML = '<p id="new">A para</p>';
-    pjax.status.location = new URL(window.location.href);
-    pjax.status.location.hash = '#new';
+    pjax.location.hash = '#new';
     // A simple no throw as jsdom doesn't support getBoundingClientRect - May 14, 2021
     await expect(pjax.preparePage(null, {
       scrollTo: true,
@@ -152,7 +135,7 @@ describe('scroll', () => {
     ${'different'} | ${{}} | ${() => expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0)}
   `('invalid hash on $pageType page', ({ switchResult, expectation }) => {
     document.body.innerHTML = '';
-    pjax.status.location = new URL(window.location.href);
+    pjax.location.href = window.location.href;
     test.each`
       type | hash
       ${'no match'} | ${'#no-match'}
@@ -160,7 +143,7 @@ describe('scroll', () => {
       ${'empty'} | ${''}
     `('$type', async ({ hash }) => {
       window.scrollTo.mockReset();
-      pjax.status.location.hash = hash;
+      pjax.location.hash = hash;
       await pjax.preparePage(switchResult, {
         scrollTo: true,
       });

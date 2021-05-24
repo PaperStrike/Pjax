@@ -1,23 +1,9 @@
 import switchNodes from '../switchNodes';
 
-class SimplePjax {
-  static switches = {
-    default: (oldNode, newNode) => {
-      oldNode.replaceWith(newNode);
-    },
-  };
-
-  options = {
-    selectors: ['p'],
-    switches: {},
-  };
-
-  status = {
-    abortController: null,
-  }
-
-  switchNodes = switchNodes;
-}
+const commonOptions = {
+  selectors: ['p'],
+  switches: {},
+};
 
 test('switchNodes with same structures', async () => {
   document.body.innerHTML = '<p>Original para</p><span>Original span</span>';
@@ -25,9 +11,7 @@ test('switchNodes with same structures', async () => {
   const sourceDoc = document.implementation.createHTMLDocument();
   sourceDoc.body.innerHTML = '<p>New para</p><span>New span</span>';
 
-  const pjax = new SimplePjax();
-
-  await pjax.switchNodes(sourceDoc);
+  await switchNodes(sourceDoc, commonOptions);
   expect(document.body.innerHTML).toBe('<p>New para</p><span>Original span</span>');
 });
 
@@ -38,9 +22,7 @@ test('switchNodes with focus to clear', async () => {
   const sourceDoc = document.implementation.createHTMLDocument();
   sourceDoc.body.innerHTML = '<p><input>New para</p><span>New span</span>';
 
-  const pjax = new SimplePjax();
-
-  const { focusCleared } = await pjax.switchNodes(sourceDoc);
+  const { focusCleared } = await switchNodes(sourceDoc, commonOptions);
   expect(focusCleared).toBe(true);
   expect([document.body, null]).toContain(document.activeElement);
 });
@@ -51,9 +33,7 @@ test('switchNodes with different structures', async () => {
   const sourceDoc = document.implementation.createHTMLDocument();
   sourceDoc.body.innerHTML = '<p>New para</p><p>More new para</p><span>New span</span>';
 
-  const pjax = new SimplePjax();
-
-  await expect(pjax.switchNodes(sourceDoc)).rejects.toThrow(DOMException);
+  await expect(switchNodes(sourceDoc, commonOptions)).rejects.toThrow(DOMException);
 });
 
 test('switchNodes on abort', async () => {
@@ -62,17 +42,21 @@ test('switchNodes on abort', async () => {
   const sourceDoc = document.implementation.createHTMLDocument();
   sourceDoc.body.innerHTML = '<p>New para</p>';
 
-  const pjax = new SimplePjax();
   const abortController = new AbortController();
-  pjax.status.abortController = abortController;
 
-  // Return a never resolve promise.
-  pjax.options.switches.p = (...args) => {
-    SimplePjax.switches.default(...args);
-    return Promise.race([]);
+  const options = {
+    ...commonOptions,
+    switches: {
+      // Switch and return a never resolve promise.
+      p: (oldNode, newNode) => {
+        oldNode.replaceWith(newNode);
+        return Promise.race([]);
+      },
+    },
+    signal: abortController.signal,
   };
 
-  const abortPromise = pjax.switchNodes(sourceDoc);
+  const abortPromise = switchNodes(sourceDoc, options);
   abortController.abort();
   await expect(abortPromise).rejects.toMatchObject({ name: 'AbortError' });
   expect(document.body.innerHTML).toBe('<p>New para</p>');
@@ -84,11 +68,14 @@ test('switchNodes with aborted signal', async () => {
   const sourceDoc = document.implementation.createHTMLDocument();
   sourceDoc.body.innerHTML = '<p>New para</p>';
 
-  const pjax = new SimplePjax();
   const abortController = new AbortController();
-  pjax.status.abortController = abortController;
+
+  const options = {
+    ...commonOptions,
+    signal: abortController.signal,
+  };
 
   abortController.abort();
-  await expect(pjax.switchNodes(sourceDoc)).rejects.toMatchObject({ name: 'AbortError' });
+  await expect(switchNodes(sourceDoc, options)).rejects.toMatchObject({ name: 'AbortError' });
   expect(document.body.innerHTML).toBe('<p>Original para</p>');
 });
