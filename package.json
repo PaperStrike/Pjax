@@ -48,7 +48,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "build": "webpack && webpack --mode production --output-filename pjax.min.js",
+    "build": "webpack",
     "test": "jest",
     "coverage": "jest --coverage",
     "prepare": "npm run build"
