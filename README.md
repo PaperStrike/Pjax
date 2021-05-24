@@ -209,9 +209,9 @@ document.addEventListener((event) => {
 
 ### `loadURL(url, [overrideOptions])`
 
-With this method, you can manually abort the last Pjax request and trigger the loading of a URL.
+Calling this method aborts the last call and navigates to the given URL in Pjax way.
 
-Any error other than `AbortError` leads to a normal navigation (via `window.location.assign`). Note that the `AbortError` happens on timeout, too.
+Any error other than `AbortError` leads to a normal navigation (via `window.location.assign`). Note that `AbortError` happens on fetch timeout, too.
 
 ```js
 const pjax = new Pjax();
@@ -251,18 +251,18 @@ pjax.weakLoadURL('/your-url')
   });
 ```
 
-### `fetchDocument(url, [overrideOptions])`
+### `switchDOM(url, [overrideOptions])`
 
-This method accepts the URL string of the target document, set up the timeout, and sends the request with Pjax headers.
+This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events and update Pjax location status.
 
 It returns a promise that resolves with an object of the following properties:
 
-- `document` ([Document][mdn-document-api]): The parsed HTML document of the target URL.
-- `location` ([URL][mdn-url-api]): The URL object of the response.
+- `focusCleared` (Boolean): Indicate that if the focus element of the document has cleared during the switch.
+- `outcomes` (Array): An array of each switch callback's return value. If the callback returns a promise, then the fulfilled value.
 
 If you want to fetch and process the data on your own, override the implementation while keeping:
 
-- [integrated](https://dom.spec.whatwg.org/#abortcontroller-api-integration) with `status.abortController`.
+- [integrated](https://dom.spec.whatwg.org/#abortcontroller-api-integration) with `abortController` property of the Pjax instance.
 - the resolve object structure.
 
 Code below shows an extendable example:
@@ -270,14 +270,17 @@ Code below shows an extendable example:
 ```js
 const pjax = new Pjax();
 
-pjax.fetchDocument = async function customFetch(url) {
+pjax.switchDOM = async function customSwitch(url) {
   const res = await fetch(url, {
-    signal: this.status.abortController.signal,
+    signal: this.abortController.signal,
   });
+  // `Body.text` integrates with the fetch signal natively.
+  const newDocument = new DOMParser().parseFromString(await res.text());
+  document.body.replaceWith(newDocument.body);
+  this.location = new URL(res.url);
   return {
-    // `Body.text` integrates with the fetch signal natively.
-    document: new DOMParser().parseFromString(await res.text()),
-    location: new URL(res.url),
+    focusCleared: true,
+    outcomes: [],
   };
 };
 ```
@@ -420,17 +423,21 @@ The time in _milliseconds_ to abort the fetch requests. Set to `0` to disable.
 
 ## Status
 
-Accessible via the `status` property of the Pjax instance.
-
-### `location` ([URL][mdn-url-api], default: `new URL(window.location.href)` when instantiate)
-
-Contains the last URL recognized by Pjax.
-
-After page switches, Pjax compares it with `window.location` to decide whether to call `pushState` or not, as to avoid redundant push when the URL has already changed (like, in `popstate` events).
+Accessible by calling on the Pjax instance.
 
 ### `abortController` ([AbortController][mdn-abortcontroller-api] | null, default: `null`)
 
-The abort controller that can abort the last page navigation handling or handled by Pjax.
+The abort controller that can abort the page navigation handling by Pjax, or `null` if Pjax is free.
+
+For example, to abort Pjax on some events:
+
+```js
+const pjax = new Pjax();
+
+document.addEventListener('yourCustomEventType', () => {
+  pjax.abortController?.abort();
+});
+```
 
 ## Events
 
