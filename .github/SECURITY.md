@@ -24,5 +24,5 @@ The security report is assigned a primary handler when received. This
 ## Comments on this policy
 
 If you have suggestions on how this process could be improved please submit a
-[pull request](https://github.com/PaperStrike/Pjax) or
+[pull request](https://github.com/PaperStrike/Pjax/pulls) or
 go to [Discussions](https://github.com/PaperStrike/Pjax/discussions) to discuss.
