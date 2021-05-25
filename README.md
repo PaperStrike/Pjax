@@ -277,7 +277,7 @@ pjax.switchDOM = async function customSwitch(url) {
   // `Body.text` integrates with the fetch signal natively.
   const newDocument = new DOMParser().parseFromString(await res.text());
   document.body.replaceWith(newDocument.body);
-  this.location.href = res.url;
+  window.history.pushState({}, document.title, res.url);
   return {
     focusCleared: true,
     outcomes: [],
@@ -425,6 +425,10 @@ The time in _milliseconds_ to abort the fetch requests. Set to `0` to disable.
 
 Accessible by calling on the Pjax instance.
 
+### `location` ([URL][mdn-url-api], default: `new URL(window.location.href)`)
+
+The last location recognized by Pjax.
+
 ### `abortController` ([AbortController][mdn-abortcontroller-api] | null, default: `null`)
 
 The abort controller that can abort the page navigation handling by Pjax, or `null` if Pjax is free.
@@ -443,18 +447,21 @@ document.addEventListener('yourCustomEventType', () => {
 
 When calling Pjax to load a URL that within the same origin while with different path or search string, Pjax fires a number of events.
 
-All events fire from the _document_, not the clicked anchor nor the caller function. You can get a status copy of the Pjax instance of that time via `event.detail`.
+All events fire from the _document_, not the clicked anchor nor the caller function. You can get more detail of the event via `event.detail`.
 
-* `pjax:send` — Fired after the Pjax request begins.
-* `pjax:complete` — Fired after the Pjax request and switches finish.
-* `pjax:success` — Fired after the Pjax request and switches succeed.
-* `pjax:error` — Fired after the Pjax request or switches fail.
+An ordered list showing the types of these events, and the moment they happen:
+
+1. `pjax:send` event when Pjax sends the request.
+2. Pjax waits for and parses the response, switches elements, updates window URL to the responded one if it doesn't match the last location Pjax recognized.
+3. `pjax:error` event if any error happens to step 2.
+4. `pjax:complete` event when step 2 finishes.
+5. `pjax:success` event if step 2 finishes without any error.
 
 If you use a loading indicator (e.g. [topbar](https://buunguyen.github.io/topbar/)), a pair of `send` and `complete` events may suit you well.
 
 ```js
-document.addEventListener('pjax:send', topbar.show)
-document.addEventListener('pjax:complete', topbar.hide)
+document.addEventListener('pjax:send', topbar.show);
+document.addEventListener('pjax:complete', topbar.hide);
 ```
 
 ## HTTP Headers
