@@ -253,7 +253,7 @@ pjax.weakLoadURL('/your-url')
 
 ### `switchDOM(url, [overrideOptions])`
 
-This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events and updates Pjax location status.
+This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events and calling `pushState` to update the URL.
 
 It returns a promise that resolves with an object of the following properties:
 
