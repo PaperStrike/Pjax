@@ -209,7 +209,7 @@ document.addEventListener((event) => {
 
 ### `loadURL(url, [overrideOptions])`
 
-Calling this method aborts the last call and navigates to the given URL in Pjax way.
+Calling this method aborts the last call (if unfinished) and navigates to the given URL in Pjax way.
 
 Any error other than `AbortError` leads to a normal navigation (via `window.location.assign`). Note that `AbortError` happens on fetch timeout, too.
 
@@ -253,12 +253,12 @@ pjax.weakLoadURL('/your-url')
 
 ### `switchDOM(url, [overrideOptions])`
 
-This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events and update Pjax location status.
+This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events and updates Pjax location status.
 
 It returns a promise that resolves with an object of the following properties:
 
-- `focusCleared` (Boolean): Indicate that if the focus element of the document has cleared during the switch.
-- `outcomes` (Array): An array of each switch callback's return value. If the callback returns a promise, then the fulfilled value.
+- `focusCleared` (Boolean): Indicate that if the focus element of the document has cleared.
+- `outcomes` (Array): An array of each switch callback's return or fulfilled (for promise) value.
 
 If you want to fetch and process the data on your own, override the implementation while keeping:
 
@@ -277,7 +277,7 @@ pjax.switchDOM = async function customSwitch(url) {
   // `Body.text` integrates with the fetch signal natively.
   const newDocument = new DOMParser().parseFromString(await res.text());
   document.body.replaceWith(newDocument.body);
-  this.location = new URL(res.url);
+  this.location.href = res.url;
   return {
     focusCleared: true,
     outcomes: [],
@@ -429,7 +429,7 @@ Accessible by calling on the Pjax instance.
 
 The abort controller that can abort the page navigation handling by Pjax, or `null` if Pjax is free.
 
-For example, to abort Pjax on some events:
+For example, to abort Pjax on certain events:
 
 ```js
 const pjax = new Pjax();

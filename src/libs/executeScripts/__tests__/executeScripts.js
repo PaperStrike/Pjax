@@ -1,5 +1,5 @@
 import nock from 'nock';
-import executeScripts from '../executeScripts';
+import executeScripts from '..';
 
 /**
  * Fix nock memory leak - May 17, 2021

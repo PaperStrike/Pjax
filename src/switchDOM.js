@@ -14,9 +14,10 @@ import switchNodes from './utils/switchNodes';
  */
 export default async function switchDOM(url, overrideOptions = {}) {
   const { selectors, switches, timeout } = { ...this.options, ...overrideOptions };
+  const parsedURL = new URL(url, document.URL);
   const signal = this.abortController?.signal || null;
 
-  const request = new Request(url, {
+  const request = new Request(parsedURL.href, {
     headers: {
       'X-Requested-With': 'Fetch',
       'X-Pjax': 'true',
@@ -33,7 +34,8 @@ export default async function switchDOM(url, overrideOptions = {}) {
     }, timeout);
   }
 
-  this.fire('send');
+  const basicDetail = { targetURL: parsedURL.href };
+  this.fire('send', { ...basicDetail });
 
   let switchResult;
   try {
@@ -46,18 +48,23 @@ export default async function switchDOM(url, overrideOptions = {}) {
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
     switchResult = await switchNodes(newDocument, { selectors, switches, signal });
 
-    // Update location. Preserve hash as the fetch discards it.
+    // Update window location. Preserve hash as the fetch discards it.
     const newLocation = new URL(response.url);
-    newLocation.hash = new URL(url).hash;
-    this.location = newLocation;
-  } catch (e) {
-    this.fire('error');
-    throw e;
+    newLocation.hash = parsedURL.hash;
+    if (window.location.href !== newLocation.href) {
+      window.history.pushState({}, document.title, newLocation.href);
+    }
+  } catch (error) {
+    this.fire('error', {
+      ...basicDetail,
+      error,
+    });
+    throw error;
   } finally {
-    this.fire('complete');
+    this.fire('complete', { ...basicDetail });
   }
 
-  this.fire('success');
+  this.fire('success', { ...basicDetail });
 
   return switchResult;
 }

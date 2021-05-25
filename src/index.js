@@ -38,27 +38,7 @@ class Pjax {
 
   history = new LazyHistory('pjax');
 
-  #location;
-
-  /**
-   * The last URL recognized by Pjax.
-   * @type {Readonly<URL>}
-   */
-  get location() {
-    return this.#location;
-  }
-
-  /**
-   * Froze copy the given location. Push history if URL not match.
-   * @param {URL} newLocation
-   */
-  set location({ href }) {
-    this.#location = Object.freeze(new URL(href));
-
-    if (window.location.href !== href) {
-      this.history.push({}, document.title, href);
-    }
-  }
+  location = new URL(window.location.href);
 
   /**
    * Pjax navigation abort controller.
@@ -71,8 +51,6 @@ class Pjax {
    */
   constructor(options = {}) {
     Object.assign(this.options, options);
-
-    this.location = new URL(window.location.href);
 
     if (this.options.scrollRestoration) {
       window.history.scrollRestoration = 'manual';
@@ -117,20 +95,21 @@ class Pjax {
   /**
    * Fire Pjax related events.
    * @param {'send'|'error'|'success'|'complete'} type
+   * @param {Object} detail
    */
-  fire(type) {
+  fire(type, detail) {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,
       detail: {
         abortController: this.abortController,
-        location: new URL(this.location.href),
+        ...detail,
       },
     });
     document.dispatchEvent(event);
   }
 
-  fetchDOM = switchDOM;
+  switchDOM = switchDOM;
 
   preparePage = preparePage;
 

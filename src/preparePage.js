@@ -56,7 +56,7 @@ export default async function preparePage(switchResult, overrideOptions = {}) {
       parsedScrollTo = [window.scrollX, scrollTo];
     } else {
       // Parse target.
-      const hashId = decodeURIComponent(this.location.hash.slice(1));
+      const hashId = decodeURIComponent(window.location.hash.slice(1));
 
       if (hashId) {
         const target = document.getElementById(hashId) || document.getElementsByName(hashId)[0];

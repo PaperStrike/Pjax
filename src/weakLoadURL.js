@@ -29,16 +29,20 @@ export default async function weakLoadURL(url, overrideOptions = {}) {
   const currentPath = this.location.pathname + this.location.search;
 
   if (targetPath === currentPath) {
-    // Directly change location on same path.
-    this.location = parsedURL;
+    // Directly pushState on same path.
+    if (window.location.href !== parsedURL.href) {
+      window.history.pushState({}, document.title, parsedURL.href);
+    }
   } else {
     // Fetch and switch on different path.
-    switchResult = await this.fetchDOM(url, overrideOptions);
+    switchResult = await this.switchDOM(url, overrideOptions);
   }
 
-  // Prepare.
+  // Update Pjax location and prepare the page.
+  this.history.pull();
+  this.location.href = window.location.href;
   await this.preparePage(switchResult, overrideOptions);
 
-  // Remove abort controller.
+  // Finish, remove abort controller.
   this.abortController = null;
 }
