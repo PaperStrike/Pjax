@@ -1,3 +1,16 @@
+# 0.8.0 - 2021.5.26
+
+## 💥 Breaking Changes
+
+- Combine `sendRequest`, `parseResponse`, and `switchNodes` into `switchDOM`.
+- Remove `request` and `response` properties from status.
+
+## ⭐ Features
+
+- Make the whole navigate process abortable.
+- New ECMAScript Module distributions.
+- New `weakLoadURL` method.
+
 # 0.7.1 - 2021-05-19
 
 ## 💥 Breaking Changes
