@@ -12,36 +12,21 @@ Pjax aims to deliver _app-like_ browsing experiences. It doesn't rely on other l
 
 ## Installation
 
-Choose one of the following to install.
+### Choose a source
 
-Note that no matter what you choose, you always have both `pjax.js` and `pjax.min.js` available. The former for development, the latter for production.
+#### jsDelivr
 
-### Directly
+Visit [https://cdn.jsdelivr.net/npm/@sliphua/pjax/](https://cdn.jsdelivr.net/npm/@sliphua/pjax/).
 
-Link to the [bundle](https://cdn.jsdelivr.net/npm/@sliphua/pjax/dist/pjax.js):
-```html
-<script src="https://cdn.jsdelivr.net/npm/@sliphua/pjax@VERSION/dist/pjax.js"></script>
-```
+#### npm
 
-Or the [minified bundle](https://cdn.jsdelivr.net/npm/@sliphua/pjax/dist/pjax.min.js):
-```html
-<script src="https://cdn.jsdelivr.net/npm/@sliphua/pjax@VERSION/dist/pjax.min.js"></script>
-```
-
-### NPM
-
-Install package [@sliphua/pjax](https://www.npmjs.com/package/@sliphua/pjax):
+Install package [@sliphua/pjax](https://www.npmjs.com/package/@sliphua/pjax) as
 
 ```shell
 npm install @sliphua/pjax
 ```
 
-Then, link as:
-```html
-<script src="./node_modules/@sliphua/pjax/dist/pjax.js"></script>
-```
-
-### Git
+#### Git
 
 Clone this repo and install:
 
@@ -51,13 +36,25 @@ cd Pjax
 npm install
 ```
 
-Optionally, make some changes in `src` folder, and build your own Pjax via `npm build`.
+### Pick a file in `dist` folder
 
-Then, link as:
+#### `pjax.js` or `pjax.min.js`
+
+To declare Pjax as a global variable, link one of them in a separate `<script>` tag as:
 
 ```html
 <script src="./dist/pjax.js"></script>
 ```
+
+#### `pjax.esm.js` or `pjax.esm.min.js`
+
+To use Pjax as an ECMAScript module, import the default value from one of them as:
+
+```js
+import Pjax from './dist/pjax.esm';
+```
+
+Each script file has a related `.map` file, known as the [source map](https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map), for debugging. Browsers won't fetch them without DevTools opened, so it won't affect your users' experiences. For more information, click the link to find out.
 
 ---
 
