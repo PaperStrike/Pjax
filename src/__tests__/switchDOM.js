@@ -144,7 +144,7 @@ test('do abort on timeout while pending', async () => {
     timeout: 50,
   });
 
-  jest.runAllTimers();
+  jest.advanceTimersByTime(100);
   await expect(timeoutPromise).rejects.toMatchObject({ name: 'AbortError' });
   expect(pjax.abortController.signal.aborted).toBe(true);
 });
@@ -158,10 +158,14 @@ test('do not abort on timeout while not pending', async () => {
   const pjax = new SimplePjax();
   pjax.abortController = new AbortController();
 
-  await expect(pjax.switchDOM('/resolve', {
+  const resolvePromise = pjax.switchDOM('/resolve', {
     timeout: 50,
-  })).resolves.not.toThrow();
+  });
 
-  jest.runAllTimers();
+  // Advance 1ms for nock delay.
+  jest.advanceTimersByTime(1);
+  await expect(resolvePromise).resolves.not.toThrow();
+
+  jest.advanceTimersByTime(100);
   expect(pjax.abortController.signal.aborted).toBe(false);
 });
