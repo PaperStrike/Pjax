@@ -16,11 +16,11 @@ Pjax aims to deliver _app-like_ browsing experiences. It doesn't rely on other l
 
 #### jsDelivr
 
-Visit [https://cdn.jsdelivr.net/npm/@sliphua/pjax/](https://cdn.jsdelivr.net/npm/@sliphua/pjax/).
+Visit [https://www.jsdelivr.com/package/npm/@sliphua/pjax](https://www.jsdelivr.com/package/npm/@sliphua/pjax).
 
 #### npm
 
-Install package [@sliphua/pjax](https://www.npmjs.com/package/@sliphua/pjax) as
+Install package [@sliphua/pjax](https://www.npmjs.com/package/@sliphua/pjax):
 
 ```shell
 npm install @sliphua/pjax
@@ -156,9 +156,9 @@ _Magic! For real!_ **There is no need to do anything server-side!**
 
 Browser | Supported versions | Release date
 :------ | :----------------: | -----------:
+Chrome  | 66+                | Apr 17, 2018
 Edge    | 79+                | Jan 15, 2020
 Firefox | 60+                | May 9, 2018
-Chrome  | 66+                | Apr 17, 2018
 Opera   | 53+                | May 10, 2018
 Safari  | 12.2+              | Jul 22, 2019
 
