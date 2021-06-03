@@ -2,7 +2,7 @@
 
 ## 🐛 Bug Fixes
 
-* Check parent anchor in default trigger (#9)
+* Check parent anchor in default trigger ([#9](https://github.com/PaperStrike/Pjax/pull/9))
 
 # 0.8.0 - 2021.5.26
 

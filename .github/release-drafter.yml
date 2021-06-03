@@ -28,6 +28,6 @@ exclude-labels:
   - 'dependencies'
   - 'github'
 
-change-template: '* $TITLE (#$NUMBER)'
+change-template: '* $TITLE ([#$NUMBER]($URL))'
 template: |
   $CHANGES
