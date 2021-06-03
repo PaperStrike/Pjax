@@ -36,7 +36,7 @@ cd Pjax
 npm install
 ```
 
-### Pick a file in `dist` folder
+### Pick a script in `dist` folder
 
 #### `pjax.js` or `pjax.min.js`
 
@@ -60,7 +60,7 @@ Each script file has a related `.map` file, known as the [source map](https://de
 
 ## What Pjax Does
 
-_Under the hood, it simply does ONE fetch with a `pushState` call._
+_In short, ONE fetch with a `pushState` call._
 
 Pjax fetches the new content, switches parts of your page, updates the URL, executes newly added scripts and scroll to the right position _without_ refreshing the whole thing.
 
@@ -78,16 +78,15 @@ Pjax fetches the new content, switches parts of your page, updates the URL, exec
 
 ## Overview
 
-_Pjax is fully automatic_. You don't need to change anything about your existing HTML,
-you just need to designate the elements on your page that you want to update at page navigations.
+Just designate the elements that differs between navigations.
+_Pjax handles all the rest things._
 
-Consider the following page.
+Consider the following page:
 
 ```html
 <!DOCTYPE html>
 <html lang="">
 <head>
-  <!-- metas, title, styles, etc -->
   <title>My Cool Blog</title>
   <meta name="description" content="Welcome to My Cool Blog">
   <link href="/styles.css" rel="stylesheet">
@@ -120,21 +119,18 @@ Consider the following page.
     &copy; My Cool Blog
   </footer>
 
-  <script src="onDomReadystuff.js"></script>
-  <script>
-    // analytics
-  </script>
+  <script src="onDomReady.js"></script>
 </body>
 </html>
 ```
 
 We want Pjax to intercept the URL `/about`, and replace `.the-content` with the resulting content of the request.
 
-It would also be nice if we could replace the `<nav>` to show that the `/about` link is active, as well as update our page meta and the `<aside>` sidebar.
+Besides, we would like to replace the `<nav>` to show the active `/about` link, as well as update our page meta and the `<aside>` sidebar.
 
 So all in all we want to update the page title and meta, header, content area, and sidebar, **without reloading styles or scripts**.
 
-We can easily do this by telling Pjax to listen on all `<a>` tags (which is the default) and use CSS selectors defined above (without forgetting minimal meta):
+We can easily achieve this by telling Pjax to use such CSS selectors:
 
 ```js
 const pjax = new Pjax({
@@ -148,9 +144,9 @@ const pjax = new Pjax({
 });
 ```
 
-Now, when someone in a Pjax-compatible browser clicks an internal link on the page, the content of each of the selectors will be replaced with the specific content pieces found in the next page's content.
+Now, when someone in a Pjax-compatible browser clicks an internal link on the page, the content of each of the selectors will transform to the specific content pieces found in the next page.
 
-_Magic! For real!_ **There is no need to do anything server-side!**
+_Magic! For real!_ **Nothing server-side!**
 
 ## Compatibility
 
@@ -166,7 +162,7 @@ Safari  | 12.2+              | Jul 22, 2019
 
 ### `new Pjax([options])`
 
-Let's talk more about the most basic way to get started.
+The most basic way to get started.
 
 When instantiating `Pjax`, you can pass options into the constructor as an object:
 
@@ -284,7 +280,7 @@ pjax.switchDOM = async function customSwitch(url) {
 
 ### `reload()`
 
-A helper shortcut for `window.location.reload`, a static member of Pjax. Used to force a page reload.
+A helper shortcut for `window.location.reload`, a static member of Pjax.
 
 ```js
 Pjax.reload();
@@ -372,7 +368,7 @@ const customSwitch = (oldEle, newEle) => {
 };
 ```
 
-**NOTE:** _Pjax waits for the switches in a navigation, but may abort the whole navigation when the next one happens (e.g. user triggering the “Back” button)._
+**NOTE:** _Pjax waits for the switches in a navigation, but may abort the whole navigation when the next one happens (e.g., user triggering the “Back” button)._
 
 ### `scripts` (String, default: `'script[data-pjax]'`)
 
@@ -400,7 +396,7 @@ When set to a number, this represents the vertical value (in px from the top of 
 
 When set to an array of 2 numbers (\[x, y\]), this represents the value to scroll both horizontally and vertically.
 
-Set this to `true` to make Pjax decide the scroll position. Pjax will try to act as the browsers' default behavior, such as scroll the element into view when hash changing to its id, scroll to page left top when navigating to a new page without a valid hash.
+Set this to `true` to make Pjax decide the scroll position. Pjax will try to act as the browsers' default behavior. For example, scroll the element into view when hash changing to its id, scroll to page left top when navigating to a new page without a valid hash.
 
 Set this to `false` to disable all scrolling by Pjax.
 
@@ -428,7 +424,7 @@ The last location recognized by Pjax.
 
 ### `abortController` ([AbortController][mdn-abortcontroller-api] | null, default: `null`)
 
-The abort controller that can abort the page navigation handling by Pjax, or `null` if Pjax is free.
+The abort controller that can abort the page navigation handling by Pjax.
 
 For example, to abort Pjax on certain events:
 
@@ -490,23 +486,9 @@ document.addEventListener('pjax:success', whenDOMReady);
 
 **NOTE:** _Don't instantiate Pjax in the `whenDOMReady` function._
 
-Similarly, if you want to just update a specific part (which is a good idea), you can make the related code a function and call this function on `pjax:success` events.
-
-```js
-function whenContainerReady() {
-  // do your container related stuff
-}
-
-whenContainerReady();
-
-const pjax = new Pjax();
-
-document.addEventListener('pjax:success', whenContainerReady);
-```
-
 ## FAQ
 
-### Q: Disqus doesn't work anymore, how can I fix that?
+### Q: Disqus becomes broken, how can I fix that?
 
 #### A: Below shows three methods you may choose from.
 
@@ -530,12 +512,12 @@ Let's start with a simple Disqus snippet.
 
 #### Disqus snippet _after_ Pjax integration — method one
 
-1. Wrap your Disqus snippet into a DOM element that you will add to the `selector` option (or just wrap it with `class=".pjax"`) and make sure to have at least an empty wrapper on each page (to avoid differences of DOM between pages).
+1. Wrap your Disqus snippet into a DOM element that you will add to the `selector` option (or just wrap it with `class=".pjax"`). Make sure to have at least an empty wrapper on each page (to avoid differences of DOM between pages).
 
 2. Edit your Disqus snippet like below.
 
 ```html
-<div class="pjax"><!-- needs to be here on every Pjax-ified page, even if empty -->
+<div class="pjax"><!-- needs to be here on every Pjax page, even if empty -->
 <!-- if (some condition) { // eventual server-side test to know whether or not you include this script -->
   <script>
     const disqus_shortname = 'YOUR_SHORTNAME';
@@ -611,7 +593,7 @@ If you dislike wrapping the Disqus snippet in the way of method one, you may:
 
 #### Disqus snippet _after_ Pjax integration — method three
 
-1. Put your Disqus snippet into every page of your site and DON'T make it either wrapped by any elements added in the `selectors` option (unlike method one), or targeted by the `script` option (unlike method two). Use an earlier defined variable to enable Disqus on demand.
+1. Put your Disqus snippet into every page of your site. DON'T make it either wrapped by any elements added in the `selectors` option (unlike method one), or targeted by the `script` option (unlike method two). Use an earlier defined variable to enable Disqus on demand.
 
 2. Edit your Disqus snippet like below.
 
@@ -653,7 +635,7 @@ If you dislike wrapping the Disqus snippet in the way of method one, you may:
 
 ## CONTRIBUTING
 
-- ⇄ Pull requests and ★ Stars are always welcome!
+- ⇄ Pull requests and ★ Stars, always welcome!
 - For questions and feature requests, join our [Discussions](https://github.com/PaperStrike/Pjax/discussions).
 - For bugs, check the existing issues and feel free to open one if none similar.
 - Pull requests must pass all automatic checks.
