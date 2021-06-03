@@ -1,6 +1,6 @@
 {
   "name": "@sliphua/pjax",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Easily enable fast AJAX navigation (using Fetch + pushState)",
   "keywords": [
     "pjax",

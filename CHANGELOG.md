@@ -1,3 +1,9 @@
+# 0.9.0
+
+## 🐛 Bug Fixes
+
+* Check parent anchor in default trigger (#9)
+
 # 0.8.0 - 2021.5.26
 
 ## 💥 Breaking Changes
