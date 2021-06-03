@@ -25,6 +25,8 @@ categories:
 
 exclude-labels:
   - 'skip-changelog'
+  - 'dependencies'
+  - 'github'
 
 change-template: '* $TITLE (#$NUMBER)'
 template: |
