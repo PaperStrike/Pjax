@@ -77,6 +77,35 @@ test('redirect request and preserve hash', async () => {
   expect(window.location.hash).toBe('#foo');
 });
 
+describe('pushState', () => {
+  test('is called when URL not changed', async () => {
+    nock(window.location.origin)
+      .get('/simple')
+      .reply(200);
+
+    const pjax = new SimplePjax();
+
+    await pjax.switchDOM('/simple');
+    expect(window.location.pathname).toBe('/simple');
+  });
+
+  test('is not called when URL already changed', async () => {
+    nock(window.location.origin)
+      .get('/simple')
+      .reply(200);
+
+    const pjax = new SimplePjax();
+    window.history.pushState({}, '', '/simple');
+
+    const pushStateSpy = jest.spyOn(window.history, 'pushState');
+
+    await pjax.switchDOM('/simple');
+    expect(pushStateSpy).not.toHaveBeenCalled();
+
+    pushStateSpy.mockRestore();
+  });
+});
+
 test('request headers', async () => {
   let nockReqHeaders;
   const getHeader = (name) => nockReqHeaders[name.toLowerCase()].join();
