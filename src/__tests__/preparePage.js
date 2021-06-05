@@ -7,10 +7,10 @@ class SimplePjax {
     scrollTo: false,
   };
 
-  location = new URL(window.location.href);
-
   preparePage = preparePage;
 }
+
+const simpleSwitchResult = { focusCleared: false, outcomes: [] };
 
 describe('autofocus', () => {
   const prepareUnfocusedAutofocus = () => {
@@ -37,7 +37,7 @@ describe('autofocus', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage({ focusCleared: false, outcomes: [] });
+    await pjax.preparePage(simpleSwitchResult);
     expect(document.activeElement).not.toBe(autofocus);
   });
 
@@ -46,7 +46,7 @@ describe('autofocus', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage({ focusCleared: true, outcomes: [] });
+    await pjax.preparePage({ ...simpleSwitchResult, focusCleared: true });
     expect(document.activeElement).toBe(autofocus);
   });
 });
@@ -73,7 +73,7 @@ describe('scripts', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage({ focusCleared: false, outcomes: [] }, {
+    await pjax.preparePage(simpleSwitchResult, {
       selectors: ['p', 'div'],
     });
     expect(document.body.className).toBe('1 2 3 4 5');
@@ -85,7 +85,7 @@ describe('scripts', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage({ focusCleared: false, outcomes: [] }, {
+    await pjax.preparePage(simpleSwitchResult, {
       selectors: ['div', 'p'],
     });
     expect(document.body.className).toBe('1 2 3 4 5');
@@ -116,7 +116,7 @@ describe('scroll', () => {
 
   test('to element with match hash and disabled when desired', async () => {
     document.body.innerHTML = '<p id="new">A para</p>';
-    pjax.location.hash = '#new';
+    window.location.hash = '#new';
     // A simple no throw as jsdom doesn't support getBoundingClientRect - May 14, 2021
     await expect(pjax.preparePage(null, {
       scrollTo: true,
@@ -132,10 +132,9 @@ describe('scroll', () => {
   describe.each`
     pageType | switchResult | expectation
     ${'same'} | ${null} | ${() => expect(window.scrollTo).not.toHaveBeenCalled()}
-    ${'different'} | ${{}} | ${() => expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0)}
+    ${'different'} | ${simpleSwitchResult} | ${() => expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0)}
   `('invalid hash on $pageType page', ({ switchResult, expectation }) => {
     document.body.innerHTML = '';
-    pjax.location.href = window.location.href;
     test.each`
       type | hash
       ${'no match'} | ${'#no-match'}
@@ -143,7 +142,7 @@ describe('scroll', () => {
       ${'empty'} | ${''}
     `('$type', async ({ hash }) => {
       window.scrollTo.mockReset();
-      pjax.location.hash = hash;
+      window.location.hash = hash;
       await pjax.preparePage(switchResult, {
         scrollTo: true,
       });

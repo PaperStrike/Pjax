@@ -45,7 +45,7 @@ export default async function preparePage(switchResult, overrideOptions = {}) {
   // Parse required scroll position.
   const { scrollTo } = options;
 
-  // When required to scroll.
+  // When scroll is allowed.
   if (scrollTo !== false) {
     // If switched, default to left top. Otherwise, default to no scroll.
     let parsedScrollTo = switchResult ? [0, 0] : false;
