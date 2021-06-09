@@ -61,7 +61,8 @@ export default async function preparePage(switchResult, overrideOptions = {}) {
       if (hashId) {
         const target = document.getElementById(hashId) || document.getElementsByName(hashId)[0];
         if (target) {
-          parsedScrollTo = [window.scrollX, target.getBoundingClientRect().top + window.scrollY];
+          target.scrollIntoView();
+          parsedScrollTo = false;
         }
       }
     }
