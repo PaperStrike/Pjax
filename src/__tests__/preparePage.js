@@ -1,5 +1,11 @@
 import preparePage from '../preparePage';
 
+/**
+ * For jsdom doesn't have the method at all. - Jun 9, 2021
+ * Track at https://github.com/jsdom/jsdom/pull/2332
+ */
+window.Element.prototype.scrollIntoView = jest.fn();
+
 class SimplePjax {
   options = {
     selectors: [],
@@ -93,9 +99,9 @@ describe('scripts', () => {
 });
 
 describe('scroll', () => {
-  window.scrollTo = jest.fn();
+  const scrollSpy = jest.spyOn(window, 'scrollTo');
   beforeEach(() => {
-    window.scrollTo.mockReset();
+    scrollSpy.mockReset();
   });
 
   document.body.innerHTML = '<p id="new">A para</p>';
@@ -106,33 +112,33 @@ describe('scroll', () => {
     await pjax.preparePage(null, {
       scrollTo: [1, 2],
     });
-    expect(window.scrollTo).toHaveBeenLastCalledWith(1, 2);
+    expect(scrollSpy).toHaveBeenLastCalledWith(1, 2);
 
     await pjax.preparePage(null, {
       scrollTo: 3,
     });
-    expect(window.scrollTo).toHaveBeenLastCalledWith(window.scrollX, 3);
+    expect(scrollSpy).toHaveBeenLastCalledWith(window.scrollX, 3);
   });
 
   test('to element with match hash and disabled when desired', async () => {
     document.body.innerHTML = '<p id="new">A para</p>';
     window.location.hash = '#new';
-    // A simple no throw as jsdom doesn't support getBoundingClientRect - May 14, 2021
+    // A simple no throw as jsdom doesn't support real scrolling. - Jun 9, 2021
     await expect(pjax.preparePage(null, {
       scrollTo: true,
     })).resolves.not.toThrow();
 
-    window.scrollTo.mockReset();
+    scrollSpy.mockReset();
     await pjax.preparePage(null, {
       scrollTo: false,
     });
-    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(scrollSpy).not.toHaveBeenCalled();
   });
 
   describe.each`
     pageType | switchResult | expectation
-    ${'same'} | ${null} | ${() => expect(window.scrollTo).not.toHaveBeenCalled()}
-    ${'different'} | ${simpleSwitchResult} | ${() => expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0)}
+    ${'same'} | ${null} | ${() => expect(scrollSpy).not.toHaveBeenCalled()}
+    ${'different'} | ${simpleSwitchResult} | ${() => expect(scrollSpy).toHaveBeenLastCalledWith(0, 0)}
   `('invalid hash on $pageType page', ({ switchResult, expectation }) => {
     document.body.innerHTML = '';
     test.each`
@@ -141,7 +147,7 @@ describe('scroll', () => {
       ${'single #'} | ${'#'}
       ${'empty'} | ${''}
     `('$type', async ({ hash }) => {
-      window.scrollTo.mockReset();
+      scrollSpy.mockReset();
       window.location.hash = hash;
       await pjax.preparePage(switchResult, {
         scrollTo: true,
