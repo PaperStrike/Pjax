@@ -1,3 +1,9 @@
+# 0.10.0
+
+## 🚀 Enhancements
+
+* Use standard scroll into view method ([#20](https://github.com/PaperStrike/Pjax/pull/20))
+
 # 0.9.0
 
 ## 🐛 Bug Fixes
