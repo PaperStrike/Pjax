@@ -1,3 +1,9 @@
+# 0.11.0
+
+## 🚀 Enhancements
+
+* Add area element support in default trigger ([#29](https://github.com/PaperStrike/Pjax/pull/29))
+
 # 0.10.0
 
 ## 🚀 Enhancements
