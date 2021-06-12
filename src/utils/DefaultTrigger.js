@@ -1,6 +1,11 @@
-const getAnchor = (ele) => {
+/**
+ * @typedef {HTMLAnchorElement|HTMLAreaElement} Link
+ */
+
+const getLink = (ele) => {
   let checkingEle = ele;
-  while (!(checkingEle instanceof HTMLAnchorElement)) {
+  const links = [...document.links];
+  while (!links.includes(checkingEle)) {
     const parent = checkingEle.parentElement;
     if (!parent) return null;
     checkingEle = parent;
@@ -20,9 +25,9 @@ export default class DefaultTrigger {
 
   /**
    * @param {Event} event
-   * @param {HTMLAnchorElement} anchor
+   * @param {Link} link
    */
-  onAnchorOpen(event, anchor) {
+  onLinkOpen(event, link) {
     if (event.defaultPrevented) return;
 
     if (event instanceof MouseEvent || event instanceof KeyboardEvent) {
@@ -31,24 +36,24 @@ export default class DefaultTrigger {
 
     // External.
     // loadURL checks external but without browsers' attribute related support.
-    if (anchor.origin !== window.location.origin) return;
+    if (link.origin !== window.location.origin) return;
 
     event.preventDefault();
 
-    this.pjax.loadURL(anchor.href).catch(() => {});
+    this.pjax.loadURL(link.href).catch(() => {});
   }
 
   register() {
     document.addEventListener('click', (event) => {
-      const anchor = getAnchor(event.target);
-      if (!anchor) return;
-      this.onAnchorOpen(event, anchor);
+      const link = getLink(event.target);
+      if (!link) return;
+      this.onLinkOpen(event, link);
     });
     document.addEventListener('keyup', (event) => {
       if (event.key !== 'Enter') return;
-      const anchor = getAnchor(event.target);
-      if (!anchor) return;
-      this.onAnchorOpen(event, anchor);
+      const link = getLink(event.target);
+      if (!link) return;
+      this.onLinkOpen(event, link);
     });
   }
 }

@@ -183,7 +183,7 @@ This will enable Pjax on all links, and designate the part to replace using CSS 
 
 In some cases, you might want to only target some specific elements or specific moments to apply Pjax behavior. In that case:
 
-1. Set `defaultTrigger` to `false`. This will make Pjax not listen to `<a>` click and keyup events.
+1. Set `defaultTrigger` to `false`. This will make Pjax not listen to link (`<a>` or `<area>` element) click and keyup events.
 2. Use `loadURL` method of the Pjax instance to let Pjax handle the navigation on your demand.
 
 ```js
