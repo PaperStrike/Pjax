@@ -10,6 +10,8 @@ A maintained, modern, and smaller (~3 KB gzipped minified) version of Pjax.
 
 Pjax aims to deliver _app-like_ browsing experiences. It doesn't rely on other libraries like jQuery.
 
+🐿️ Jump to [Usage](#usage), [Options](#options), [Status](#status), [Q&A][q-a], or [Contributing Guide][contributing].
+
 ## Installation
 
 ### Choose a source
@@ -486,9 +488,9 @@ document.addEventListener('pjax:success', whenDOMReady);
 
 **NOTE:** _Don't instantiate Pjax in the `whenDOMReady` function._
 
-## [Q&A](https://github.com/PaperStrike/Pjax/discussions/categories/q-a)
+## [Q&A][q-a]
 
-## [CONTRIBUTING](.github/CONTRIBUTING.md)
+## [CONTRIBUTING][contributing]
 
 ## [CHANGELOG](CHANGELOG.md)
 
@@ -497,3 +499,6 @@ document.addEventListener('pjax:success', whenDOMReady);
 [mdn-document-api]: https://developer.mozilla.org/en-US/docs/Web/API/Document
 [mdn-url-api]: https://developer.mozilla.org/en-US/docs/Web/API/URL
 [mdn-abortcontroller-api]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
+
+[q-a]: https://github.com/PaperStrike/Pjax/discussions/categories/q-a
+[contributing]: https://github.com/PaperStrike/Pjax/blob/main/.github/CONTRIBUTING.md
