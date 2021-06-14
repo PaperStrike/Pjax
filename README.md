@@ -633,12 +633,7 @@ If you dislike wrapping the Disqus snippet in the way of method one, you may:
 </script>
 ```
 
-## CONTRIBUTING
-
-- ⇄ Pull requests and ★ Stars, always welcome!
-- For questions and feature requests, join our [Discussions](https://github.com/PaperStrike/Pjax/discussions).
-- For bugs, check the existing issues and feel free to open one if none similar.
-- Pull requests must pass all automatic checks.
+## [CONTRIBUTING](.github/CONTRIBUTING.md)
 
 ## [CHANGELOG](CHANGELOG.md)
 
