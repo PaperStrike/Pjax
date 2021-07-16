@@ -1,3 +1,9 @@
+# 0.12.0
+
+## 🚀 Enhancements
+
+* Exclude es.array.sort polyfill ([#47](https://github.com/PaperStrike/Pjax/pull/47))
+
 # 0.11.0
 
 ## 🚀 Enhancements
