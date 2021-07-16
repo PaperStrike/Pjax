@@ -20,6 +20,7 @@
       "exclude": [
         "web.url",
         "es.array.reduce",
+        "es.array.sort",
         "es.promise"
       ]
     }]
