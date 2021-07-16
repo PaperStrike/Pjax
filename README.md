@@ -252,7 +252,7 @@ This method accepts the URL string of the target document, set up the fetch time
 
 It returns a promise that resolves with an object of the following properties:
 
-- `focusCleared` (Boolean): Indicate that if the focus element of the document has cleared.
+- `focusCleared` (Boolean): Indicate that if the focus element of the document has been cleared.
 - `outcomes` (Array): An array of each switch callback's return or fulfilled (for promise) value.
 
 If you want to fetch and process the data on your own, override the implementation while keeping:
@@ -379,14 +379,14 @@ CSS selector used to target scripts to re-execute at page switches. If needing m
 ```js
 // Single element
 const pjax = new Pjax({
-  elements: 'script.pjax',
+  scripts: 'script.pjax',
 });
 ```
 
 ```js
 // Multiple elements
 const pjax = new Pjax({
-  elements: 'script.pjax, script.analytics',
+  scripts: 'script.pjax, script.analytics',
 });
 ```
 
