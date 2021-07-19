@@ -68,14 +68,14 @@ Pjax fetches the new content, switches parts of your page, updates the URL, exec
 
 ## How Pjax Works
 
-1. Listens to every trigger of anchor elements.
-2. Fetches the target page via `fetch`.
-3. Renders the DOM tree using [`DOMParser`](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser).
-4. Checks if every defined selector selects the same amount of elements in current DOM and the new DOM.
+1. Listen to every trigger of anchor elements.
+2. Fetch the target page via `fetch`.
+3. Render the DOM tree using [`DOMParser`](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser).
+4. Check if every defined selector selects the same amount of elements in current DOM and the new DOM.
     - If no, Pjax uses standard navigation.
     - If yes, Pjax switches the elements in index order.
-5. Updates current URL using `pushState`.
-6. Executes all newly-added and targeted scripts in document order.
+5. Update current URL using `pushState`.
+6. Execute all newly-added or targeted scripts in document order.
 7. Scroll to the defined position.
 
 ## Overview
@@ -255,7 +255,7 @@ It returns a promise that resolves when all the following steps have done:
 - Switch elements selected by `selectors` option.
 - Call `pushState` to update the URL.
 - Focus the first [`autofocus`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autofocus) if previous focus has gone.
-- Execute scripts newly-loaded or targeted by `scripts` option.
+- Execute all newly-added or targeted scripts in document order, and wait for the blocking ones (e.g., inline scripts).
 - Scroll to position given by `scrollTo` option.
 
 ### `reload()`
@@ -425,7 +425,7 @@ All events fire from the _document_, not the clicked anchor nor the caller funct
 An ordered list showing the types of these events, and the moment they happen:
 
 1. `pjax:send` event when Pjax sends the request.
-2. Pjax waits for and parses the response, switches elements, updates window URL to the responded one if it doesn't match the last location Pjax recognized.
+2. Pjax switches the DOM. See `switchDOM` method for details.
 3. `pjax:error` event if any error happens to step 2.
 4. `pjax:complete` event when step 2 finishes.
 5. `pjax:success` event if step 2 finishes without any error.
