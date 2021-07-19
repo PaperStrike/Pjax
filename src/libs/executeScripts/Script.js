@@ -89,7 +89,7 @@ class Script {
       const oldEle = this.target;
       const newEle = document.createElement('script');
 
-      newEle.onerror = reject;
+      newEle.addEventListener('error', reject);
 
       // Clone attributes and inner text.
       oldEle.getAttributeNames().forEach((name) => {
@@ -105,19 +105,26 @@ class Script {
         // Defer a dynamically inserted script is meaningless
         // and may cause the script not to be executed in some environments.
         newEle.defer = false;
-
-        newEle.onload = resolve;
       }
 
       // Execute.
       if (document.contains(oldEle)) {
         oldEle.replaceWith(newEle);
       } else {
-        document.head.appendChild(newEle);
-        newEle.remove();
+        // Execute in <head> if it's not in current document.
+        document.head.append(newEle);
+        if (this.external) {
+          newEle.addEventListener('load', () => newEle.remove());
+        } else {
+          newEle.remove();
+        }
       }
 
-      if (!this.external) resolve();
+      if (this.external) {
+        newEle.addEventListener('load', resolve);
+      } else {
+        resolve();
+      }
     });
   }
 }
