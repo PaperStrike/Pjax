@@ -1,4 +1,20 @@
+import nock from 'nock';
 import Script from '../Script';
+
+/**
+ * Fix nock memory leak - May 17, 2021
+ * https://github.com/nock/nock#memory-issues-with-jest
+ * https://github.com/nock/nock/issues/2057#issuecomment-702401375
+ */
+beforeEach(() => {
+  if (!nock.isActive()) {
+    nock.activate();
+  }
+});
+
+afterEach(() => {
+  nock.restore();
+});
 
 test('script without both src attribute and content', () => {
   const emptyScriptEle = document.createElement('script');
@@ -76,11 +92,69 @@ test('script eval method', async () => {
 
 test('no throw if the script removed itself', () => {
   const scriptEle = document.createElement('script');
-  scriptEle.id = 'myScript';
+  scriptEle.id = 'removeSelf';
   scriptEle.text = `
-    const script = document.querySelector('#myScript');
+    const script = document.querySelector('#removeSelf');
     script.parentNode.removeChild(script);
   `;
 
   return expect(new Script(scriptEle).eval()).resolves.not.toThrow();
+});
+
+describe('document.currentScript match', () => {
+  const testAccessibleScriptText = `
+    if (document.currentScript === document.querySelector('#findSelf')) {
+      document.body.className = 'match';
+    } else {
+      window.abc = document.currentScript;
+    }
+  `;
+
+  beforeAll(() => {
+    nock('https://external')
+      .persist()
+      .get('/match.js')
+      .reply(200, testAccessibleScriptText);
+  });
+  afterAll(() => {
+    nock.cleanAll();
+  });
+
+  const testAccessible = async (sourceType, connected, connectType) => {
+    document.body.innerHTML = '';
+
+    const scriptEle = document.createElement('script');
+    scriptEle.id = 'findSelf';
+
+    if (sourceType === 'external') {
+      scriptEle.src = 'https://external/match.js';
+    } else {
+      scriptEle.text = testAccessibleScriptText;
+    }
+
+    if (connected) {
+      if (connectType === 'current') {
+        document.body.append(scriptEle);
+      } else {
+        document.implementation.createHTMLDocument('').body.append(scriptEle);
+        expect(document.contains(scriptEle)).toBeFalsy();
+      }
+      expect(scriptEle.isConnected).toBeTruthy();
+    }
+
+    document.body.className = 'not match';
+
+    await new Script(scriptEle).eval();
+    expect(document.body.className)
+      .toBe('match');
+  };
+
+  describe.each(['external', 'inline'])('%s scripts', (sourceType) => {
+    describe('connected', () => {
+      test.each(['current', 'other'])('in %s doc', (connectType) => (
+        testAccessible(sourceType, true, connectType)
+      ));
+    });
+    test('unconnected', () => testAccessible(sourceType, false));
+  });
 });
