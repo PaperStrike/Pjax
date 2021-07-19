@@ -37,12 +37,34 @@ describe('non-array iterable', () => {
   });
 });
 
+test('ignore non-blocking execution time', async () => {
+  // Lock the time.
+  jest.useFakeTimers();
+
+  nock('https://external')
+    .get('/async.js')
+    .delay(100)
+    .reply(200, scriptText(' external async'));
+
+  const container = document.createElement('div');
+  container.innerHTML = `
+    <script>${scriptText('executed')}</script>
+    <script async src="https://external/async.js"></script>
+    <script>${scriptText(' correctly')}</script>
+  `;
+
+  document.body.className = '';
+  await executeScripts(container.children);
+  expect(document.body.className).toBe('executed correctly');
+});
+
 /**
  * There seems to be a bug in JSDOM.
  * Some expects are commented out for it. - May 23, 2021
  * https://github.com/jsdom/jsdom/issues/3190
  */
 test('external scripts block when needed and keep original order', async () => {
+  jest.useRealTimers();
   nock('https://external')
     .get('/blocking.js')
     .reply(200, scriptText(' external blocking'));
@@ -71,9 +93,12 @@ test('external scripts block when needed and keep original order', async () => {
 });
 
 test('execution integrated with given signal', async () => {
+  // Lock the time.
+  jest.useFakeTimers();
+
   nock('https://external')
     .get('/delayed.js')
-    .delay(500)
+    .delay(100)
     .reply(200, scriptText(' delayed'));
 
   const container = document.createElement('div');
