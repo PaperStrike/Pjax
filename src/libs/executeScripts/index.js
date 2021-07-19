@@ -30,19 +30,18 @@ export default async function executeScripts(scriptEleList, { signal } = {}) {
   // to help browsers fetch them in parallel.
   // Each inline blocking script will be evaluated as soon as
   // all its previous blocking scripts are executed.
-  const blockingPromise = blockingScripts.reduce((promise, script) => {
+  const blockingExecution = blockingScripts.reduce((promise, script) => {
     if (script.external) {
       return Promise.all([promise, evalScript(script)]);
     }
     return promise.then(() => evalScript(script));
   }, Promise.resolve());
 
+  asyncScripts.forEach(evalScript);
+
   // Reject as soon as possible on abort.
   return Promise.race([
-    Promise.all([
-      blockingPromise,
-      ...asyncScripts.map(evalScript),
-    ]),
+    blockingExecution,
     new Promise((resolve, reject) => {
       signal?.addEventListener('abort', () => {
         reject(new DOMException('Aborted execution', 'AbortError'));
