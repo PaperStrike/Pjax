@@ -89,7 +89,7 @@ class Script {
       const oldEle = this.target;
       const newEle = document.createElement('script');
 
-      newEle.onerror = reject;
+      newEle.addEventListener('error', reject);
 
       // Clone attributes and inner text.
       oldEle.getAttributeNames().forEach((name) => {
@@ -106,15 +106,19 @@ class Script {
         // and may cause the script not to be executed in some environments.
         newEle.defer = false;
 
-        newEle.onload = resolve;
+        newEle.addEventListener('load', resolve);
       }
 
       // Execute.
       if (document.contains(oldEle)) {
         oldEle.replaceWith(newEle);
       } else {
-        document.head.appendChild(newEle);
-        newEle.remove();
+        document.head.append(newEle);
+        if (this.external) {
+          newEle.addEventListener('load', () => newEle.remove());
+        } else {
+          newEle.remove();
+        }
       }
 
       if (!this.external) resolve();
