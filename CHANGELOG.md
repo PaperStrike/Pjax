@@ -1,3 +1,14 @@
+# 0.13.0
+
+## 🚀 Enhancements
+
+* Use event listeners in Script lib ([#61](https://github.com/PaperStrike/Pjax/pull/61))
+* Ignore asynchronous execution time ([#58](https://github.com/PaperStrike/Pjax/pull/58))
+
+## 🐛 Bug Fixes
+
+* Prepare page before complete and success events ([#57](https://github.com/PaperStrike/Pjax/pull/57))
+
 # 0.12.0
 
 ## 🚀 Enhancements
