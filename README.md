@@ -250,7 +250,7 @@ pjax.weakLoadURL('/your-url')
 
 This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events.
 
-It returns a promise that resolves after the DOM switch has done, which includes:
+It returns a promise that resolves when all the following steps have done:
 
 - Switch elements selected by `selectors` option.
 - Call `pushState` to update the URL.
