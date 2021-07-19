@@ -248,37 +248,15 @@ pjax.weakLoadURL('/your-url')
 
 ### `switchDOM(url, [overrideOptions])`
 
-This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events and calling `pushState` to update the URL.
+This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events.
 
-It returns a promise that resolves with an object of the following properties:
+It returns a promise that resolves when all the following steps have done:
 
-- `focusCleared` (Boolean): Indicate that if the focus element of the document has been cleared.
-- `outcomes` (Array): An array of each switch callback's return or fulfilled (for promise) value.
-
-If you want to fetch and process the data on your own, override the implementation while keeping:
-
-- [integrated](https://dom.spec.whatwg.org/#abortcontroller-api-integration) with `abortController` property of the Pjax instance.
-- the resolve object structure.
-
-Code below shows an extendable example:
-
-```js
-const pjax = new Pjax();
-
-pjax.switchDOM = async function customSwitch(url) {
-  const res = await fetch(url, {
-    signal: this.abortController.signal,
-  });
-  // `Body.text` integrates with the fetch signal natively.
-  const newDocument = new DOMParser().parseFromString(await res.text());
-  document.body.replaceWith(newDocument.body);
-  window.history.pushState({}, document.title, res.url);
-  return {
-    focusCleared: true,
-    outcomes: [],
-  };
-};
-```
+- Switch elements selected by `selectors` option.
+- Call `pushState` to update the URL.
+- Focus the first [`autofocus`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autofocus) if previous focus has gone.
+- Execute scripts newly-loaded or targeted by `scripts` option.
+- Scroll to position given by `scrollTo` option.
 
 ### `reload()`
 
@@ -377,14 +355,14 @@ const customSwitch = (oldEle, newEle) => {
 CSS selector used to target scripts to re-execute at page switches. If needing multiple specific selectors, separate them by a comma. Like:
 
 ```js
-// Single element
+// Single selector
 const pjax = new Pjax({
   scripts: 'script.pjax',
 });
 ```
 
 ```js
-// Multiple elements
+// Multiple selectors
 const pjax = new Pjax({
   scripts: 'script.pjax, script.analytics',
 });

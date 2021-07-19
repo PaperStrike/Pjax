@@ -21,9 +21,6 @@ export default async function weakLoadURL(url, overrideOptions = {}) {
   this.abortController?.abort();
   this.abortController = abortController;
 
-  // Record node changes.
-  let switchResult = null;
-
   // Find path difference.
   const targetPath = parsedURL.pathname + parsedURL.search;
   const currentPath = this.location.pathname + this.location.search;
@@ -33,15 +30,15 @@ export default async function weakLoadURL(url, overrideOptions = {}) {
     if (window.location.href !== parsedURL.href) {
       window.history.pushState({}, document.title, parsedURL.href);
     }
+    await this.preparePage(null, overrideOptions);
   } else {
     // Fetch and switch on different path.
-    switchResult = await this.switchDOM(url, overrideOptions);
+    await this.switchDOM(url, overrideOptions);
   }
 
   // Update Pjax location and prepare the page.
   this.history.pull();
   this.location.href = window.location.href;
-  await this.preparePage(switchResult, overrideOptions);
 
   // Finish, remove abort controller.
   this.abortController = null;
