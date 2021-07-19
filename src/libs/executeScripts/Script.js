@@ -105,14 +105,13 @@ class Script {
         // Defer a dynamically inserted script is meaningless
         // and may cause the script not to be executed in some environments.
         newEle.defer = false;
-
-        newEle.addEventListener('load', resolve);
       }
 
       // Execute.
       if (document.contains(oldEle)) {
         oldEle.replaceWith(newEle);
       } else {
+        // Execute in <head> if it's not in current document.
         document.head.append(newEle);
         if (this.external) {
           newEle.addEventListener('load', () => newEle.remove());
@@ -121,7 +120,11 @@ class Script {
         }
       }
 
-      if (!this.external) resolve();
+      if (this.external) {
+        newEle.addEventListener('load', resolve);
+      } else {
+        resolve();
+      }
     });
   }
 }
