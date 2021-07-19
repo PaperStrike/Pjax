@@ -30,6 +30,8 @@ class SimplePjax {
   fire = () => {};
 
   switchDOM = switchDOM;
+
+  preparePage = () => {};
 }
 
 test('partial document response', async () => {

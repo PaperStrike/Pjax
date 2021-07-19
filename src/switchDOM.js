@@ -1,22 +1,23 @@
 import switchNodes from './utils/switchNodes';
 
 /**
- * @typedef {Object} Pjax.SwitchResult
- * @property {boolean} focusCleared
- * @property {Array<*>} outcomes
- */
-
-/**
  * @this {Pjax}
  * @param {string} url
  * @param {Partial<Pjax.options>} [overrideOptions]
- * @return {Promise<Pjax.SwitchResult>}
+ * @return {Promise<void>}
  */
 export default async function switchDOM(url, overrideOptions = {}) {
   const { selectors, switches, timeout } = { ...this.options, ...overrideOptions };
-  const parsedURL = new URL(url, document.URL);
-  const signal = this.abortController?.signal || null;
 
+  const eventDetail = {};
+
+  const parsedURL = new URL(url, document.URL);
+  eventDetail.targetURL = parsedURL.href;
+
+  const signal = this.abortController?.signal || null;
+  eventDetail.signal = signal;
+
+  eventDetail.selectors = selectors;
   const request = new Request(parsedURL.href, {
     headers: {
       'X-Requested-With': 'Fetch',
@@ -27,26 +28,28 @@ export default async function switchDOM(url, overrideOptions = {}) {
   });
 
   // Set timeout
+  eventDetail.timeout = timeout;
   let timeoutID = null;
   if (timeout > 0) {
     timeoutID = window.setTimeout(() => {
       this.abortController?.abort();
     }, timeout);
+    eventDetail.timeoutID = timeoutID;
   }
 
-  const basicDetail = { targetURL: parsedURL.href };
-  this.fire('send', { ...basicDetail });
+  this.fire('send', eventDetail);
 
-  let switchResult;
   try {
     const response = await fetch(request)
       .finally(() => {
         window.clearTimeout(timeoutID);
       });
 
-    // Switch before change URL.
+    // Switch before changing URL.
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
-    switchResult = await switchNodes(newDocument, { selectors, switches, signal });
+    eventDetail.switches = switches;
+    const switchResult = await switchNodes(newDocument, { selectors, switches, signal });
+    eventDetail.switchResult = switchResult;
 
     // Update window location. Preserve hash as the fetch discards it.
     const newLocation = new URL(response.url);
@@ -54,17 +57,16 @@ export default async function switchDOM(url, overrideOptions = {}) {
     if (window.location.href !== newLocation.href) {
       window.history.pushState({}, document.title, newLocation.href);
     }
+
+    // Simulate initial page load.
+    await this.preparePage(switchResult, overrideOptions);
   } catch (error) {
-    this.fire('error', {
-      ...basicDetail,
-      error,
-    });
+    eventDetail.error = error;
+    this.fire('error', eventDetail);
     throw error;
   } finally {
-    this.fire('complete', { ...basicDetail });
+    this.fire('complete', eventDetail);
   }
 
-  this.fire('success', { ...basicDetail });
-
-  return switchResult;
+  this.fire('success', eventDetail);
 }
