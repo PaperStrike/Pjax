@@ -1,4 +1,14 @@
 /**
+ * Here until
+ * https://github.com/microsoft/TypeScript/issues/40811
+ * @typedef {Event} SubmitEvent
+ * @property {HTMLElement|null} submitter
+ * @property {HTMLFormElement} target
+ */
+
+const isFalsyOrDefault = (value, defaultValue) => !value || value === defaultValue;
+
+/**
  * @typedef {HTMLAnchorElement|HTMLAreaElement} Link
  */
 
@@ -43,6 +53,48 @@ export default class DefaultTrigger {
     this.pjax.loadURL(link.href).catch(() => {});
   }
 
+  /**
+   * @param {SubmitEvent} event
+   */
+  onFormSubmit(event) {
+    if (event.defaultPrevented) return;
+
+    const { target: form } = event;
+    if (!(form instanceof HTMLFormElement)) return;
+
+    const {
+      formEnctype = form.enctype,
+      formTarget = form.target,
+      formMethod = form.method,
+    } = event.submitter || {};
+
+    // Handle simple URL redirect only.
+    if (!isFalsyOrDefault(formEnctype, 'application/x-www-form-urlencoded')
+      || !isFalsyOrDefault(formTarget, '_self')
+      || !isFalsyOrDefault(formMethod, 'get')) return;
+
+    const url = new URL(
+      event.submitter?.getAttribute('formaction') || form.action,
+      document.URL,
+    );
+
+    // External.
+    // loadURL checks external while having no browsers' attribute related support.
+    if (url.origin !== window.location.origin) return;
+
+    event.preventDefault();
+
+    const convertedEntries = Array.from(
+      new FormData(form),
+      ([key, value]) => (
+        [key, value instanceof File ? value.name : value]
+      ),
+    );
+    url.search = new URLSearchParams(convertedEntries).toString();
+
+    this.pjax.loadURL(url.href).catch(() => {});
+  }
+
   register() {
     document.addEventListener('click', (event) => {
       const link = getLink(event.target);
@@ -55,5 +107,8 @@ export default class DefaultTrigger {
       if (!link) return;
       this.onLinkOpen(event, link);
     });
+    if ('SubmitEvent' in window) {
+      document.addEventListener('submit', this.onFormSubmit.bind(this));
+    }
   }
 }
