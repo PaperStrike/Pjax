@@ -280,7 +280,7 @@ The default trigger alters these redirections:
 Technically, a submission does a *simple redirection* when its:
 
 - Enctype matches `application/x-www-form-urlencoded`.
-- Target browsing context matches the form's one.
+- Target browsing context matches `_self`.
 - Method matches `get`.
 
 ### `selectors` (Array, default: `['title', '.pjax']`)
