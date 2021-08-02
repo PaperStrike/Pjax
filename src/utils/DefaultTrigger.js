@@ -107,6 +107,8 @@ export default class DefaultTrigger {
       if (!link) return;
       this.onLinkOpen(event, link);
     });
+
+    // Lacking browser compatibility and small polyfill. - August 2, 2021
     if ('SubmitEvent' in window) {
       document.addEventListener('submit', this.onFormSubmit.bind(this));
     }
