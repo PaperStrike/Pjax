@@ -68,7 +68,7 @@ Pjax fetches the new content, switches parts of your page, updates the URL, exec
 
 ## How Pjax Works
 
-1. Listen to every trigger of anchor elements.
+1. Listen to simple redirections.
 2. Fetch the target page via `fetch`.
 3. Render the DOM tree using [`DOMParser`](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser).
 4. Check if every defined selector selects the same amount of elements in current DOM and the new DOM.
@@ -170,7 +170,7 @@ When instantiating `Pjax`, you can pass options into the constructor as an objec
 
 ```js
 const pjax = new Pjax({
-  // default value, listens on all <a>
+  // default value, listens on all links and forms
   defaultTrigger: true,
   selectors: [
     'title',
@@ -181,11 +181,11 @@ const pjax = new Pjax({
 });
 ```
 
-This will enable Pjax on all links, and designate the part to replace using CSS selectors `'title', '.the-header', '.the-content', '.the-sidebar'`.
+This will enable Pjax on all links and forms, and designate the part to replace using CSS selectors `'title', '.the-header', '.the-content', '.the-sidebar'`.
 
 In some cases, you might want to only target some specific elements or specific moments to apply Pjax behavior. In that case:
 
-1. Set `defaultTrigger` to `false`. This will make Pjax not listen to link (`<a>` or `<area>` element) click and keyup events.
+1. Set `defaultTrigger` to `false`.
 2. Use `loadURL` method of the Pjax instance to let Pjax handle the navigation on your demand.
 
 ```js
@@ -267,6 +267,21 @@ Pjax.reload();
 ```
 
 ## Options
+
+### `defaultTrigger` (Boolean, default: `true`)
+
+When set to `false`, disable the default Pjax trigger.
+
+The default trigger alters these redirections:
+
+- Activations of `<a>` and `<area>` that targets a link within the same origin.
+- Submissions of `<form>` that *simply redirects* to a link within the same origin.
+
+Technically, a submission does a *simple redirection* when its:
+
+- enctype matches `application/x-www-form-urlencoded`.
+- target browsing context matches `_self`.
+- method matches `get`.
 
 ### `selectors` (Array, default: `['title', '.pjax']`)
 
