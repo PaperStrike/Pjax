@@ -12,47 +12,44 @@
  * history state as keys to identify session storage items.
  */
 
-/**
- * A valid state object.
- * @typedef {Object<string, any>} State
- */
+declare module LazyHistory {
+  /**
+   * A valid history state object.
+   */
+  export interface State {
+    [name: string]: any;
+  }
+
+  export interface SignedState extends State {}
+}
 
 class LazyHistory {
   /**
    * The prefix of the generated key.
-   * @type {string}
    */
-  idPrefix;
+  idPrefix: string;
 
   /**
    * Used to generate unique keys.
-   * @type {number}
    */
-  count = 0;
+  count: number = 0;
 
   /**
    * The key used in `window.history.state`.
-   * @type {string}
    */
-  historyKey;
+  historyKey: string;
 
   /**
    * The session key reflecting the current state.
-   * @type {string}
    */
-  sessionKey;
+  sessionKey: string;
 
   /**
    * The current state.
-   * @type {State}
    */
-  state;
+  state: LazyHistory.State;
 
-  /**
-   * @param {string} idPrefix
-   * @param {string} historyKey
-   */
-  constructor(idPrefix, historyKey = idPrefix) {
+  constructor(idPrefix: string, historyKey: string = idPrefix) {
     this.idPrefix = idPrefix;
     this.historyKey = historyKey;
 
@@ -69,10 +66,8 @@ class LazyHistory {
 
   /**
    * Prepare a new session key and attach to current or given state.
-   * @param {?State} state
-   * @return {State}
    */
-  #sign(state = window.history.state) {
+  #sign(state: LazyHistory.State = window.history.state): LazyHistory.SignedState {
     this.#save();
 
     // Generate a new key.
@@ -93,11 +88,8 @@ class LazyHistory {
 
   /**
    * Push to history entry.
-   * @param {?State} state
-   * @param {string} title
-   * @param {string} url
    */
-  push(state, title, url) {
+  push(state: LazyHistory.State, title: string, url: string) {
     window.history.pushState(this.#sign(state), title, url);
   }
 

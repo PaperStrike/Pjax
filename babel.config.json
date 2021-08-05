@@ -7,6 +7,9 @@
     "safari": "12.2"
   },
   "presets": [
+    ["@babel/preset-typescript", {
+      "allowDeclareFields": true
+    }],
     ["@babel/preset-env", {
       "bugfixes": true
     }]

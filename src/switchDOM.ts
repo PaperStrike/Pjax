@@ -1,15 +1,14 @@
+import type Pjax from '.';
 import switchNodes from './utils/switchNodes';
 
-/**
- * @this {Pjax}
- * @param {string} url
- * @param {Partial<Pjax.options>} [overrideOptions]
- * @return {Promise<void>}
- */
-export default async function switchDOM(url, overrideOptions = {}) {
+export default async function switchDOM(
+  this: Pjax,
+  url: string,
+  overrideOptions: Partial<Pjax.Options> = {},
+) {
   const { selectors, switches, timeout } = { ...this.options, ...overrideOptions };
 
-  const eventDetail = {};
+  const eventDetail: Pjax.EventDetail = {};
 
   const parsedURL = new URL(url, document.URL);
   eventDetail.targetURL = parsedURL.href;
@@ -29,7 +28,7 @@ export default async function switchDOM(url, overrideOptions = {}) {
 
   // Set timeout
   eventDetail.timeout = timeout;
-  let timeoutID = null;
+  let timeoutID: number = null;
   if (timeout > 0) {
     timeoutID = window.setTimeout(() => {
       this.abortController?.abort();
@@ -48,8 +47,8 @@ export default async function switchDOM(url, overrideOptions = {}) {
     // Switch before changing URL.
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
     eventDetail.switches = switches;
-    const switchResult = await switchNodes(newDocument, { selectors, switches, signal });
-    eventDetail.switchResult = switchResult;
+    const switchesResult = await switchNodes(newDocument, { selectors, switches, signal });
+    eventDetail.switchesResult = switchesResult;
 
     // Update window location. Preserve hash as the fetch discards it.
     const newLocation = new URL(response.url);
@@ -59,7 +58,7 @@ export default async function switchDOM(url, overrideOptions = {}) {
     }
 
     // Simulate initial page load.
-    await this.preparePage(switchResult, overrideOptions);
+    await this.preparePage(switchesResult, overrideOptions);
   } catch (error) {
     eventDetail.error = error;
     this.fire('error', eventDetail);

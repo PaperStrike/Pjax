@@ -7,7 +7,7 @@
 /**
  * JavaScript MIME type strings.
  */
-const MIMETypes = [
+export const MIMETypes = [
   'application/ecmascript',
   'application/javascript',
   'application/x-ecmascript',
@@ -26,11 +26,18 @@ const MIMETypes = [
   'text/x-javascript',
 ];
 
-class Script {
-  constructor(scriptEle) {
-    this.evaluable = false;
-    this.external = false;
+export default class Script {
+  target: HTMLScriptElement;
 
+  type: 'classic' | 'module';
+
+  external: boolean = false;
+
+  blocking: boolean = false;
+
+  evaluable: boolean = false;
+
+  constructor(scriptEle: HTMLScriptElement) {
     this.target = scriptEle;
 
     // Process empty.
@@ -84,7 +91,7 @@ class Script {
     this.evaluable = true;
   }
 
-  eval() {
+  eval(): Promise<void> {
     return new Promise((resolve, reject) => {
       const oldEle = this.target;
       const newEle = document.createElement('script');
@@ -121,12 +128,10 @@ class Script {
       }
 
       if (this.external) {
-        newEle.addEventListener('load', resolve);
+        newEle.addEventListener('load', () => resolve());
       } else {
         resolve();
       }
     });
   }
 }
-
-export default Script;

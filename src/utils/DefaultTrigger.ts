@@ -1,43 +1,41 @@
+import type Pjax from '..';
+
 /**
  * Here until
  * https://github.com/microsoft/TypeScript/issues/40811
- * @typedef {Event} SubmitEvent
- * @property {HTMLElement|null} submitter
- * @property {HTMLFormElement} target
  */
-
-const isFalsyOrDefault = (value, defaultValue) => !value || value === defaultValue;
+interface SubmitEvent extends Event {
+  readonly submitter: HTMLElement | null;
+  readonly target: HTMLFormElement;
+}
 
 /**
- * @typedef {HTMLAnchorElement|HTMLAreaElement} Link
+ * Falsy or matching.
  */
+const matchesDefault = (value: any, defaultValue: any) => !value || value === defaultValue;
 
-const getLink = (ele) => {
-  let checkingEle = ele;
+type Link = HTMLAnchorElement | HTMLAreaElement;
+
+const getLink = (target: EventTarget): Link => {
+  if (!(target instanceof Node)) return null;
+  let checkingNode = target;
   const links = [...document.links];
-  while (!links.includes(checkingEle)) {
-    const parent = checkingEle.parentElement;
+  while (!links.includes(target as any)) {
+    const parent = checkingNode.parentElement;
     if (!parent) return null;
-    checkingEle = parent;
+    checkingNode = parent;
   }
-  return checkingEle;
+  return checkingNode as Link;
 };
 
 export default class DefaultTrigger {
-  pjax;
+  pjax: Pjax;
 
-  /**
-   * @param {Pjax} pjax
-   */
-  constructor(pjax) {
+  constructor(pjax: Pjax) {
     this.pjax = pjax;
   }
 
-  /**
-   * @param {Event} event
-   * @param {Link} link
-   */
-  onLinkOpen(event, link) {
+  onLinkOpen(event: Event, link: Link) {
     if (event.defaultPrevented) return;
 
     if (event instanceof MouseEvent || event instanceof KeyboardEvent) {
@@ -53,28 +51,26 @@ export default class DefaultTrigger {
     this.pjax.loadURL(link.href).catch(() => {});
   }
 
-  /**
-   * @param {SubmitEvent} event
-   */
-  onFormSubmit(event) {
+  onFormSubmit(event: SubmitEvent) {
     if (event.defaultPrevented) return;
 
-    const { target: form } = event;
+    const { target: form, submitter } = event;
     if (!(form instanceof HTMLFormElement)) return;
 
+    // TODO: Replace "as any".
     const {
       formEnctype = form.enctype,
       formTarget = form.target,
       formMethod = form.method,
-    } = event.submitter || {};
+    } = submitter as any || {};
 
     // Handle simple URL redirect only.
-    if (!isFalsyOrDefault(formEnctype, 'application/x-www-form-urlencoded')
-      || !isFalsyOrDefault(formTarget, '_self')
-      || !isFalsyOrDefault(formMethod, 'get')) return;
+    if (!matchesDefault(formEnctype, 'application/x-www-form-urlencoded')
+      || !matchesDefault(formTarget, '_self')
+      || !matchesDefault(formMethod, 'get')) return;
 
     const url = new URL(
-      event.submitter?.getAttribute('formaction') || form.action,
+      submitter?.getAttribute('formaction') || form.action,
       document.URL,
     );
 

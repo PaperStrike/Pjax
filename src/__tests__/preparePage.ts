@@ -1,4 +1,4 @@
-import preparePage from '../preparePage';
+import Pjax from '..';
 
 /**
  * For jsdom doesn't have the method at all. - Jun 9, 2021
@@ -6,17 +6,12 @@ import preparePage from '../preparePage';
  */
 window.Element.prototype.scrollIntoView = jest.fn();
 
-class SimplePjax {
-  options = {
-    selectors: [],
-    scripts: 'script[data-pjax]',
-    scrollTo: false,
-  };
+const scrollSpy = jest.spyOn(window, 'scrollTo');
+beforeEach(() => {
+  scrollSpy.mockReset();
+});
 
-  preparePage = preparePage;
-}
-
-const simpleSwitchResult = { focusCleared: false, outcomes: [] };
+class SimplePjax extends Pjax {}
 
 describe('autofocus', () => {
   const prepareUnfocusedAutofocus = () => {
@@ -43,7 +38,7 @@ describe('autofocus', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage(simpleSwitchResult);
+    await pjax.preparePage({ focusCleared: false });
     expect(document.activeElement).not.toBe(autofocus);
   });
 
@@ -52,7 +47,7 @@ describe('autofocus', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage({ ...simpleSwitchResult, focusCleared: true });
+    await pjax.preparePage({ focusCleared: true });
     expect(document.activeElement).toBe(autofocus);
   });
 });
@@ -79,7 +74,7 @@ describe('scripts', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage(simpleSwitchResult, {
+    await pjax.preparePage({ focusCleared: false }, {
       selectors: ['p', 'div'],
     });
     expect(document.body.className).toBe('1 2 3 4 5');
@@ -91,7 +86,7 @@ describe('scripts', () => {
 
     const pjax = new SimplePjax();
 
-    await pjax.preparePage(simpleSwitchResult, {
+    await pjax.preparePage({ focusCleared: false }, {
       selectors: ['div', 'p'],
     });
     expect(document.body.className).toBe('1 2 3 4 5');
@@ -99,7 +94,6 @@ describe('scripts', () => {
 });
 
 describe('scroll', () => {
-  const scrollSpy = jest.spyOn(window, 'scrollTo');
   beforeEach(() => {
     scrollSpy.mockReset();
   });
@@ -136,10 +130,10 @@ describe('scroll', () => {
   });
 
   describe.each`
-    pageType | switchResult | expectation
+    pageType | switchesResult | expectation
     ${'same'} | ${null} | ${() => expect(scrollSpy).not.toHaveBeenCalled()}
-    ${'different'} | ${simpleSwitchResult} | ${() => expect(scrollSpy).toHaveBeenLastCalledWith(0, 0)}
-  `('invalid hash on $pageType page', ({ switchResult, expectation }) => {
+    ${'different'} | ${{ focusCleared: false }} | ${() => expect(scrollSpy).toHaveBeenLastCalledWith(0, 0)}
+  `('invalid hash on $pageType page', ({ switchesResult, expectation }) => {
     document.body.innerHTML = '';
     test.each`
       type | hash
@@ -149,7 +143,7 @@ describe('scroll', () => {
     `('$type', async ({ hash }) => {
       scrollSpy.mockReset();
       window.location.hash = hash;
-      await pjax.preparePage(switchResult, {
+      await pjax.preparePage(switchesResult, {
         scrollTo: true,
       });
       expectation();

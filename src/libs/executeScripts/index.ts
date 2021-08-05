@@ -1,10 +1,9 @@
 import Script from './Script';
 
 class Executor {
-  /**
-   * @param {?AbortSignal} signal
-   */
-  constructor(signal) {
+  signal: AbortSignal | null;
+
+  constructor(signal: AbortSignal) {
     this.signal = signal;
   }
 
@@ -12,9 +11,8 @@ class Executor {
    * Execute script.
    * Throw only when aborted.
    * Wait only for blocking script.
-   * @param {Script} script
    */
-  async exec(script) {
+  async exec(script: Script) {
     if (this.signal?.aborted) throw new DOMException('Execution aborted', 'AbortError');
     const evalPromise = script.eval().catch(() => {});
     if (script.blocking) await evalPromise;
@@ -24,11 +22,11 @@ class Executor {
 /**
  * Find and execute scripts in order.
  * Needed since innerHTML does not run scripts.
- * @param {Iterable<HTMLScriptElement>} scriptEleList
- * @param {Object} [options]
- * @param {AbortSignal} [options.signal]
  */
-export default async function executeScripts(scriptEleList, { signal } = {}) {
+export default async function executeScripts(
+  scriptEleList: Iterable<HTMLScriptElement>,
+  { signal = null }: { signal?: AbortSignal } = {},
+): Promise<void> {
   if (signal?.aborted) throw new DOMException('Aborted execution', 'AbortError');
 
   const validScripts = Array.from(scriptEleList, (scriptEle) => new Script(scriptEle))
@@ -55,5 +53,5 @@ export default async function executeScripts(scriptEleList, { signal } = {}) {
         reject(new DOMException('Aborted execution', 'AbortError'));
       });
     }),
-  ]);
+  ]).then(() => {});
 }

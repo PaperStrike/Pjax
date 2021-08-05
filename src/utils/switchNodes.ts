@@ -1,31 +1,16 @@
+import type Pjax from '..';
+
 import Switches from './Switches';
 
-/**
- * @callback Pjax.Switch
- * @param {Node} oldNode
- * @param {Node} newNode
- * @return {Promise<any>|void}
- */
-
-/**
- * @typedef {Object} SwitchResult
- * @property {boolean} focusCleared
- * @property {Array<*>} outcomes
- */
-
-/**
- * @param {Document} sourceDocument
- * @param {Object} options
- * @param {Array<string>} options.selectors
- * @param {Object<string, Pjax.Switch>} [options.switches]
- * @param {AbortSignal} [options.signal]
- * @return {Promise<SwitchResult>}
- */
-export default async function switchNodes(sourceDocument, {
+export default async function switchNodes(sourceDocument: Document, {
   selectors,
-  switches,
-  signal,
-}) {
+  switches = null,
+  signal = null,
+}: {
+  selectors: Pjax.Options['selectors'],
+  switches?: Pjax.Options['switches']
+  signal?: AbortSignal
+}): Promise<Pjax.SwitchesResult> {
   if (signal?.aborted) throw new DOMException('Aborted switches', 'AbortError');
 
   let focusCleared = false;
@@ -43,11 +28,15 @@ export default async function switchNodes(sourceDocument, {
       );
     }
 
+    const { activeElement } = document;
+
     // Start switching for each match.
     targetNodeList.forEach((targetNode, index) => {
       // Clear out focused controls before switching.
-      if (!focusCleared && document.activeElement && targetNode.contains(document.activeElement)) {
-        document.activeElement.blur();
+      if (!focusCleared && activeElement && targetNode.contains(activeElement)) {
+        if (activeElement instanceof HTMLElement || activeElement instanceof SVGElement) {
+          activeElement.blur();
+        }
         focusCleared = true;
       }
 
@@ -63,7 +52,7 @@ export default async function switchNodes(sourceDocument, {
   });
 
   // Reject as soon as possible on abort.
-  const outcomes = await Promise.race([
+  await Promise.race([
     Promise.all(switchesList),
     new Promise((resolve, reject) => {
       signal?.addEventListener('abort', () => {
@@ -74,6 +63,5 @@ export default async function switchNodes(sourceDocument, {
 
   return {
     focusCleared,
-    outcomes,
   };
 }

@@ -4,12 +4,22 @@
     "es2021": true,
     "jest": true
   },
-  "extends": "airbnb-base",
+  "extends": [
+    "airbnb-typescript/base",
+    "plugin:jest/recommended"
+  ],
   "ignorePatterns": ["dist"],
-  "parser": "@babel/eslint-parser",
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2021,
-    "sourceType": "module"
+    "project": "./tsconfig.json"
   },
-  "root": true
+  "plugins": [
+    "@typescript-eslint",
+    "jest"
+  ],
+  "root": true,
+  "rules": {
+    // https://github.com/eslint/eslint/issues/14880
+    "@typescript-eslint/no-throw-literal": "off"
+  }
 }

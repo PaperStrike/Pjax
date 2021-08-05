@@ -1,7 +1,7 @@
 import fetch, { Request, Response } from 'node-fetch';
 import nock from 'nock';
 
-import switchDOM from '../switchDOM';
+import Pjax from '..';
 
 if (!global.fetch) global.fetch = fetch;
 if (!global.Request) global.Request = Request;
@@ -22,16 +22,10 @@ afterEach(() => {
   nock.restore();
 });
 
-class SimplePjax {
-  options = {
-    selectors: ['div.pjax', 'div.container'],
-  };
+class SimplePjax extends Pjax {
+  fire: any = () => {};
 
-  fire = () => {};
-
-  switchDOM = switchDOM;
-
-  preparePage = () => {};
+  preparePage: any = () => {};
 }
 
 test('partial document response', async () => {
@@ -114,10 +108,6 @@ test('request headers', async () => {
   nock(window.location.origin)
     .get('/headers')
     .reply(function replyHeaders() {
-      /**
-       * @this {nock.ReplyFnContext}
-       */
-
       nockReqHeaders = { ...this.req.headers };
       return [200];
     });

@@ -54,7 +54,7 @@ test('ignore non-blocking execution time', async () => {
   `;
 
   document.body.className = '';
-  await executeScripts(container.children);
+  await executeScripts(container.children as HTMLCollectionOf<HTMLScriptElement>);
   expect(document.body.className).toBe('executed correctly');
 });
 
@@ -87,7 +87,8 @@ test('external scripts block when needed and keep original order', async () => {
   `;
 
   document.body.className = '';
-  await expect(executeScripts(container.children)).resolves.not.toThrow();
+  await expect(executeScripts(container.children as HTMLCollectionOf<HTMLScriptElement>))
+    .resolves.not.toThrow();
   // expect(document.body.className.replace(/ external async/g, ''))
   //   .toBe('executed external blocking correctly');
 });
@@ -111,14 +112,20 @@ test('execution integrated with given signal', async () => {
   const abortController = new AbortController();
 
   document.body.className = '';
-  const abortPromise = executeScripts(container.children, { signal: abortController.signal });
+  const abortPromise = executeScripts(
+    container.children as HTMLCollectionOf<HTMLScriptElement>,
+    { signal: abortController.signal },
+  );
   abortController.abort();
   await expect(abortPromise).rejects.toMatchObject({ name: 'AbortError' });
   // expect(document.body.className).toBe('executed');
 
   // Test already aborted.
   document.body.className = '';
-  await expect(executeScripts(container.children, { signal: abortController.signal }))
-    .rejects.toMatchObject({ name: 'AbortError' });
+  const abortedPromise = executeScripts(
+    container.children as HTMLCollectionOf<HTMLScriptElement>,
+    { signal: abortController.signal },
+  );
+  await expect(abortedPromise).rejects.toMatchObject({ name: 'AbortError' });
   expect(document.body.className).toBe('');
 });
