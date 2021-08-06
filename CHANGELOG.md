@@ -1,3 +1,9 @@
+# 0.14.0
+
+## 🚀 Enhancements
+
+* Add form submit support in default trigger ([#70](https://github.com/PaperStrike/Pjax/pull/70))
+
 # 0.13.0
 
 ## 🚀 Enhancements
