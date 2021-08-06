@@ -3,7 +3,7 @@ import Script from './Script';
 class Executor {
   signal: AbortSignal | null;
 
-  constructor(signal: AbortSignal) {
+  constructor(signal: AbortSignal | null) {
     this.signal = signal;
   }
 
@@ -25,7 +25,7 @@ class Executor {
  */
 export default async function executeScripts(
   scriptEleList: Iterable<HTMLScriptElement>,
-  { signal = null }: { signal?: AbortSignal } = {},
+  { signal = null }: { signal?: AbortSignal | null } = {},
 ): Promise<void> {
   if (signal?.aborted) throw new DOMException('Aborted execution', 'AbortError');
 

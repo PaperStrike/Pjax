@@ -2,6 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "module": "commonjs",
+    "strictNullChecks": true,
     "target": "es2021"
   },
   "exclude": [

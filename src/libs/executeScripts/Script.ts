@@ -100,7 +100,7 @@ export default class Script {
 
       // Clone attributes and inner text.
       oldEle.getAttributeNames().forEach((name) => {
-        newEle.setAttribute(name, oldEle.getAttribute(name));
+        newEle.setAttribute(name, oldEle.getAttribute(name) || '');
       });
       newEle.text = oldEle.text;
 

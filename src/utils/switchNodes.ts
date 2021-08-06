@@ -8,13 +8,13 @@ export default async function switchNodes(sourceDocument: Document, {
   signal = null,
 }: {
   selectors: Pjax.Options['selectors'],
-  switches?: Pjax.Options['switches']
-  signal?: AbortSignal
+  switches?: Pjax.Options['switches'] | null
+  signal?: AbortSignal | null
 }): Promise<Pjax.SwitchesResult> {
   if (signal?.aborted) throw new DOMException('Aborted switches', 'AbortError');
 
   let focusCleared = false;
-  const switchesList = [];
+  const switchesList: Promise<void>[] = [];
 
   selectors.forEach((selector) => {
     const sourceNodeList = sourceDocument.querySelectorAll(selector);

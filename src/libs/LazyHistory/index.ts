@@ -105,7 +105,8 @@ class LazyHistory {
       window.history.replaceState(this.#sign(), document.title);
     } else {
       this.sessionKey = sessionKey;
-      this.state = JSON.parse(window.sessionStorage.getItem(sessionKey));
+      const savedState = window.sessionStorage.getItem(sessionKey);
+      this.state = savedState ? JSON.parse(savedState) : {};
     }
   }
 }

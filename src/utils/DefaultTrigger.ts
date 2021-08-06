@@ -16,7 +16,7 @@ const matchesDefault = (value: any, defaultValue: any) => !value || value === de
 
 type Link = HTMLAnchorElement | HTMLAreaElement;
 
-const getLink = (target: EventTarget): Link => {
+const getLink = (target: EventTarget | null): Link | null => {
   if (!(target instanceof Node)) return null;
   let checkingNode = target;
   const links = [...document.links];

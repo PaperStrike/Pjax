@@ -27,7 +27,7 @@ declare module Pjax {
 
   export interface EventDetail {
     targetURL?: string;
-    signal?: AbortSignal;
+    signal?: AbortSignal | null;
     selectors?: Options['selectors'];
     timeout?: Options['timeout'];
     timeoutID?: number;
@@ -65,7 +65,7 @@ class Pjax {
   /**
    * Pjax navigation abort controller.
    */
-  abortController: AbortController = null;
+  abortController: AbortController | null = null;
 
   constructor(options: Partial<Pjax.Options> = {}) {
     Object.assign(this.options, options);
@@ -131,7 +131,7 @@ class Pjax {
   ) => Promise<void> = switchDOM;
 
   preparePage: (
-    switchesResult: Pjax.SwitchesResult,
+    switchesResult: Pjax.SwitchesResult | null,
     overrideOptions?: Partial<Pjax.Options>
   ) => Promise<void> = preparePage;
 

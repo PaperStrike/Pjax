@@ -31,7 +31,7 @@ const attributes: Pjax.Switch = (oldEle: Element, newEle: Element) => {
   let existingNames = oldEle.getAttributeNames();
   const targetNames = newEle.getAttributeNames();
   targetNames.forEach((target) => {
-    oldEle.setAttribute(target, newEle.getAttribute(target));
+    oldEle.setAttribute(target, newEle.getAttribute(target) || '');
     existingNames = existingNames.filter((existing) => existing !== target);
   });
   existingNames.forEach((existing) => {

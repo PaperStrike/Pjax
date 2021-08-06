@@ -17,7 +17,7 @@ describe('autofocus', () => {
   const prepareUnfocusedAutofocus = () => {
     document.body.innerHTML = '';
     const focus = document.createElement('input');
-    focus.autofocus = true;
+    focus.setAttribute('autofocus', '');
     document.body.append(focus);
     focus.blur();
 
