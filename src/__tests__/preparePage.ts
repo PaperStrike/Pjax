@@ -1,4 +1,10 @@
-import Pjax from '..';
+import MockedPjax from '..';
+import preparePage from '../preparePage';
+
+jest.mock('..');
+class Pjax extends MockedPjax {
+  preparePage = preparePage;
+}
 
 /**
  * For jsdom doesn't have the method at all. - Jun 9, 2021
@@ -10,8 +16,6 @@ const scrollSpy = jest.spyOn(window, 'scrollTo');
 beforeEach(() => {
   scrollSpy.mockReset();
 });
-
-class SimplePjax extends Pjax {}
 
 describe('autofocus', () => {
   const prepareUnfocusedAutofocus = () => {
@@ -27,7 +31,7 @@ describe('autofocus', () => {
   test('not being focused with not switched content', async () => {
     const autofocus = prepareUnfocusedAutofocus();
 
-    const pjax = new SimplePjax();
+    const pjax = new Pjax();
 
     await pjax.preparePage(null);
     expect(document.activeElement).not.toBe(autofocus);
@@ -36,7 +40,7 @@ describe('autofocus', () => {
   test('not being focused with previous focus remained', async () => {
     const autofocus = prepareUnfocusedAutofocus();
 
-    const pjax = new SimplePjax();
+    const pjax = new Pjax();
 
     await pjax.preparePage({ focusCleared: false });
     expect(document.activeElement).not.toBe(autofocus);
@@ -45,7 +49,7 @@ describe('autofocus', () => {
   test('being focused with previous focus cleared', async () => {
     const autofocus = prepareUnfocusedAutofocus();
 
-    const pjax = new SimplePjax();
+    const pjax = new Pjax();
 
     await pjax.preparePage({ focusCleared: true });
     expect(document.activeElement).toBe(autofocus);
@@ -53,7 +57,8 @@ describe('autofocus', () => {
 });
 
 describe('scripts', () => {
-  const prepareScripts = () => {
+  beforeEach(() => {
+    document.body.className = 'should not keep';
     document.body.innerHTML = `
       <script data-pjax>document.body.className = '1';</script>
       <p>
@@ -61,34 +66,31 @@ describe('scripts', () => {
         <script>document.body.className += ' 3';</script>
       </p>
       <div>
+        <pre data-pjax>document.body.className += ' should ignore';</pre>
         <script data-pjax>document.body.className += ' 4';</script>
         <script>document.body.className += ' 5';</script>
       </div>
       <script>document.body.className = '0';</script>
     `;
-  };
+  });
 
   test('switched or labeled being evaluated and only evaluate once', async () => {
-    document.body.className = 'should not keep';
-    prepareScripts();
-
-    const pjax = new SimplePjax();
-
-    await pjax.preparePage({ focusCleared: false }, {
+    const pjax = new Pjax({
       selectors: ['p', 'div'],
+      scripts: '[data-pjax]',
     });
+
+    await pjax.preparePage({ focusCleared: false });
     expect(document.body.className).toBe('1 2 3 4 5');
   });
 
   test('unordered selected being evaluated in order', async () => {
-    document.body.className = 'should not keep';
-    prepareScripts();
-
-    const pjax = new SimplePjax();
-
-    await pjax.preparePage({ focusCleared: false }, {
+    const pjax = new Pjax({
       selectors: ['div', 'p'],
+      scripts: 'script[data-pjax]',
     });
+
+    await pjax.preparePage({ focusCleared: false });
     expect(document.body.className).toBe('1 2 3 4 5');
   });
 });
@@ -100,7 +102,7 @@ describe('scroll', () => {
 
   document.body.innerHTML = '<p id="new">A para</p>';
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
 
   test('to target position', async () => {
     await pjax.preparePage(null, {
@@ -141,6 +143,7 @@ describe('scroll', () => {
       ${'single #'} | ${'#'}
       ${'empty'} | ${''}
     `('$type', async ({ hash }) => {
+      expect.assertions(1);
       scrollSpy.mockReset();
       window.location.hash = hash;
       await pjax.preparePage(switchesResult, {

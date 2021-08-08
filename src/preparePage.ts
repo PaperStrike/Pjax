@@ -18,12 +18,18 @@ export default async function preparePage(
     // https://html.spec.whatwg.org/multipage/interaction.html#the-autofocus-attribute
     if (switchesResult.focusCleared) {
       const autofocus = document.querySelectorAll('[autofocus]')[0];
-      if (autofocus instanceof HTMLElement) autofocus.focus();
+      if (autofocus instanceof HTMLElement || autofocus instanceof SVGElement) {
+        autofocus.focus();
+      }
     }
 
     // List newly added and labeled scripts.
-    const scripts: HTMLScriptElement[] = [...document.querySelectorAll(options.scripts)]
-      .filter((node): node is HTMLScriptElement => node instanceof HTMLScriptElement);
+    const scripts: HTMLScriptElement[] = [];
+    if (options.scripts) {
+      document.querySelectorAll(options.scripts).forEach((element) => {
+        if (element instanceof HTMLScriptElement) scripts.push(element);
+      });
+    }
     options.selectors.forEach((selector) => {
       document.body.querySelectorAll(selector).forEach((element) => {
         element.querySelectorAll('script').forEach((script) => {

@@ -1,7 +1,8 @@
 import fetch, { Request, Response } from 'node-fetch';
 import nock from 'nock';
 
-import Pjax from '..';
+import MockedPjax from '..';
+import switchDOM from '../switchDOM';
 
 if (!global.fetch) global.fetch = fetch;
 if (!global.Request) global.Request = Request;
@@ -22,10 +23,9 @@ afterEach(() => {
   nock.restore();
 });
 
-class SimplePjax extends Pjax {
-  fire: any = () => {};
-
-  preparePage: any = () => {};
+jest.mock('..');
+class Pjax extends MockedPjax {
+  switchDOM = switchDOM;
 }
 
 test('partial document response', async () => {
@@ -33,8 +33,9 @@ test('partial document response', async () => {
     .get('/partial')
     .reply(200, '<body class="partial"></body>');
 
-  const pjax = new SimplePjax();
-  pjax.options.selectors = ['body'];
+  const pjax = new Pjax({
+    selectors: ['body'],
+  });
 
   await pjax.switchDOM('/partial');
   expect(document.body.className).toBe('partial');
@@ -46,7 +47,7 @@ test('empty body response', async () => {
     .get('/empty')
     .reply(200);
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
 
   await pjax.switchDOM('/empty');
   expect(document.body.children).toHaveLength(0);
@@ -63,8 +64,9 @@ test('redirect request and preserve hash', async () => {
     .get('/to')
     .reply(200, '<body class="redirected"></body>');
 
-  const pjax = new SimplePjax();
-  pjax.options.selectors = ['body'];
+  const pjax = new Pjax({
+    selectors: ['body'],
+  });
 
   await pjax.switchDOM('/from#foo');
 
@@ -79,7 +81,7 @@ describe('pushState', () => {
       .get('/simple')
       .reply(200);
 
-    const pjax = new SimplePjax();
+    const pjax = new Pjax();
 
     await pjax.switchDOM('/simple');
     expect(window.location.pathname).toBe('/simple');
@@ -90,7 +92,7 @@ describe('pushState', () => {
       .get('/simple')
       .reply(200);
 
-    const pjax = new SimplePjax();
+    const pjax = new Pjax();
     window.history.pushState({}, '', '/simple');
 
     const pushStateSpy = jest.spyOn(window.history, 'pushState');
@@ -112,7 +114,7 @@ test('request headers', async () => {
       return [200];
     });
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
 
   await pjax.switchDOM('/headers');
 
@@ -127,7 +129,7 @@ test('throw on abort', async () => {
     .delay(500)
     .replyWithError('Not Aborted.');
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
   const abortController = new AbortController();
   pjax.abortController = abortController;
 
@@ -142,7 +144,7 @@ test('throw on aborted signal', async () => {
     .delay(500)
     .replyWithError('Not Aborted.');
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
   const abortController = new AbortController();
   pjax.abortController = abortController;
   abortController.abort();
@@ -158,7 +160,7 @@ test('do abort on timeout while pending', async () => {
     .delay(500)
     .replyWithError('Not Aborted.');
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
   pjax.abortController = new AbortController();
 
   const timeoutPromise = pjax.switchDOM('/delay', {
@@ -176,7 +178,7 @@ test('do not abort on timeout while not pending', async () => {
     .get('/resolve')
     .reply(200);
 
-  const pjax = new SimplePjax();
+  const pjax = new Pjax();
   pjax.abortController = new AbortController();
 
   const resolvePromise = pjax.switchDOM('/resolve', {
