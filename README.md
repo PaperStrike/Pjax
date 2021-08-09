@@ -337,7 +337,7 @@ Every selector, in the current page and new page, must select the same amount of
 
 This contains callbacks (of type [Switch](#type-switch)) used to switch old elements with new elements.
 
-The object keys should match one of the defined selectors (from the `selectors` option).
+The object keys should match one of the defined selectors (from the [`selectors`](#selectors) option).
 
 Examples:
 
@@ -365,6 +365,8 @@ When it returns a promise, Pjax recognizes when the switch has done. Newly added
 
 #### Existing Switch Callbacks
 
+- `Pjax.switches.default` —
+  The default behavior, same as `Pjax.switches.replaceWith`.
 - `Pjax.switches.innerHTML` —
   Replace HTML contents by using [`Element.innerHTML`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML).
 - `Pjax.switches.textContent` —
@@ -374,11 +376,11 @@ When it returns a promise, Pjax recognizes when the switch has done. Newly added
 - `Pjax.switches.attributes` —
   Rewrite all attributes, leaving inner HTML untouched.
 - `Pjax.switches.replaceWith` —
-  The default behavior, replace elements by using [`ChildNode.replaceWith`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith).
+  Replace elements by using [`ChildNode.replaceWith`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith).
 
 #### Creating a Switch Callback
 
-Your callback function can do whatever you want. But remember to keep the amount of the elements selected by the `selectors` option remain the same.
+Your callback function can do whatever you want. But remember to keep the amount of the elements selected by the [`selectors`](#selectors) option remain the same.
 
 In the example below, `.current` class marks the only switching element, so that the switch elements' amount won't change. Before the returned promise resolves, Pjax will neither update the URL, execute the script elements nor scroll the page.
 
@@ -406,7 +408,7 @@ const customSwitch = (oldEle, newEle) => {
 
 ### scripts
 
-CSS selector used to target `<script>` to re-execute after a page switch. For multiple selectors, separate them by a comma. Like:
+CSS selector used to target `<script>` to re-execute after a page switch. For multiple selectors, separate them by a comma. Use the empty string to target nothing. Like:
 
 ```js
 // Single selector
@@ -419,6 +421,13 @@ const pjax = new Pjax({
 // Multiple selectors
 const pjax = new Pjax({
   scripts: 'script.pjax, script.analytics',
+});
+```
+
+```js
+// Re-execute nothing
+const pjax = new Pjax({
+  scripts: '',
 });
 ```
 
