@@ -19,7 +19,18 @@
     ".eslintrc.*",
     "CHANGELOG.*"
   ],
-  "browser": "./dist/pjax.min.js",
+  "exports": {
+    "browser": {
+      "development": {
+        "import": "./dist/pjax.esm.js",
+        "script": "./dist/pjax.js"
+      },
+      "production": {
+        "import": "./dist/pjax.esm.min.js",
+        "script": "./dist/pjax.min.js"
+      }
+    }
+  },
   "repository": "github:PaperStrike/Pjax",
   "browserslist": [
     "edge >= 79",
