@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml/badge.svg)](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml)
 [![npm Package](https://img.shields.io/npm/v/@sliphua/pjax?logo=npm)](https://www.npmjs.com/package/@sliphua/pjax)
-[![Gzipped Minified Size](https://img.shields.io/bundlephobia/minzip/@sliphua/pjax?label=minzipped)](https://bundlephobia.com/package/@sliphua/pjax)
+[![Gzipped Minified Size](https://img.shields.io/bundlephobia/minzip/@sliphua/pjax?color=ff69b4&label=minzipped)](https://bundlephobia.com/package/@sliphua/pjax)
 
 Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API)).
 
