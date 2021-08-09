@@ -1,3 +1,14 @@
+# 1.0.0
+
+## 🚀 Enhancements
+
+* Support target attr of links in default trigger ([#84](https://github.com/PaperStrike/Pjax/pull/84))
+* Migrate to TypeScript ([#80](https://github.com/PaperStrike/Pjax/pull/80))
+
+## 🐛 Bug Fixes
+
+* Migrate to TypeScript ([#80](https://github.com/PaperStrike/Pjax/pull/80))
+
 # 0.14.0
 
 ## 🚀 Enhancements
