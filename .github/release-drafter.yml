@@ -25,9 +25,11 @@ categories:
 
 exclude-labels:
   - 'skip-changelog'
+  - 'distributions'
   - 'dependencies'
   - 'github'
 
 change-template: '* $TITLE ([#$NUMBER]($URL))'
+no-changes-template: '* Small improvements to distributions'
 template: |
   $CHANGES
