@@ -164,11 +164,11 @@ Safari  | 12.2+              | Jul 22, 2019
 
 Method | Parameters | Return Value
 ------ | ---------- | ------------
-[Pjax.constructor](#constructor) | options: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
-[loadURL](#loadurl) | url: **string**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
-[weakLoadURL](#weakloadurl) | url: **string**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
-[switchDOM](#switchdom) | url: **string**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
-[preparePage](#preparepage) | switchesResult: **[SwitchesResult](#type-switchesresult) &#124; null**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
+[Pjax.constructor](#constructor) | options?: **Partial\<[Options](#options)\>** | **Pjax**
+[loadURL](#loadurl) | url: **string**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
+[weakLoadURL](#weakloadurl) | url: **string**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
+[switchDOM](#switchdom) | url: **string**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
+[preparePage](#preparepage) | switchesResult: **[SwitchesResult](#type-switchesresult) &#124; null**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
 [Pjax.reload](#reload) | / | **void**
 
 ### constructor
