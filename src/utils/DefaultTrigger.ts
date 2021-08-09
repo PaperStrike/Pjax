@@ -42,8 +42,10 @@ export default class DefaultTrigger {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     }
 
+    if (!matchesDefault(link.target, '_self')) return;
+
     // External.
-    // loadURL checks external but without browsers' attribute related support.
+    // loadURL checks external while having no browsers' attribute related support.
     if (link.origin !== window.location.origin) return;
 
     event.preventDefault();
