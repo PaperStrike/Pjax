@@ -17,7 +17,7 @@ test('switchNodes with same structures', async () => {
 
 test('switchNodes with focus to clear', async () => {
   document.body.innerHTML = '<p><input>Original para</p><span>Original span</span>';
-  document.body.querySelector('input').focus();
+  (document.body.querySelector('input') as HTMLInputElement).focus();
 
   const sourceDoc = document.implementation.createHTMLDocument();
   sourceDoc.body.innerHTML = '<p><input>New para</p><span>New span</span>';

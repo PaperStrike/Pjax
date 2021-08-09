@@ -1,26 +1,35 @@
+import type Pjax from '.';
+
 import executeScripts from './libs/executeScripts';
 
 /**
  * After page elements are updated.
- * @this {Pjax}
- * @param {?SwitchResult} switchResult
- * @param {Partial<Pjax.options>} [overrideOptions]
- * @return {Promise<void>}
  */
-export default async function preparePage(switchResult, overrideOptions = {}) {
+export default async function preparePage(
+  this: Pjax,
+  switchesResult: Pjax.SwitchesResult | null,
+  overrideOptions: Partial<Pjax.Options> = {},
+) {
   const options = { ...this.options, ...overrideOptions };
 
   // If page elements are switched.
-  if (switchResult) {
+  if (switchesResult) {
     // Focus the FIRST autofocus if the previous focus is cleared.
     // https://html.spec.whatwg.org/multipage/interaction.html#the-autofocus-attribute
-    if (switchResult.focusCleared) {
-      document.querySelectorAll('[autofocus]')[0]?.focus();
+    if (switchesResult.focusCleared) {
+      const autofocus = document.querySelectorAll('[autofocus]')[0];
+      if (autofocus instanceof HTMLElement || autofocus instanceof SVGElement) {
+        autofocus.focus();
+      }
     }
 
-    // List newly added and labeled scripts
-    const scripts = [...document.querySelectorAll(options.scripts)]
-      .filter((node) => node instanceof HTMLScriptElement);
+    // List newly added and labeled scripts.
+    const scripts: HTMLScriptElement[] = [];
+    if (options.scripts) {
+      document.querySelectorAll(options.scripts).forEach((element) => {
+        if (element instanceof HTMLScriptElement) scripts.push(element);
+      });
+    }
     options.selectors.forEach((selector) => {
       document.body.querySelectorAll(selector).forEach((element) => {
         element.querySelectorAll('script').forEach((script) => {
@@ -48,7 +57,7 @@ export default async function preparePage(switchResult, overrideOptions = {}) {
   // When scroll is allowed.
   if (scrollTo !== false) {
     // If switched, default to left top. Otherwise, default to no scroll.
-    let parsedScrollTo = switchResult ? [0, 0] : false;
+    let parsedScrollTo: [number, number] | false = switchesResult ? [0, 0] : false;
 
     if (Array.isArray(scrollTo)) {
       parsedScrollTo = scrollTo;

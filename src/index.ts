@@ -7,6 +7,36 @@ import switchDOM from './switchDOM';
 import preparePage from './preparePage';
 import weakLoadURL from './weakLoadURL';
 
+declare module Pjax {
+  export type Switch = (oldEle: Element, newEle: Element) => (Promise<void> | void);
+
+  export interface Options {
+    defaultTrigger: boolean,
+    selectors: string[],
+    switches: { [name: string]: Switch },
+    scripts: string,
+    scrollTo: number | [number, number] | boolean,
+    scrollRestoration: boolean,
+    cacheMode: RequestCache,
+    timeout: number,
+  }
+
+  export interface SwitchesResult {
+    focusCleared: boolean;
+  }
+
+  export interface EventDetail {
+    targetURL?: string;
+    signal?: AbortSignal | null;
+    selectors?: Options['selectors'];
+    timeout?: Options['timeout'];
+    timeoutID?: number;
+    switches?: Options['switches'];
+    switchesResult?: SwitchesResult;
+    error?: any;
+  }
+}
+
 class Pjax {
   static switches = Switches;
 
@@ -15,17 +45,9 @@ class Pjax {
   }
 
   /**
-   * Pjax options.
-   * @property {boolean} defaultTrigger
-   * @property {Array<string>} selectors
-   * @property {Object<string, Pjax.Switch>} switches
-   * @property {string} scripts
-   * @property {number | number[] | boolean} scrollTo
-   * @property {boolean} scrollRestoration
-   * @property {RequestCache} cacheMode
-   * @property {number} timeout
+   * Options default values.
    */
-  options = {
+  readonly options: Pjax.Options = {
     defaultTrigger: true,
     selectors: ['title', '.pjax'],
     switches: {},
@@ -36,20 +58,16 @@ class Pjax {
     timeout: 0,
   };
 
-  history = new LazyHistory('pjax');
+  readonly history = new LazyHistory('pjax');
 
-  location = new URL(window.location.href);
+  readonly location = new URL(window.location.href);
 
   /**
    * Pjax navigation abort controller.
-   * @type {?AbortController}
    */
-  abortController = null;
+  abortController: AbortController | null = null;
 
-  /**
-   * @param {Partial<Pjax.options>} options
-   */
-  constructor(options = {}) {
+  constructor(options: Partial<Pjax.Options> = {}) {
     Object.assign(this.options, options);
 
     if (this.options.scrollRestoration) {
@@ -79,7 +97,7 @@ class Pjax {
       // hashchange events trigger popstate with a null `event.state`.
       if (event.state === null) return;
 
-      const overrideOptions = {};
+      const overrideOptions: Partial<Pjax.Options> = {};
       if (this.options.scrollRestoration && 'scrollPos' in this.history.state) {
         overrideOptions.scrollTo = this.history.state.scrollPos;
       }
@@ -88,16 +106,14 @@ class Pjax {
     });
   }
 
-  storeScrollPosition() {
+  storeScrollPosition(): void {
     this.history.state.scrollPos = [window.scrollX, window.scrollY];
   }
 
   /**
    * Fire Pjax related events.
-   * @param {'send'|'error'|'success'|'complete'} type
-   * @param {Object} detail
    */
-  fire(type, detail) {
+  fire(type: 'send' | 'error' | 'success' | 'complete', detail: Pjax.EventDetail) {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,
@@ -109,19 +125,25 @@ class Pjax {
     document.dispatchEvent(event);
   }
 
-  switchDOM = switchDOM;
+  switchDOM: (
+    url: string,
+    overrideOptions?: Partial<Pjax.Options>
+  ) => Promise<void> = switchDOM;
 
-  preparePage = preparePage;
+  preparePage: (
+    switchesResult: Pjax.SwitchesResult | null,
+    overrideOptions?: Partial<Pjax.Options>
+  ) => Promise<void> = preparePage;
 
-  weakLoadURL = weakLoadURL;
+  weakLoadURL: (
+    url: string,
+    overrideOptions?: Partial<Pjax.Options>
+  ) => Promise<void> = weakLoadURL;
 
   /**
    * Load a URL in Pjax way. Navigate normally on errors except AbortError.
-   * @param {string} url
-   * @param {Partial<Pjax.options>} [overrideOptions]
-   * @return {Promise<void>}
    */
-  async loadURL(url, overrideOptions = {}) {
+  async loadURL(url: string, overrideOptions: Partial<Pjax.Options> = {}): Promise<void> {
     try {
       await this.weakLoadURL(url, overrideOptions);
     } catch (e) {

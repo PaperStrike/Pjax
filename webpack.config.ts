@@ -1,5 +1,7 @@
-const common = {
-  entry: './src/index.js',
+import type { Configuration } from 'webpack';
+
+const common: Configuration = {
+  entry: './src/index.ts',
   output: {
     path: `${__dirname}/dist`,
   },
@@ -7,7 +9,7 @@ const common = {
   module: {
     rules: [
       {
-        test: /\.m?js$/,
+        test: /\.(m?j|t)s$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
@@ -15,9 +17,12 @@ const common = {
       },
     ],
   },
+  resolve: {
+    extensions: ['.ts', '...'],
+  },
 };
 
-module.exports = [
+const configurations: Configuration[] = [
   {
     ...common,
     name: 'global-dev',
@@ -77,3 +82,5 @@ module.exports = [
     },
   },
 ];
+
+export default configurations;

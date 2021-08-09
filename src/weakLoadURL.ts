@@ -1,11 +1,13 @@
+import type Pjax from '.';
+
 /**
  * Load a URL in Pjax way. Throw all errors.
- * @this {Pjax}
- * @param {string} url
- * @param {Partial<Pjax.options>} [overrideOptions]
- * @return {Promise<void>}
  */
-export default async function weakLoadURL(url, overrideOptions = {}) {
+export default async function weakLoadURL(
+  this: Pjax,
+  url: string,
+  overrideOptions: Partial<Pjax.Options> = {},
+): Promise<void> {
   const parsedURL = new URL(url, document.URL);
 
   // External URL.

@@ -104,9 +104,7 @@ test('no throw if the script removed itself', () => {
 describe('document.currentScript match', () => {
   const testAccessibleScriptText = `
     if (document.currentScript === document.querySelector('#findSelf')) {
-      document.body.className = 'match';
-    } else {
-      window.abc = document.currentScript;
+      document.body.className = 'found';
     }
   `;
 
@@ -120,7 +118,7 @@ describe('document.currentScript match', () => {
     nock.cleanAll();
   });
 
-  const testAccessible = async (sourceType, connected, connectType) => {
+  const testAccessible = async (sourceType, connected, connectType?: string) => {
     document.body.innerHTML = '';
 
     const scriptEle = document.createElement('script');
@@ -142,19 +140,21 @@ describe('document.currentScript match', () => {
       expect(scriptEle.isConnected).toBeTruthy();
     }
 
-    document.body.className = 'not match';
+    document.body.className = 'not found';
 
     await new Script(scriptEle).eval();
     expect(document.body.className)
-      .toBe('match');
+      .toBe('found');
   };
 
   describe.each(['external', 'inline'])('%s scripts', (sourceType) => {
     describe('connected', () => {
-      test.each(['current', 'other'])('in %s doc', (connectType) => (
-        testAccessible(sourceType, true, connectType)
-      ));
+      test.each(['current', 'other'])('in %s doc', async (connectType) => {
+        await expect(testAccessible(sourceType, true, connectType)).resolves.not.toThrow();
+      });
     });
-    test('unconnected', () => testAccessible(sourceType, false));
+    test('unconnected', async () => {
+      await expect(testAccessible(sourceType, false)).resolves.not.toThrow();
+    });
   });
 });

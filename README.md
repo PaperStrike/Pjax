@@ -4,11 +4,13 @@
 
 [![Build Status](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml/badge.svg)](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml)
 
-> Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history))
+> Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API))
 
 A maintained, modern, and smaller (~3 KB gzipped minified) version of Pjax.
 
 Pjax aims to deliver _app-like_ browsing experiences. It doesn't rely on other libraries like jQuery.
+
+---
 
 🐿️ Jump to [Usage](#usage), [Options](#options), [Status](#status), [Q&A][q-a], or [Contributing Guide][contributing].
 
@@ -40,25 +42,23 @@ npm install
 
 ### Pick a script in `dist` folder
 
-#### `pjax.js` or `pjax.min.js`
+#### To declare globally
 
-To declare Pjax as a global variable, link one of them in a separate `<script>` tag as:
+Link to `pjax.js` or `pjax.min.js` in a separate `<script>` tag as:
 
 ```html
 <script src="./dist/pjax.js"></script>
 ```
 
-#### `pjax.esm.js` or `pjax.esm.min.js`
+#### To import as ES module
 
-To use Pjax as an ECMAScript module, import the default value from one of them as:
+Import the default value from `pjax.esm.js` or `pjax.esm.min.js` as:
 
 ```js
-import Pjax from './dist/pjax.esm';
+import Pjax from './dist/pjax.esm.js';
 ```
 
 Each script file has a related `.map` file, known as the [source map](https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map), for debugging. Browsers won't fetch them without DevTools opened, so it won't affect your users' experiences. For more information, click the link to find out.
-
----
 
 ## What Pjax Does
 
@@ -71,7 +71,7 @@ Pjax fetches the new content, switches parts of your page, updates the URL, exec
 1. Listen to simple redirections.
 2. Fetch the target page via `fetch`.
 3. Render the DOM tree using [`DOMParser`](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser).
-4. Check if every defined selector selects the same amount of elements in current DOM and the new DOM.
+4. Check if defined selectors select the same amount of elements in current DOM and the new DOM.
     - If no, Pjax uses standard navigation.
     - If yes, Pjax switches the elements in index order.
 5. Update current URL using `pushState`.
@@ -95,7 +95,7 @@ Consider the following page:
 </head>
 
 <body>
-  <header class="the-header">
+  <header class="header">
     <nav>
       <a href="/" class="is-active">Home</a>
       <a href="/about">About</a>
@@ -103,7 +103,7 @@ Consider the following page:
     </nav>
   </header>
 
-  <section class="the-content">
+  <section class="content">
     <h1>My Cool Blog</h1>
     <p>
       Thanks for stopping by!
@@ -112,12 +112,12 @@ Consider the following page:
     </p>
   </section>
 
-  <aside class="the-sidebar">
+  <aside class="sidebar">
     <h3>Recent Posts</h3>
     <!-- sidebar content -->
   </aside>
 
-  <footer class="the-footer">
+  <footer class="footer">
     &copy; My Cool Blog
   </footer>
 
@@ -126,7 +126,7 @@ Consider the following page:
 </html>
 ```
 
-We want Pjax to intercept the URL `/about`, and replace `.the-content` with the resulting content of the request.
+We want Pjax to intercept the URL `/about`, and replace `.content` with the resulting content of the request.
 
 Besides, we would like to replace the `<nav>` to show the active `/about` link, as well as update our page meta and the `<aside>` sidebar.
 
@@ -139,14 +139,14 @@ const pjax = new Pjax({
   selectors: [
     'title',
     'meta[name=description]',
-    '.the-header',
-    '.the-content',
-    '.the-sidebar',
+    '.header',
+    '.content',
+    '.sidebar',
   ],
 });
 ```
 
-Now, when someone in a Pjax-compatible browser clicks an internal link on the page, the content of each of the selectors will transform to the specific content pieces found in the next page.
+Now, when someone in a compatible browser clicks a link, the content selected above will switch to the specific content pieces found in the next page.
 
 _Magic! For real!_ **Nothing server-side!**
 
@@ -162,7 +162,16 @@ Safari  | 12.2+              | Jul 22, 2019
 
 ## Usage
 
-### `new Pjax([options])`
+Method | Parameters | Return Value
+------ | ---------- | ------------
+[Pjax.constructor](#constructor) | options: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
+[loadURL](#loadurl) | url: **string**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
+[weakLoadURL](#weakloadurl) | url: **string**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
+[switchDOM](#switchdom) | url: **string**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
+[preparePage](#preparepage) | switchesResult: **[SwitchesResult](#type-switchesresult) &#124; null**, overrideOptions: **Partial\<[Options](#options)\>** = `{}` | **Promise\<void\>**
+[Pjax.reload](#reload) | / | **void**
+
+### constructor
 
 The most basic way to get started.
 
@@ -174,14 +183,14 @@ const pjax = new Pjax({
   defaultTrigger: true,
   selectors: [
     'title',
-    '.the-header',
-    '.the-content',
-    '.the-sidebar',
+    '.header',
+    '.content',
+    '.sidebar',
   ],
 });
 ```
 
-This will enable Pjax on all links and forms, and designate the part to replace using CSS selectors `'title', '.the-header', '.the-content', '.the-sidebar'`.
+This will enable Pjax on all links and forms, and designate the part to replace using CSS selectors `'title', '.header', '.content', '.sidebar'`.
 
 In some cases, you might want to only target some specific elements or specific moments to apply Pjax behavior. In that case:
 
@@ -202,11 +211,11 @@ document.addEventListener((event) => {
 });
 ```
 
-### `loadURL(url, [overrideOptions])`
+### loadURL
 
 Calling this method aborts the last call (if unfinished) and navigates to the given URL in Pjax way.
 
-Any error other than `AbortError` leads to a normal navigation (via `window.location.assign`). Note that `AbortError` happens on fetch timeout, too.
+Any error other than `AbortError` leads to the normal navigation (by `window.location.assign`). Note that `AbortError` happens on fetch timeout, too.
 
 ```js
 const pjax = new Pjax();
@@ -227,9 +236,9 @@ pjax.loadURL('/your-url')
   });
 ```
 
-### `weakLoadURL(url, [overrideOptions])`
+### weakLoadURL
 
-This method behaves almost the same as `loadURL`, except that it won't use normal navigation on errors — it throws regardless of the error's type.
+This method behaves almost the same as `loadURL`, except that it throws regardless of the error's type.
 
 Useful when you need to handle all the errors on your own.
 
@@ -246,19 +255,37 @@ pjax.weakLoadURL('/your-url')
   });
 ```
 
-### `switchDOM(url, [overrideOptions])`
+### switchDOM
 
-This method accepts the URL string of the target document, set up the fetch timeout, and sends the request with Pjax headers. It also takes the responsibility of firing Pjax related events.
+This method accepts the URL string of a target document.
 
 It returns a promise that resolves when all the following steps have done:
 
-- Switch elements selected by `selectors` option.
-- Call `pushState` to update the URL.
-- Focus the first [`autofocus`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autofocus) if previous focus has gone.
-- Execute all newly-added or targeted scripts in document order, and wait for the blocking ones (e.g., inline scripts).
-- Scroll to position given by `scrollTo` option.
+1. Switch elements selected by `selectors` option.
+2. Set _focusCleared_ to `true` if previous step has cleared the page focus, otherwise, `false`.
+3. Call `pushState` to update the URL.
+4. Call and await [`preparePage`](#preparepage) with a new [SwitchesResult](#type-switchesresult) that contains _focusCleared_.
 
-### `reload()`
+### preparePage
+
+This method accepts an optional [SwitchesResult](#type-switchesresult).
+
+It returns a promise that resolves when all the following steps have done:
+
+1. Focus the first [`autofocus`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autofocus) if `focusCleared` (in the given switches result) evaluates to `true`.
+2. Execute all newly-loaded and targeted scripts in document order.
+3. Wait until the blocking scripts got executed (e.g., inline scripts).
+4. Scroll to the position given by `scrollTo` option.
+
+#### Type SwitchesResult
+
+```ts
+interface SwitchesResult {
+  focusCleared: boolean
+}
+```
+
+### reload
 
 A helper shortcut for `window.location.reload`, a static member of Pjax.
 
@@ -268,7 +295,18 @@ Pjax.reload();
 
 ## Options
 
-### `defaultTrigger` (Boolean, default: `true`)
+ Name | Type | Default Value
+---- | ---- | ----
+[defaultTrigger](#defaulttrigger) | **boolean** | `true`
+[selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
+[switches](#switches) | **{ \[p: string\]: [Switch](#type-switch) }** | `{}`
+[scripts](#scripts) | **string** | `script[data-pjax]`
+[scrollTo](#scrollto) | **number &#124; \[number, number\] &#124; boolean** | `true`
+[scrollRestoration](#scrollrestoration) | **boolean** | `true`
+[cacheMode](#cachemode) | **[RequestCache][mdn-request-cache-api]** | `'default'`
+[timeout](#timeout) | **number** | `0`
+
+### defaultTrigger
 
 When set to `false`, disable the default Pjax trigger.
 
@@ -283,15 +321,15 @@ Technically, a submission does a *simple redirection* when its:
 - target browsing context matches `_self`.
 - method matches `get`.
 
-### `selectors` (Array, default: `['title', '.pjax']`)
+### selectors
 
-CSS selector list used to target contents to replace.
+CSS selector list used to target contents to replace. E.g.,
 
 ```js
 const pjax = new Pjax({
   selectors: [
     'title',
-    '.the-content',
+    '.content',
   ],
 });
 ```
@@ -300,9 +338,9 @@ If a query returns multiples items, it will just keep the index.
 
 Every selector, in the current page and new page, must select the same amount of DOM elements. Otherwise, Pjax will fall back into normal page load.
 
-### `switches` (Object, default: `{}`)
+### switches
 
-This contains callbacks used to switch old elements with new elements.
+This contains callbacks (of type [Switch](#type-switch)) used to switch old elements with new elements.
 
 The object keys should match one of the defined selectors (from the `selectors` option).
 
@@ -314,17 +352,23 @@ const pjax = new Pjax({
   switches: {
     // default behavior
     'title': Pjax.switches.default,
-    '.the-content': async (oldEl, newEl) => {
-      // How you deal with the two nodes.
+    '.content': async (oldEle, newEle) => {
+      // How you deal with the two elements.
     },
     '.pjax': Pjax.switches.innerText,
   },
 });
 ```
 
-Callbacks may return a promise to make Pjax recognize when the switch has done. Newly added scripts execute and labeled scripts re-execute after all switches finishes.
+#### Type Switch
 
-### Existing Switch Callbacks
+```ts
+type Switch = (oldEle: Element, newEle: Element) => (Promise<void> | void)
+```
+
+When it returns a promise, Pjax recognizes when the switch has done. Newly added scripts execute and labeled scripts re-execute after all switches finishes.
+
+#### Existing Switch Callbacks
 
 - `Pjax.switches.innerHTML` —
   Replace HTML contents by using [`Element.innerHTML`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML).
@@ -337,11 +381,11 @@ Callbacks may return a promise to make Pjax recognize when the switch has done. 
 - `Pjax.switches.replaceWith` —
   The default behavior, replace elements by using [`ChildNode.replaceWith`](https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/replaceWith).
 
-### Creating a Switch Callback
+#### Creating a Switch Callback
 
-Your callback function can do whatever you want, as long as you keep the amount of the elements selected by the `selectors` option remain the same.
+Your callback function can do whatever you want. But remember to keep the amount of the elements selected by the `selectors` option remain the same.
 
-In this example, the `current` class represents the only switching element, so that the switch elements' amount won't change. Before the returned promise resolves, Pjax will neither update the URL, execute the script elements nor scroll the page.
+In the example below, `.current` class marks the only switching element, so that the switch elements' amount won't change. Before the returned promise resolves, Pjax will neither update the URL, execute the script elements nor scroll the page.
 
 ```js
 const pjax = new Pjax({
@@ -363,11 +407,11 @@ const customSwitch = (oldEle, newEle) => {
 };
 ```
 
-**NOTE:** _Pjax waits for the switches in a navigation, but may abort the whole navigation when the next one happens (e.g., user triggering the “Back” button)._
+**NOTE:** _Pjax waits for the switches, but moves on to the next navigation, and forgets the previous one, on matter whether finished or not. Workarounds that try to block user actions may not work as well as hoped, because the user can always use the "back" button, and Pjax always reacts to it._
 
-### `scripts` (String, default: `'script[data-pjax]'`)
+### scripts
 
-CSS selector used to target scripts to re-execute at page switches. If needing multiple specific selectors, separate them by a comma. Like:
+CSS selector used to target `<script>` to re-execute after a page switch. For multiple selectors, separate them by a comma. Like:
 
 ```js
 // Single selector
@@ -385,27 +429,27 @@ const pjax = new Pjax({
 
 **NOTE:** _Pjax always executes scripts in newly loaded contents. You don't have to mark them here._
 
-### `scrollTo` (Number | \[Number, Number\] | Boolean, default: `true`)
+### scrollTo
 
 When set to a number, this represents the vertical value (in px from the top of the page) to scroll to after a page switch.
 
-When set to an array of 2 numbers (\[x, y\]), this represents the value to scroll both horizontally and vertically.
+When set to an array of 2 numbers (\[x, y\]), this contains the horizontal and vertical values to scroll to after a page switch.
 
 Set this to `true` to make Pjax decide the scroll position. Pjax will try to act as the browsers' default behavior. For example, scroll the element into view when hash changing to its id, scroll to page left top when navigating to a new page without a valid hash.
 
 Set this to `false` to disable all scrolling by Pjax.
 
-**NOTE:** _This option does not affect the scroll restoration defined below._
+**NOTE:** _This does not affect the scroll restoration defined below._
 
-### `scrollRestoration` (Boolean, default: `true`)
+### scrollRestoration
 
-When set to `true`, Pjax will attempt to restore the scroll position when navigating backward or forward.
+When set to `true`, Pjax attempts to restore the page scroll status when navigating backward or forward.
 
-### `cacheMode` (RequestCache, default: `'default'`)
+### cacheMode
 
-This contains the cache mode of Pjax requests, which shares the same available values with [`Request.cache`](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache).
+This contains the cache mode of Pjax requests, which shares the same available values with [`Request.cache`][mdn-request-cache-api].
 
-### `timeout` (Integer, default: `0`)
+### timeout
 
 The time in _milliseconds_ to abort the fetch requests. Set to `0` to disable.
 
@@ -413,13 +457,18 @@ The time in _milliseconds_ to abort the fetch requests. Set to `0` to disable.
 
 Accessible by calling on the Pjax instance.
 
-### `location` ([URL][mdn-url-api], default: `new URL(window.location.href)`)
+Name | Type | Default Value
+---- | ---- | ----
+[location](#location) | **[URL][mdn-url-api]** | `new URL(window.location.href)`
+[abortController](#abortcontroller) | **[AbortController][mdn-abortcontroller-api] &#124; null** | `null`
+
+### location
 
 The last location recognized by Pjax.
 
-### `abortController` ([AbortController][mdn-abortcontroller-api] | null, default: `null`)
+### abortController
 
-The abort controller that can abort the page navigation handling by Pjax.
+The abort controller that can abort the Pjax handling navigation. When Pjax handles nothing, `null`.
 
 For example, to abort Pjax on certain events:
 
@@ -454,7 +503,7 @@ document.addEventListener('pjax:complete', topbar.hide);
 
 ## HTTP Headers
 
-Pjax uses several custom headers when it sends HTTP requests. If the requests goes to your server, you can use those headers for some meta information about the response.
+Pjax uses several custom headers when it sends HTTP requests.
 
 - `X-Requested-With: Fetch`
 - `X-PJAX: true`
@@ -465,7 +514,7 @@ Pjax uses several custom headers when it sends HTTP requests. If the requests go
 
 Most of the time, you will have code related to the current DOM that you only execute when the DOM became ready.
 
-Since Pjax doesn't trigger the standard DOM ready events, you'll need to add code to re-trigger the DOM ready code. Here's a simple example:
+Since Pjax doesn't trigger the standard DOM ready events, you'll need to add code to re-trigger the DOM ready code. For example:
 
 ```js
 function whenDOMReady() {
@@ -490,6 +539,7 @@ document.addEventListener('pjax:success', whenDOMReady);
 ## [LICENSE](LICENSE)
 
 [mdn-document-api]: https://developer.mozilla.org/en-US/docs/Web/API/Document
+[mdn-request-cache-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
 [mdn-url-api]: https://developer.mozilla.org/en-US/docs/Web/API/URL
 [mdn-abortcontroller-api]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 
