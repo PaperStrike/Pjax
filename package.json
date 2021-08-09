@@ -21,6 +21,13 @@
   ],
   "browser": "./dist/pjax.min.js",
   "repository": "github:PaperStrike/Pjax",
+  "browserslist": [
+    "edge >= 79",
+    "firefox >= 60",
+    "chrome >= 66",
+    "opera >= 53",
+    "safari >= 12.2"
+  ],
   "devDependencies": {
     "@babel/cli": "^7.14.3",
     "@babel/core": "^7.14.3",

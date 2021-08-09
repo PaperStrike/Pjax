@@ -1,11 +1,4 @@
 {
-  "targets": {
-    "edge": "79",
-    "firefox": "60",
-    "chrome": "66",
-    "opera": "53",
-    "safari": "12.2"
-  },
   "presets": [
     ["@babel/preset-typescript", {
       "allowDeclareFields": true
