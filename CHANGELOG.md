@@ -1,3 +1,7 @@
+# 1.0.1
+
+* Small improvements to distributions
+
 # 1.0.0
 
 ## 🚀 Enhancements
