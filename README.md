@@ -1,14 +1,14 @@
 # ES6+ Pjax
 
-[MoOx/pjax](https://github.com/MoOx/pjax) ES6+ Edition.
-
 [![Build Status](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml/badge.svg)](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml)
+[![npm Package](https://img.shields.io/npm/v/@sliphua/pjax?logo=npm)](https://www.npmjs.com/package/@sliphua/pjax)
+[![Gzipped Minified Size](https://img.shields.io/bundlephobia/minzip/@sliphua/pjax?label=minzipped)](https://bundlephobia.com/package/@sliphua/pjax)
 
-> Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API))
+Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API)).
 
-A maintained, modern, and smaller (~3 KB gzipped minified) version of Pjax.
+Pjax aims to deliver _app-like_ browsing experiences. No more full page reloads, no more multiple HTTP requests. It does not rely on other libraries, like jQuery or similar. Written in pure TS, transpiled by [Babel](https://babel.dev/) and [webpack](https://webpack.js.org/).
 
-Pjax aims to deliver _app-like_ browsing experiences. It doesn't rely on other libraries like jQuery.
+A maintained, modern, and smaller version of [MoOx/pjax](https://github.com/MoOx/pjax).
 
 ---
 
@@ -179,8 +179,6 @@ When instantiating `Pjax`, you can pass options into the constructor as an objec
 
 ```js
 const pjax = new Pjax({
-  // default value, listens on all links and forms
-  defaultTrigger: true,
   selectors: [
     'title',
     '.header',
@@ -190,26 +188,9 @@ const pjax = new Pjax({
 });
 ```
 
-This will enable Pjax on all links and forms, and designate the part to replace using CSS selectors `'title', '.header', '.content', '.sidebar'`.
+This will enable Pjax on all links and forms, and designate the part to replace using CSS selectors `'title'`, `'.header'`, `'.content'`, and `'.sidebar'`.
 
-In some cases, you might want to only target some specific elements or specific moments to apply Pjax behavior. In that case:
-
-1. Set `defaultTrigger` to `false`.
-2. Use `loadURL` method of the Pjax instance to let Pjax handle the navigation on your demand.
-
-```js
-// Set `defaultTrigger` to `false`.
-const pjax = new Pjax({ defaultTrigger: false });
-
-// Use `loadURL` on your demand.
-document.addEventListener((event) => {
-  const { target } = event;
-  if (someCondition) {
-    event.preventDefault();
-    pjax.loadURL(target.href);
-  }
-});
-```
+To disable the default Pjax trigger, set [`defaultTrigger`](#defaulttrigger) option to `false`.
 
 ### loadURL
 
@@ -261,14 +242,14 @@ This method accepts the URL string of a target document.
 
 It returns a promise that resolves when all the following steps have done:
 
-1. Switch elements selected by `selectors` option.
+1. Transform elements selected by [`selectors`](#selectors) with switches defined in [`switches`](#switches).
 2. Set _focusCleared_ to `true` if previous step has cleared the page focus, otherwise, `false`.
 3. Call `pushState` to update the URL.
 4. Call and await [`preparePage`](#preparepage) with a new [SwitchesResult](#type-switchesresult) that contains _focusCleared_.
 
 ### preparePage
 
-This method accepts an optional [SwitchesResult](#type-switchesresult).
+This method accepts a nullable [SwitchesResult](#type-switchesresult).
 
 It returns a promise that resolves when all the following steps have done:
 
@@ -320,6 +301,20 @@ Technically, a submission does a *simple redirection* when its:
 - enctype matches `application/x-www-form-urlencoded`.
 - target browsing context matches `_self`.
 - method matches `get`.
+
+Use when you only need Pjax in some specific moments. E.g.,
+
+```js
+// Set `defaultTrigger` to `false`.
+const pjax = new Pjax({ defaultTrigger: false });
+
+// Use `loadURL` on your demand.
+document.addEventListener('example', (event) => {
+  if (!needsPjax) return;
+  event.preventDefault();
+  pjax.loadURL('/bingo');
+});
+```
 
 ### selectors
 
@@ -475,7 +470,7 @@ For example, to abort Pjax on certain events:
 ```js
 const pjax = new Pjax();
 
-document.addEventListener('yourCustomEventType', () => {
+document.addEventListener('example', () => {
   pjax.abortController?.abort();
 });
 ```
