@@ -2,7 +2,7 @@
 
 [![Build Status](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml/badge.svg)](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml)
 [![npm Package](https://img.shields.io/npm/v/@sliphua/pjax?logo=npm)](https://www.npmjs.com/package/@sliphua/pjax)
-[![Gzipped Minified Size](https://img.shields.io/bundlephobia/minzip/@sliphua/pjax?color=ff69b4&label=minzipped)](https://bundlephobia.com/package/@sliphua/pjax)
+[![Compressed Minified Size](https://img.badgesize.io/https:/cdn.jsdelivr.net/npm/@sliphua/pjax/dist/pjax.esm.min.js?compression=brotli&label=minzipped&color=ff69b4 "dist/pjax.esm.min.js, Brotli compressed")](#pick-a-script-in-dist-folder)
 
 Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API)).
 
@@ -42,6 +42,8 @@ npm install
 
 ### Pick a script in `dist` folder
 
+Each script file has a related `.map` file, known as the [source map](https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map), for debugging. Browsers won't fetch them without DevTools opened, so it won't affect your users' experiences. For more information, click the link to find out.
+
 #### To declare globally
 
 Link to `pjax.js` or `pjax.min.js` in a separate `<script>` tag as:
@@ -57,8 +59,6 @@ Import the default value from `pjax.esm.js` or `pjax.esm.min.js` as:
 ```js
 import Pjax from './dist/pjax.esm.js';
 ```
-
-Each script file has a related `.map` file, known as the [source map](https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map), for debugging. Browsers won't fetch them without DevTools opened, so it won't affect your users' experiences. For more information, click the link to find out.
 
 ## What Pjax Does
 
@@ -95,33 +95,33 @@ Consider the following page:
 </head>
 
 <body>
-  <header class="header">
-    <nav>
-      <a href="/" class="is-active">Home</a>
-      <a href="/about">About</a>
-      <a href="/contact">Contact</a>
-    </nav>
-  </header>
+<header class="header">
+  <nav>
+    <a href="/" class="is-active">Home</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+  </nav>
+</header>
 
-  <section class="content">
-    <h1>My Cool Blog</h1>
-    <p>
-      Thanks for stopping by!
+<section class="content">
+  <h1>My Cool Blog</h1>
+  <p>
+    Thanks for stopping by!
 
-      <a href="/about">Click Here to find out more about me.</a>
-    </p>
-  </section>
+    <a href="/about">Click Here to find out more about me.</a>
+  </p>
+</section>
 
-  <aside class="sidebar">
-    <h3>Recent Posts</h3>
-    <!-- sidebar content -->
-  </aside>
+<aside class="sidebar">
+  <h3>Recent Posts</h3>
+  <!-- sidebar content -->
+</aside>
 
-  <footer class="footer">
-    &copy; My Cool Blog
-  </footer>
+<footer class="footer">
+  &copy; My Cool Blog
+</footer>
 
-  <script src="onDomReady.js"></script>
+<script src="onDomReady.js"></script>
 </body>
 </html>
 ```
@@ -276,7 +276,7 @@ Pjax.reload();
 
 ## Options
 
- Name | Type | Default Value
+Name | Type | Default Value
 ---- | ---- | ----
 [defaultTrigger](#defaulttrigger) | **boolean** | `true`
 [selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
@@ -512,7 +512,7 @@ Pjax uses several custom headers when it sends HTTP requests.
 - `X-Requested-With: Fetch`
 - `X-PJAX: true`
 - `X-PJAX-Selectors` —
-    A serialized JSON array of selectors, taken from `options.selectors`. You can use this to send back only the elements that Pjax will use to switch, instead of sending the whole page. Note that you may need to deserialize this on the server (Such as by using `JSON.parse`)
+  A serialized JSON array of selectors, taken from `options.selectors`. You can use this to send back only the elements that Pjax will use to switch, instead of sending the whole page. Note that you may need to deserialize this on the server (Such as by using `JSON.parse`)
 
 ## DOM Ready State
 
