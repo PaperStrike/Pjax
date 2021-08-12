@@ -118,7 +118,7 @@ describe('document.currentScript match', () => {
     nock.cleanAll();
   });
 
-  const testAccessible = async (sourceType, connected, connectType?: string) => {
+  const testAccessible = async (sourceType: string, connected: boolean, connectType?: string) => {
     document.body.innerHTML = '';
 
     const scriptEle = document.createElement('script');

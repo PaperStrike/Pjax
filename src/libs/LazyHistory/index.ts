@@ -12,22 +12,18 @@
  * history state as keys to identify session storage items.
  */
 
-declare module LazyHistory {
-  /**
-   * A valid history state object.
-   */
-  export interface State {
-    [name: string]: any;
-  }
-
-  export interface SignedState extends State {}
+/**
+ * A valid history state object.
+ */
+export interface State {
+  [name: string]: unknown;
 }
 
 class LazyHistory {
   /**
    * Used to generate unique keys.
    */
-  private count: number = 0;
+  private count = 0;
 
   /**
    * The prefix of the generated key.
@@ -47,7 +43,7 @@ class LazyHistory {
   /**
    * The current state.
    */
-  state!: LazyHistory.State;
+  state!: State;
 
   constructor(idPrefix: string, historyKey: string = idPrefix) {
     this.idPrefix = idPrefix;
@@ -67,7 +63,7 @@ class LazyHistory {
   /**
    * Prepare a new session key and attach to current or given state.
    */
-  private sign(state: LazyHistory.State = window.history.state): LazyHistory.SignedState {
+  private sign(state: State | null = window.history.state as State | null): State {
     if (this.count > 0) this.save();
 
     // Generate a new key.
@@ -75,38 +71,39 @@ class LazyHistory {
     this.count += 1;
 
     // Generate attached state.
-    const attached = {
+    const SignedState = {
       ...state || {},
       [this.historyKey]: sessionKey,
     };
 
     this.sessionKey = sessionKey;
-    this.state = attached;
+    this.state = SignedState;
 
-    return attached;
+    return SignedState;
   }
 
   /**
    * Push to history entry.
    */
-  push(state: LazyHistory.State, title: string, url: string) {
+  push(state: State, title: string, url: string): void {
     window.history.pushState(this.sign(state), title, url);
   }
 
   /**
    * Keep up with current browser history entry.
    */
-  pull() {
+  pull(): void {
     this.save();
 
-    const sessionKey = window.history.state?.[this.historyKey];
+    const sessionKey = (window.history.state as State | null)
+      ?.[this.historyKey] as string | undefined;
     if (!sessionKey) {
       // Initialize if haven't.
       window.history.replaceState(this.sign(), document.title);
     } else {
       this.sessionKey = sessionKey;
       const savedState = window.sessionStorage.getItem(sessionKey);
-      this.state = savedState ? JSON.parse(savedState) : {};
+      this.state = savedState ? JSON.parse(savedState) as State : {};
     }
   }
 }

@@ -7,50 +7,61 @@ import switchDOM from './switchDOM';
 import preparePage from './preparePage';
 import weakLoadURL from './weakLoadURL';
 
-declare module Pjax {
-  export type Switch = (oldEle: Element, newEle: Element) => (Promise<void> | void);
+export type Switch<T extends Element = Element>
+  = (oldEle: T, newEle: T) => (Promise<void> | void);
 
-  export interface Options {
-    defaultTrigger: boolean,
-    selectors: string[],
-    switches: { [name: string]: Switch },
-    scripts: string,
-    scrollTo: number | [number, number] | boolean,
-    scrollRestoration: boolean,
-    cacheMode: RequestCache,
-    timeout: number,
-  }
-
-  export interface SwitchesResult {
-    focusCleared: boolean;
-  }
-
-  export interface EventDetail {
-    targetURL?: string;
-    signal?: AbortSignal | null;
-    selectors?: Options['selectors'];
-    timeout?: Options['timeout'];
-    timeoutID?: number;
-    switches?: Options['switches'];
-    switchesResult?: SwitchesResult;
-    error?: any;
-  }
+export interface Options {
+  defaultTrigger: boolean,
+  selectors: string[],
+  switches: { [selector: string]: Switch },
+  scripts: string,
+  scrollTo: number | [number, number] | boolean,
+  scrollRestoration: boolean,
+  cacheMode: RequestCache,
+  timeout: number,
 }
 
-class Pjax {
+export interface SwitchesResult {
+  focusCleared: boolean;
+}
+
+export interface HistoryState {
+  [key: string]: unknown;
+  scrollPos?: [number, number];
+}
+
+export interface History {
+  pull(): void;
+  state: HistoryState;
+}
+
+export interface EventDetail {
+  targetURL?: string;
+  signal?: AbortSignal | null;
+  selectors?: Options['selectors'];
+  timeout?: Options['timeout'];
+  timeoutID?: number;
+  switches?: Options['switches'];
+  switchesResult?: SwitchesResult;
+  error?: unknown;
+}
+
+export class Pjax {
   static switches = Switches;
 
-  static reload() {
+  static reload(): void {
     window.location.reload();
   }
 
   /**
    * Options default values.
    */
-  readonly options: Pjax.Options = {
+  readonly options: Options = {
     defaultTrigger: true,
     selectors: ['title', '.pjax'],
-    switches: {},
+    switches: {
+      abc: Switches.default,
+    },
     scripts: 'script[data-pjax]',
     scrollTo: true,
     scrollRestoration: true,
@@ -58,7 +69,7 @@ class Pjax {
     timeout: 0,
   };
 
-  readonly history = new LazyHistory('pjax');
+  readonly history: History = new LazyHistory('pjax');
 
   readonly location = new URL(window.location.href);
 
@@ -67,7 +78,7 @@ class Pjax {
    */
   abortController: AbortController | null = null;
 
-  constructor(options: Partial<Pjax.Options> = {}) {
+  constructor(options: Partial<Options> = {}) {
     Object.assign(this.options, options);
 
     if (this.options.scrollRestoration) {
@@ -97,9 +108,12 @@ class Pjax {
       // hashchange events trigger popstate with a null `event.state`.
       if (event.state === null) return;
 
-      const overrideOptions: Partial<Pjax.Options> = {};
-      if (this.options.scrollRestoration && 'scrollPos' in this.history.state) {
-        overrideOptions.scrollTo = this.history.state.scrollPos;
+      const overrideOptions: Partial<Options> = {};
+      if (this.options.scrollRestoration) {
+        const { scrollPos } = this.history.state;
+        if (scrollPos) {
+          overrideOptions.scrollTo = this.history.state.scrollPos;
+        }
       }
 
       this.loadURL(window.location.href, overrideOptions).catch(() => {});
@@ -113,7 +127,7 @@ class Pjax {
   /**
    * Fire Pjax related events.
    */
-  fire(type: 'send' | 'error' | 'success' | 'complete', detail: Pjax.EventDetail) {
+  fire(type: 'send' | 'error' | 'success' | 'complete', detail: EventDetail): void {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,
@@ -127,27 +141,27 @@ class Pjax {
 
   switchDOM: (
     url: string,
-    overrideOptions?: Partial<Pjax.Options>
+    overrideOptions?: Partial<Options>
   ) => Promise<void> = switchDOM;
 
   preparePage: (
-    switchesResult: Pjax.SwitchesResult | null,
-    overrideOptions?: Partial<Pjax.Options>
+    switchesResult: SwitchesResult | null,
+    overrideOptions?: Partial<Options>
   ) => Promise<void> = preparePage;
 
   weakLoadURL: (
     url: string,
-    overrideOptions?: Partial<Pjax.Options>
+    overrideOptions?: Partial<Options>
   ) => Promise<void> = weakLoadURL;
 
   /**
    * Load a URL in Pjax way. Navigate normally on errors except AbortError.
    */
-  async loadURL(url: string, overrideOptions: Partial<Pjax.Options> = {}): Promise<void> {
+  async loadURL(url: string, overrideOptions: Partial<Options> = {}): Promise<void> {
     try {
       await this.weakLoadURL(url, overrideOptions);
     } catch (e) {
-      if (e.name === 'AbortError') throw e;
+      if (e instanceof DOMException && e.name === 'AbortError') throw e;
       window.location.assign(url);
     }
   }

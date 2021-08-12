@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "module": "commonjs",
-    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "strict": true,
     "target": "es2021"
   },
   "exclude": [

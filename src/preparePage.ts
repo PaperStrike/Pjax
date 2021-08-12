@@ -1,4 +1,4 @@
-import type Pjax from '.';
+import type { Pjax, Options, SwitchesResult } from '.';
 
 import executeScripts from './libs/executeScripts';
 
@@ -7,9 +7,9 @@ import executeScripts from './libs/executeScripts';
  */
 export default async function preparePage(
   this: Pjax,
-  switchesResult: Pjax.SwitchesResult | null,
-  overrideOptions: Partial<Pjax.Options> = {},
-) {
+  switchesResult: SwitchesResult | null,
+  overrideOptions: Partial<Options> = {},
+): Promise<void> {
   const options = { ...this.options, ...overrideOptions };
 
   // If page elements are switched.

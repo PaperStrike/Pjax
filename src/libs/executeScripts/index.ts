@@ -38,7 +38,7 @@ export default async function executeScripts(
   // to help browsers fetch them in parallel.
   // Each inline blocking script will be evaluated as soon as
   // all its previous blocking scripts are executed.
-  const execution = validScripts.reduce((promise, script) => {
+  const execution = validScripts.reduce((promise: Promise<unknown>, script): Promise<unknown> => {
     if (script.external) {
       return Promise.all([promise, executor.exec(script)]);
     }
@@ -46,12 +46,12 @@ export default async function executeScripts(
   }, Promise.resolve());
 
   // Reject as soon as possible on abort.
-  return Promise.race([
+  await Promise.race([
     execution,
     new Promise((resolve, reject) => {
       signal?.addEventListener('abort', () => {
         reject(new DOMException('Aborted execution', 'AbortError'));
       });
     }),
-  ]).then(() => {});
+  ]);
 }
