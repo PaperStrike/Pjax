@@ -1,3 +1,13 @@
+# 1.1.0
+
+## 🚀 Enhancements
+
+* Adapt recommended TS rules ([#95](https://github.com/PaperStrike/Pjax/pull/95))
+
+## 🐛 Bug Fixes
+
+* Avoid write to session storage when init ([#89](https://github.com/PaperStrike/Pjax/pull/89))
+
 # 1.0.1
 
 * Small improvements to distributions
