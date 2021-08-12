@@ -1,9 +1,9 @@
-import type Pjax from '..';
+import type * as Pjax from '..';
 
 /**
  * Replace HTML contents by using innerHTML.
  */
-const innerHTML: Pjax.Switch = (oldNode: Element, newNode: Element) => {
+const innerHTML: Pjax.Switch = (oldNode, newNode) => {
   // eslint-disable-next-line no-param-reassign
   oldNode.innerHTML = newNode.innerHTML;
 };
@@ -11,7 +11,7 @@ const innerHTML: Pjax.Switch = (oldNode: Element, newNode: Element) => {
 /**
  * Replace all text by using textContent.
  */
-const textContent: Pjax.Switch = (oldNode: Node, newNode: Node) => {
+const textContent: Pjax.Switch = (oldNode, newNode) => {
   // eslint-disable-next-line no-param-reassign
   oldNode.textContent = newNode.textContent;
 };
@@ -19,7 +19,7 @@ const textContent: Pjax.Switch = (oldNode: Node, newNode: Node) => {
 /**
  * Replace readable text by using innerText.
  */
-const innerText: Pjax.Switch = (oldEle: HTMLElement, newEle: HTMLElement) => {
+const innerText: Pjax.Switch<HTMLElement> = (oldEle, newEle) => {
   // eslint-disable-next-line no-param-reassign
   oldEle.innerText = newEle.innerText;
 };
@@ -27,7 +27,7 @@ const innerText: Pjax.Switch = (oldEle: HTMLElement, newEle: HTMLElement) => {
 /**
  * Rewrite all attributes.
  */
-const attributes: Pjax.Switch = (oldEle: Element, newEle: Element) => {
+const attributes: Pjax.Switch = (oldEle, newEle) => {
   let existingNames = oldEle.getAttributeNames();
   const targetNames = newEle.getAttributeNames();
   targetNames.forEach((target) => {
@@ -42,7 +42,7 @@ const attributes: Pjax.Switch = (oldEle: Element, newEle: Element) => {
 /**
  * Replace the whole element by using replaceWith.
  */
-const replaceWith: Pjax.Switch = (oldNode: ChildNode, newNode: ChildNode) => {
+const replaceWith: Pjax.Switch = (oldNode, newNode) => {
   oldNode.replaceWith(newNode);
 };
 

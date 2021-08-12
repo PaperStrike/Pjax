@@ -16,7 +16,7 @@ afterEach(() => {
   nock.restore();
 });
 
-const scriptText = (mark) => `document.body.className += '${mark}';`;
+const scriptText = (mark: string) => `document.body.className += '${mark}';`;
 
 describe('non-array iterable', () => {
   const container = document.createElement('div');

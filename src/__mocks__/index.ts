@@ -1,13 +1,13 @@
-import type Pjax from '..';
+import type { Pjax, Options } from '..';
 
 export default class MockedPjax implements Pjax {
-  history;
+  history!: Pjax['history'];
 
-  location;
+  location!: Pjax['location'];
 
   abortController = null;
 
-  options: Pjax.Options = {
+  options: Options = {
     defaultTrigger: false,
     selectors: [],
     switches: {},
@@ -18,7 +18,7 @@ export default class MockedPjax implements Pjax {
     timeout: 0,
   };
 
-  constructor(options: Partial<Pjax.Options> = {}) {
+  constructor(options: Partial<Options> = {}) {
     Object.assign(this.options, options);
   }
 

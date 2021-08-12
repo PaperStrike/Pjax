@@ -44,7 +44,7 @@ test('switchNodes on abort', async () => {
 
   const abortController = new AbortController();
 
-  const options = {
+  const abortPromise = switchNodes(sourceDoc, {
     ...commonOptions,
     switches: {
       // Switch and return a never resolve promise.
@@ -54,9 +54,8 @@ test('switchNodes on abort', async () => {
       },
     },
     signal: abortController.signal,
-  };
+  });
 
-  const abortPromise = switchNodes(sourceDoc, options);
   abortController.abort();
   await expect(abortPromise).rejects.toMatchObject({ name: 'AbortError' });
   expect(document.body.innerHTML).toBe('<p>New para</p>');

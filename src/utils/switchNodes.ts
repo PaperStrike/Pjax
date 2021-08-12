@@ -1,20 +1,20 @@
-import type Pjax from '..';
+import type * as Pjax from '..';
 
 import Switches from './Switches';
 
 export default async function switchNodes(sourceDocument: Document, {
   selectors,
-  switches = null,
+  switches,
   signal = null,
 }: {
-  selectors: Pjax.Options['selectors'],
-  switches?: Pjax.Options['switches'] | null
-  signal?: AbortSignal | null
+  selectors: Pjax.Options['selectors'];
+  switches: Pjax.Options['switches'];
+  signal?: AbortSignal | null;
 }): Promise<Pjax.SwitchesResult> {
   if (signal?.aborted) throw new DOMException('Aborted switches', 'AbortError');
 
   let focusCleared = false;
-  const switchesList: Promise<void>[] = [];
+  const switchPromises: Promise<void>[] = [];
 
   selectors.forEach((selector) => {
     const sourceNodeList = sourceDocument.querySelectorAll(selector);
@@ -41,19 +41,19 @@ export default async function switchNodes(sourceDocument: Document, {
       }
 
       // Argument defined switch is prior to default switch.
-      const targetSwitch = switches?.[selector] || Switches.default;
+      const targetSwitch: Pjax.Switch = switches?.[selector] || Switches.default;
 
       // Start switching. Package to promise. Ignore switch errors.
       const switchPromise = Promise.resolve()
         .then(() => targetSwitch(targetNode, sourceNodeList[index]))
         .catch(() => {});
-      switchesList.push(switchPromise);
+      switchPromises.push(switchPromise);
     });
   });
 
   // Reject as soon as possible on abort.
   await Promise.race([
-    Promise.all(switchesList),
+    Promise.all(switchPromises),
     new Promise((resolve, reject) => {
       signal?.addEventListener('abort', () => {
         reject(new DOMException('Aborted switches', 'AbortError'));

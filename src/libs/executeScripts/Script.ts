@@ -29,13 +29,13 @@ export const MIMETypes = [
 export default class Script {
   target: HTMLScriptElement;
 
-  type: 'classic' | 'module';
+  type?: 'classic' | 'module';
 
-  external: boolean = false;
+  external = false;
 
-  blocking: boolean = false;
+  blocking = false;
 
-  evaluable: boolean = false;
+  evaluable = false;
 
   constructor(scriptEle: HTMLScriptElement) {
     this.target = scriptEle;

@@ -1,4 +1,4 @@
-import type Pjax from '..';
+import type { Pjax } from '..';
 
 /**
  * Here until
@@ -9,24 +9,18 @@ interface SubmitEvent extends Event {
   readonly target: HTMLFormElement;
 }
 
+type Link = HTMLAnchorElement | HTMLAreaElement;
+
+const submitDefaultAttrs = {
+  enctype: 'application/x-www-form-urlencoded',
+  target: '_self',
+  method: 'get',
+};
+
 /**
  * Falsy or matching.
  */
-const matchesDefault = (value: any, defaultValue: any) => !value || value === defaultValue;
-
-type Link = HTMLAnchorElement | HTMLAreaElement;
-
-const getLink = (target: EventTarget | null): Link | null => {
-  if (!(target instanceof Node)) return null;
-  let checkingNode = target;
-  const links = [...document.links];
-  while (!links.includes(target as any)) {
-    const parent = checkingNode.parentElement;
-    if (!parent) return null;
-    checkingNode = parent;
-  }
-  return checkingNode as Link;
-};
+const matchesDefault = (value: unknown, defaultValue: unknown) => !value || value === defaultValue;
 
 export default class DefaultTrigger {
   pjax: Pjax;
@@ -35,8 +29,14 @@ export default class DefaultTrigger {
     this.pjax = pjax;
   }
 
-  onLinkOpen(event: Event, link: Link) {
+  onLinkOpen(event: Event): void {
     if (event.defaultPrevented) return;
+
+    const { target } = event;
+    if (!(target instanceof Element)) return;
+
+    const link: Link | null = target.closest('a[href], area[href]');
+    if (!link) return;
 
     if (event instanceof MouseEvent || event instanceof KeyboardEvent) {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -53,28 +53,36 @@ export default class DefaultTrigger {
     this.pjax.loadURL(link.href).catch(() => {});
   }
 
-  onFormSubmit(event: SubmitEvent) {
+  onFormSubmit(event: SubmitEvent): void {
     if (event.defaultPrevented) return;
 
     const { target: form, submitter } = event;
     if (!(form instanceof HTMLFormElement)) return;
 
-    // TODO: Replace "as any".
-    const {
-      formEnctype = form.enctype,
-      formTarget = form.target,
-      formMethod = form.method,
-    } = submitter as any || {};
+    /**
+     * Parse submission related content attributes.
+     * https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#form-submission-attributes
+     */
+    const submitterButton = submitter === form ? null : submitter;
+    const getSubmitAttr = (name: 'action' | 'enctype' | 'method' | 'target') => {
+      if (submitterButton) {
+        const overrideName = `form${name}`;
+        if (submitterButton.hasAttribute(overrideName)) {
+          return submitterButton.getAttribute(overrideName);
+        }
+      }
+      return form.getAttribute(name);
+    };
 
     // Handle simple URL redirect only.
-    if (!matchesDefault(formEnctype, 'application/x-www-form-urlencoded')
-      || !matchesDefault(formTarget, '_self')
-      || !matchesDefault(formMethod, 'get')) return;
+    if (!(Object.entries(submitDefaultAttrs) as Array<[keyof typeof submitDefaultAttrs, string]>)
+      .every(([attributeName, defaultValue]) => matchesDefault(
+        getSubmitAttr(attributeName),
+        defaultValue,
+      ))
+    ) return;
 
-    const url = new URL(
-      submitter?.getAttribute('formaction') || form.action,
-      document.URL,
-    );
+    const url = new URL(getSubmitAttr('action') || '', document.URL);
 
     // External.
     // loadURL checks external while having no browsers' attribute related support.
@@ -82,6 +90,10 @@ export default class DefaultTrigger {
 
     event.preventDefault();
 
+    /**
+     * For files, use their names.
+     * https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#converting-an-entry-list-to-a-list-of-name-value-pairs
+     */
     const convertedEntries = Array.from(
       new FormData(form),
       ([key, value]) => (
@@ -93,22 +105,24 @@ export default class DefaultTrigger {
     this.pjax.loadURL(url.href).catch(() => {});
   }
 
-  register() {
+  register(): void {
     document.addEventListener('click', (event) => {
-      const link = getLink(event.target);
-      if (!link) return;
-      this.onLinkOpen(event, link);
+      this.onLinkOpen(event);
     });
     document.addEventListener('keyup', (event) => {
       if (event.key !== 'Enter') return;
-      const link = getLink(event.target);
-      if (!link) return;
-      this.onLinkOpen(event, link);
+      this.onLinkOpen(event);
     });
 
     // Lacking browser compatibility and small polyfill. - August 2, 2021
     if ('SubmitEvent' in window) {
-      document.addEventListener('submit', this.onFormSubmit.bind(this));
+      document.addEventListener('submit', (event) => {
+        /**
+         * A as until
+         * https://github.com/microsoft/TypeScript/issues/40811
+         */
+        this.onFormSubmit(event as SubmitEvent);
+      });
     }
   }
 }

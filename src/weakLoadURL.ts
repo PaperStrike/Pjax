@@ -1,4 +1,4 @@
-import type Pjax from '.';
+import type { Pjax, Options } from '.';
 
 /**
  * Load a URL in Pjax way. Throw all errors.
@@ -6,7 +6,7 @@ import type Pjax from '.';
 export default async function weakLoadURL(
   this: Pjax,
   url: string,
-  overrideOptions: Partial<Pjax.Options> = {},
+  overrideOptions: Partial<Options> = {},
 ): Promise<void> {
   const parsedURL = new URL(url, document.URL);
 

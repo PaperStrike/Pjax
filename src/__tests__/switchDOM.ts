@@ -1,12 +1,8 @@
-import fetch, { Request, Response } from 'node-fetch';
+import 'cross-fetch/polyfill';
 import nock from 'nock';
 
 import MockedPjax from '..';
 import switchDOM from '../switchDOM';
-
-if (!global.fetch) global.fetch = fetch;
-if (!global.Request) global.Request = Request;
-if (!global.Response) global.Response = Response;
 
 /**
  * Fix nock memory leak - May 17, 2021
@@ -105,12 +101,11 @@ describe('pushState', () => {
 });
 
 test('request headers', async () => {
-  let nockReqHeaders;
-  const getHeader = (name) => nockReqHeaders[name.toLowerCase()].join();
+  const sentHeaders = new Headers();
   nock(window.location.origin)
     .get('/headers')
     .reply(function replyHeaders() {
-      nockReqHeaders = { ...this.req.headers };
+      Object.entries(this.req.headers).forEach(([name, value]) => sentHeaders.append(name, value));
       return [200];
     });
 
@@ -118,9 +113,9 @@ test('request headers', async () => {
 
   await pjax.switchDOM('/headers');
 
-  expect(getHeader('X-Requested-With')).toBe('Fetch');
-  expect(getHeader('X-Pjax')).toBe('true');
-  expect(getHeader('X-Pjax-Selectors')).toBe(JSON.stringify(pjax.options.selectors));
+  expect(sentHeaders.get('X-Requested-With')).toBe('Fetch');
+  expect(sentHeaders.get('X-Pjax')).toBe('true');
+  expect(sentHeaders.get('X-Pjax-Selectors')).toBe(JSON.stringify(pjax.options.selectors));
 });
 
 test('throw on abort', async () => {
@@ -160,12 +155,12 @@ test('do abort on timeout while pending', async () => {
     .delay(500)
     .replyWithError('Not Aborted.');
 
-  const pjax = new Pjax();
-  pjax.abortController = new AbortController();
-
-  const timeoutPromise = pjax.switchDOM('/delay', {
+  const pjax = new Pjax({
     timeout: 50,
   });
+  pjax.abortController = new AbortController();
+
+  const timeoutPromise = pjax.switchDOM('/delay');
 
   jest.advanceTimersByTime(100);
   await expect(timeoutPromise).rejects.toMatchObject({ name: 'AbortError' });
@@ -178,12 +173,12 @@ test('do not abort on timeout while not pending', async () => {
     .get('/resolve')
     .reply(200);
 
-  const pjax = new Pjax();
-  pjax.abortController = new AbortController();
-
-  const resolvePromise = pjax.switchDOM('/resolve', {
+  const pjax = new Pjax({
     timeout: 50,
   });
+  pjax.abortController = new AbortController();
+
+  const resolvePromise = pjax.switchDOM('/resolve');
 
   // Advance 1ms for nock delay.
   jest.advanceTimersByTime(1);

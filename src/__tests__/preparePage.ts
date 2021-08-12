@@ -1,4 +1,4 @@
-import MockedPjax from '..';
+import MockedPjax, { SwitchesResult } from '..';
 import preparePage from '../preparePage';
 
 jest.mock('..');
@@ -131,18 +131,23 @@ describe('scroll', () => {
     expect(scrollSpy).not.toHaveBeenCalled();
   });
 
+  interface PageTypePara {
+    switchesResult: SwitchesResult;
+    expectation: () => void;
+  }
+
   describe.each`
     pageType | switchesResult | expectation
     ${'same'} | ${null} | ${() => expect(scrollSpy).not.toHaveBeenCalled()}
     ${'different'} | ${{ focusCleared: false }} | ${() => expect(scrollSpy).toHaveBeenLastCalledWith(0, 0)}
-  `('invalid hash on $pageType page', ({ switchesResult, expectation }) => {
+  `('invalid hash on $pageType page', ({ switchesResult, expectation }: PageTypePara) => {
     document.body.innerHTML = '';
     test.each`
       type | hash
       ${'no match'} | ${'#no-match'}
       ${'single #'} | ${'#'}
       ${'empty'} | ${''}
-    `('$type', async ({ hash }) => {
+    `('$type', async ({ hash }: { hash: string }) => {
       expect.assertions(1);
       scrollSpy.mockReset();
       window.location.hash = hash;

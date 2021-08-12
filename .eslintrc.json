@@ -5,8 +5,10 @@
     "jest": true
   },
   "extends": [
-    "airbnb-typescript/base",
-    "plugin:jest/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:jest/recommended",
+    "airbnb-typescript/base"
   ],
   "ignorePatterns": ["dist"],
   "parser": "@typescript-eslint/parser",

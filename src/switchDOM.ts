@@ -1,14 +1,14 @@
-import type Pjax from '.';
+import type { Pjax, Options, EventDetail } from '.';
 import switchNodes from './utils/switchNodes';
 
 export default async function switchDOM(
   this: Pjax,
   url: string,
-  overrideOptions: Partial<Pjax.Options> = {},
-) {
+  overrideOptions: Partial<Options> = {},
+): Promise<void> {
   const { selectors, switches, timeout } = { ...this.options, ...overrideOptions };
 
-  const eventDetail: Pjax.EventDetail = {};
+  const eventDetail: EventDetail = {};
 
   const parsedURL = new URL(url, document.URL);
   eventDetail.targetURL = parsedURL.href;
