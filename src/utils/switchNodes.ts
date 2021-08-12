@@ -4,12 +4,12 @@ import Switches from './Switches';
 
 export default async function switchNodes(sourceDocument: Document, {
   selectors,
-  switches = null,
+  switches,
   signal = null,
 }: {
-  selectors: Pjax.Options['selectors'],
-  switches?: Pjax.Options['switches'] | null
-  signal?: AbortSignal | null
+  selectors: Pjax.Options['selectors'];
+  switches: Pjax.Options['switches'];
+  signal?: AbortSignal | null;
 }): Promise<Pjax.SwitchesResult> {
   if (signal?.aborted) throw new DOMException('Aborted switches', 'AbortError');
 
