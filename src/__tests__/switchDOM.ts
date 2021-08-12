@@ -113,7 +113,6 @@ test('request headers', async () => {
 
   await pjax.switchDOM('/headers');
 
-  expect(sentHeaders).toBeDefined();
   expect(sentHeaders.get('X-Requested-With')).toBe('Fetch');
   expect(sentHeaders.get('X-Pjax')).toBe('true');
   expect(sentHeaders.get('X-Pjax-Selectors')).toBe(JSON.stringify(pjax.options.selectors));
