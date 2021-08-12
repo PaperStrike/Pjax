@@ -358,7 +358,7 @@ const pjax = new Pjax({
 #### Type Switch
 
 ```ts
-type Switch = (oldEle: Element, newEle: Element) => (Promise<void> | void)
+type Switch<T extends Element = Element> = (oldEle: T, newEle: T) => (Promise<void> | void);
 ```
 
 When it returns a promise, Pjax recognizes when the switch has done. Newly added scripts execute and labeled scripts re-execute after all switches finishes.
