@@ -408,7 +408,7 @@ const customSwitch = (oldEle, newEle) => {
 
 ### scripts
 
-CSS selector used to target `<script>` to re-execute after a page switch. For multiple selectors, separate them by a comma. Use the empty string to target nothing. Like:
+CSS selector used to target **extra** `<script>` to execute after a page switch. For multiple selectors, separate them by a comma. Use the empty string to target nothing. Like:
 
 ```js
 // Single selector
@@ -425,13 +425,13 @@ const pjax = new Pjax({
 ```
 
 ```js
-// Re-execute nothing
+// Only execute new scripts
 const pjax = new Pjax({
   scripts: '',
 });
 ```
 
-**NOTE:** _Pjax always executes scripts in newly loaded contents. You don't have to mark them here._
+**NOTE:** _Pjax always executes the newly added scripts in a page switch. You don't have to mark them here._
 
 ### scrollTo
 
