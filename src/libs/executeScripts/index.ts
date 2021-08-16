@@ -38,7 +38,7 @@ export default async function executeScripts(
   // to help browsers fetch them in parallel.
   // Each inline blocking script will be evaluated as soon as
   // all its previous blocking scripts are executed.
-  const execution = validScripts.reduce((promise: Promise<unknown>, script): Promise<unknown> => {
+  const execution = validScripts.reduce((promise: Promise<unknown>, script) => {
     if (script.external) {
       return Promise.all([promise, executor.exec(script)]);
     }
