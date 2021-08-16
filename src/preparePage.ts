@@ -31,15 +31,19 @@ export default async function preparePage(
       });
     }
     options.selectors.forEach((selector) => {
-      document.body.querySelectorAll(selector).forEach((element) => {
-        element.querySelectorAll('script').forEach((script) => {
-          if (scripts.includes(script)) return;
-          scripts.push(script);
-        });
+      document.querySelectorAll(selector).forEach((element) => {
+        if (element instanceof HTMLScriptElement) {
+          scripts.push(element);
+        } else {
+          element.querySelectorAll('script').forEach((script) => {
+            if (scripts.includes(script)) return;
+            scripts.push(script);
+          });
+        }
       });
     });
 
-    // Sort by document position.
+    // Sort in document order.
     // https://stackoverflow.com/a/22613028
     scripts.sort((a, b) => (
       // Bitwise AND operator is required here.

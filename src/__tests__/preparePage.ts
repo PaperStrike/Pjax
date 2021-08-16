@@ -70,28 +70,29 @@ describe('scripts', () => {
         <script data-pjax>document.body.className += ' 4';</script>
         <script>document.body.className += ' 5';</script>
       </div>
+      <script data-in-selector>document.body.className += ' 6';</script>
       <script>document.body.className = '0';</script>
     `;
   });
 
   test('switched or labeled being evaluated and only evaluate once', async () => {
     const pjax = new Pjax({
-      selectors: ['p', 'div'],
+      selectors: ['p', 'div', '[data-in-selector]'],
       scripts: '[data-pjax]',
     });
 
     await pjax.preparePage({ focusCleared: false });
-    expect(document.body.className).toBe('1 2 3 4 5');
+    expect(document.body.className).toBe('1 2 3 4 5 6');
   });
 
   test('unordered selected being evaluated in order', async () => {
     const pjax = new Pjax({
-      selectors: ['div', 'p'],
+      selectors: ['[data-in-selector]', 'div', 'p'],
       scripts: 'script[data-pjax]',
     });
 
     await pjax.preparePage({ focusCleared: false });
-    expect(document.body.className).toBe('1 2 3 4 5');
+    expect(document.body.className).toBe('1 2 3 4 5 6');
   });
 });
 
