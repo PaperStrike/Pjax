@@ -13,7 +13,7 @@ export type Switch<T extends Element = Element>
 export interface Options {
   defaultTrigger: boolean,
   selectors: string[],
-  switches: { [selector: string]: Switch },
+  switches: Record<string, Switch>,
   scripts: string,
   scrollTo: number | [number, number] | boolean,
   scrollRestoration: boolean,

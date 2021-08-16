@@ -280,7 +280,7 @@ Name | Type | Default Value
 ---- | ---- | ----
 [defaultTrigger](#defaulttrigger) | **boolean** | `true`
 [selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
-[switches](#switches) | **{ \[p: string\]: [Switch](#type-switch) }** | `{}`
+[switches](#switches) | **Record<string, [Switch](#type-switch)>** | `{}`
 [scripts](#scripts) | **string** | `script[data-pjax]`
 [scrollTo](#scrollto) | **number &#124; \[number, number\] &#124; boolean** | `true`
 [scrollRestoration](#scrollrestoration) | **boolean** | `true`
