@@ -32,7 +32,7 @@ const getBrowsingContext = (target: string) => {
 };
 
 export default class DefaultTrigger {
-  pjax: Pjax;
+  declare pjax: Pjax;
 
   constructor(pjax: Pjax) {
     this.pjax = pjax;

@@ -1,7 +1,7 @@
 import Script from './Script';
 
 class Executor {
-  signal: AbortSignal | null;
+  declare signal: AbortSignal | null;
 
   constructor(signal: AbortSignal | null) {
     this.signal = signal;
