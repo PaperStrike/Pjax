@@ -4,9 +4,9 @@ type FormContentAttributeNames = 'action' | 'enctype' | 'method' | 'target';
 type SubmitterButtonContentAttributeNames = `form${Capitalize<FormContentAttributeNames>}`;
 
 class Submission {
-  form: HTMLFormElement;
+  declare form: HTMLFormElement;
 
-  submitterButton: HTMLButtonElement | HTMLInputElement | null;
+  declare submitterButton: HTMLButtonElement | HTMLInputElement | null;
 
   constructor(form: HTMLFormElement, submitter: HTMLElement | null) {
     this.form = form;

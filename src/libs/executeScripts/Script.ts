@@ -27,9 +27,9 @@ export const MIMETypes = [
 ];
 
 export default class Script {
-  target: HTMLScriptElement;
+  declare target: HTMLScriptElement;
 
-  type?: 'classic' | 'module';
+  declare type?: 'classic' | 'module';
 
   external = false;
 

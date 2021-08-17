@@ -28,22 +28,22 @@ class LazyHistory {
   /**
    * The prefix of the generated key.
    */
-  idPrefix: string;
+  declare idPrefix: string;
 
   /**
    * The key used in `window.history.state`.
    */
-  historyKey: string;
+  declare historyKey: string;
 
   /**
    * The session key reflecting the current state.
    */
-  sessionKey!: string;
+  declare sessionKey: string;
 
   /**
    * The current state.
    */
-  state!: State;
+  declare state: State;
 
   constructor(idPrefix: string, historyKey: string = idPrefix) {
     this.idPrefix = idPrefix;

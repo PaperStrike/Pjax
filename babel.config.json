@@ -1,10 +1,10 @@
 {
   "presets": [
-    ["@babel/preset-typescript", {
-      "allowDeclareFields": true
-    }],
     ["@babel/preset-env", {
       "bugfixes": true
+    }],
+    ["@babel/preset-typescript", {
+      "allowDeclareFields": true
     }]
   ],
   "plugins": [
