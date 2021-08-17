@@ -5,7 +5,7 @@ import DefaultTrigger from './utils/DefaultTrigger';
 
 import switchDOM from './switchDOM';
 import preparePage from './preparePage';
-import weakLoadURL from './weakLoadURL';
+import weakLoad from './weakLoad';
 
 export type Switch<T extends Element = Element>
   = (oldEle: T, newEle: T) => (Promise<void> | void);
@@ -36,9 +36,10 @@ export interface History {
 }
 
 export interface EventDetail {
-  targetURL?: string;
   signal?: AbortSignal | null;
   selectors?: Options['selectors'];
+  request?: Request;
+  response?: Response;
   timeout?: Options['timeout'];
   timeoutID?: number;
   switches?: Options['switches'];
@@ -116,7 +117,7 @@ export class Pjax {
         }
       }
 
-      this.loadURL(window.location.href, overrideOptions).catch(() => {});
+      this.load(window.location.href, overrideOptions).catch(() => {});
     });
   }
 
@@ -140,7 +141,7 @@ export class Pjax {
   }
 
   switchDOM: (
-    url: string,
+    requestInfo: RequestInfo,
     overrideOptions?: Partial<Options>
   ) => Promise<void> = switchDOM;
 
@@ -149,20 +150,20 @@ export class Pjax {
     overrideOptions?: Partial<Options>
   ) => Promise<void> = preparePage;
 
-  weakLoadURL: (
-    url: string,
+  weakLoad: (
+    requestInfo: RequestInfo,
     overrideOptions?: Partial<Options>
-  ) => Promise<void> = weakLoadURL;
+  ) => Promise<void> = weakLoad;
 
   /**
    * Load a URL in Pjax way. Navigate normally on errors except AbortError.
    */
-  async loadURL(url: string, overrideOptions: Partial<Options> = {}): Promise<void> {
+  async load(requestInfo: RequestInfo, overrideOptions: Partial<Options> = {}): Promise<void> {
     try {
-      await this.weakLoadURL(url, overrideOptions);
+      await this.weakLoad(requestInfo, overrideOptions);
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') throw e;
-      window.location.assign(url);
+      window.location.assign(typeof requestInfo === 'string' ? requestInfo : requestInfo.url);
     }
   }
 }

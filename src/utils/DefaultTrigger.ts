@@ -1,4 +1,5 @@
 import type { Pjax } from '..';
+import Submission from '../libs/Submission';
 
 /**
  * Here until
@@ -11,16 +12,24 @@ interface SubmitEvent extends Event {
 
 type Link = HTMLAnchorElement | HTMLAreaElement;
 
-const submitDefaultAttrs = {
-  enctype: 'application/x-www-form-urlencoded',
-  target: '_self',
-  method: 'get',
-};
-
 /**
- * Falsy or matching.
+ * Get the target browsing context chosen by anchors or forms
+ * @see [The rules for choosing a browsing context | HTML Standard]{@link https://html.spec.whatwg.org/multipage/browsers.html#the-rules-for-choosing-a-browsing-context-given-a-browsing-context-name}
  */
-const matchesDefault = (value: unknown, defaultValue: unknown) => !value || value === defaultValue;
+const getBrowsingContext = (target: string) => {
+  if (target === window.name) return window;
+  switch (target.toLowerCase()) {
+    case '':
+    case '_self':
+      return window;
+    case '_parent':
+      return window.parent;
+    case '_top':
+      return window.top;
+    default:
+      return undefined;
+  }
+};
 
 export default class DefaultTrigger {
   pjax: Pjax;
@@ -42,15 +51,14 @@ export default class DefaultTrigger {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     }
 
-    if (!matchesDefault(link.target, '_self')) return;
+    if (getBrowsingContext(link.target) !== window) return;
 
     // External.
-    // loadURL checks external while having no browsers' attribute related support.
     if (link.origin !== window.location.origin) return;
 
     event.preventDefault();
 
-    this.pjax.loadURL(link.href).catch(() => {});
+    this.pjax.load(link.href).catch(() => {});
   }
 
   onFormSubmit(event: SubmitEvent): void {
@@ -59,50 +67,20 @@ export default class DefaultTrigger {
     const { target: form, submitter } = event;
     if (!(form instanceof HTMLFormElement)) return;
 
-    /**
-     * Parse submission related content attributes.
-     * https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#form-submission-attributes
-     */
-    const submitterButton = submitter === form ? null : submitter;
-    const getSubmitAttr = (name: 'action' | 'enctype' | 'method' | 'target') => {
-      if (submitterButton) {
-        const overrideName = `form${name}`;
-        if (submitterButton.hasAttribute(overrideName)) {
-          return submitterButton.getAttribute(overrideName);
-        }
-      }
-      return form.getAttribute(name);
-    };
+    const submission = new Submission(form, submitter);
 
-    // Handle simple URL redirect only.
-    if (!(Object.entries(submitDefaultAttrs) as Array<[keyof typeof submitDefaultAttrs, string]>)
-      .every(([attributeName, defaultValue]) => matchesDefault(
-        getSubmitAttr(attributeName),
-        defaultValue,
-      ))
-    ) return;
+    if (getBrowsingContext(submission.getAttribute('target')) !== window) return;
 
-    const url = new URL(getSubmitAttr('action') || '', document.URL);
+    const requestInfo = submission.getRequestInfo();
+    if (!requestInfo) return;
+
+    const url = new URL(typeof requestInfo === 'string' ? requestInfo : requestInfo.url);
 
     // External.
-    // loadURL checks external while having no browsers' attribute related support.
     if (url.origin !== window.location.origin) return;
 
     event.preventDefault();
-
-    /**
-     * For files, use their names.
-     * https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#converting-an-entry-list-to-a-list-of-name-value-pairs
-     */
-    const convertedEntries = Array.from(
-      new FormData(form),
-      ([key, value]) => (
-        [key, value instanceof File ? value.name : value]
-      ),
-    );
-    url.search = new URLSearchParams(convertedEntries).toString();
-
-    this.pjax.loadURL(url.href).catch(() => {});
+    this.pjax.load(requestInfo).catch(() => {});
   }
 
   register(): void {

@@ -165,11 +165,13 @@ Safari  | 12.2+              | Jul 22, 2019
 Method | Parameters | Return Value
 ------ | ---------- | ------------
 [Pjax.constructor](#constructor) | options?: **Partial\<[Options](#options)\>** | **Pjax**
-[loadURL](#loadurl) | url: **string**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
-[weakLoadURL](#weakloadurl) | url: **string**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
-[switchDOM](#switchdom) | url: **string**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
+[load](#load) | requestInfo: **[RequestInfo][type-request-info]**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
+[weakLoad](#weakload) | requestInfo: **[RequestInfo][type-request-info]**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
+[switchDOM](#switchdom) | requestInfo: ****[RequestInfo][type-request-info]****, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
 [preparePage](#preparepage) | switchesResult: **[SwitchesResult](#type-switchesresult) &#124; null**, overrideOptions?: **Partial\<[Options](#options)\>** | **Promise\<void\>**
 [Pjax.reload](#reload) | / | **void**
+
+[type-request-info]: https://fetch.spec.whatwg.org/#requestinfo
 
 ### constructor
 
@@ -192,9 +194,9 @@ This will enable Pjax on all links and forms, and designate the part to replace 
 
 To disable the default Pjax trigger, set [`defaultTrigger`](#defaulttrigger) option to `false`.
 
-### loadURL
+### load
 
-Calling this method aborts the last call (if unfinished) and navigates to the given URL in Pjax way.
+A call to this method aborts the current Pjax action (if any), and navigates to the target resource in Pjax way.
 
 Any error other than `AbortError` leads to the normal navigation (by `window.location.assign`). Note that `AbortError` happens on fetch timeout, too.
 
@@ -202,24 +204,33 @@ Any error other than `AbortError` leads to the normal navigation (by `window.loc
 const pjax = new Pjax();
 
 // use case 1
-pjax.loadURL('/your-url').catch(() => {});
+pjax.load('/your-url').catch(() => {});
 
 // use case 2 (with options override)
-pjax.loadURL('/your-url', { timeout: 200 }).catch(() => {});
+pjax.load('/your-url', { timeout: 200 }).catch(() => {});
 
 // use case 3 (with further action)
-pjax.loadURL('/your-url')
+pjax.load('/your-url')
   .then(() => {
     onSuccess();
   })
   .catch(() => {
     onAbort();
   });
+
+// use case 4 (with formed Request object)
+const requestToSend = new Request('/your-url', {
+  method: 'POST',
+  body: 'example',
+});
+pjax.load(requestToSend);
+
+// use case X, mix brakets above together
 ```
 
-### weakLoadURL
+### weakLoad
 
-This method behaves almost the same as `loadURL`, except that it throws regardless of the error's type.
+This method behaves almost the same as [`load`](#load), except that it throws regardless of the error's type.
 
 Useful when you need to handle all the errors on your own.
 
@@ -227,7 +238,7 @@ Useful when you need to handle all the errors on your own.
 const pjax = new Pjax();
 
 // use case
-pjax.weakLoadURL('/your-url')
+pjax.weakLoad('/your-url')
   .then(() => {
     onSuccess();
   })
@@ -238,7 +249,7 @@ pjax.weakLoadURL('/your-url')
 
 ### switchDOM
 
-This method accepts the URL string of a target document.
+This method accepts the URL string or the [Request][mdn-request-api] object to fetch. The response should contain the target document.
 
 It returns a promise that resolves when all the following steps have done:
 
@@ -294,25 +305,19 @@ When set to `false`, disable the default Pjax trigger.
 The default trigger alters these redirections:
 
 - Activations of `<a>` and `<area>` that targets a link within the same origin.
-- Submissions of `<form>` that *simply redirects* to a link within the same origin.
+- Submissions of `<form>` that redirects to a link within the same origin.
 
-Technically, a submission does a *simple redirection* when its:
-
-- enctype matches `application/x-www-form-urlencoded`.
-- target browsing context matches `_self`.
-- method matches `get`.
-
-Use when you only need Pjax in some specific moments. E.g.,
+Disable when you only need Pjax in some specific moments. E.g.,
 
 ```js
 // Set `defaultTrigger` to `false`.
 const pjax = new Pjax({ defaultTrigger: false });
 
-// Use `loadURL` on your demand.
+// Use `load` on your demand.
 document.addEventListener('example', (event) => {
   if (!needsPjax) return;
   event.preventDefault();
-  pjax.loadURL('/bingo');
+  pjax.load('/bingo');
 });
 ```
 
@@ -543,6 +548,7 @@ document.addEventListener('pjax:success', whenDOMReady);
 ## [LICENSE](LICENSE)
 
 [mdn-document-api]: https://developer.mozilla.org/en-US/docs/Web/API/Document
+[mdn-request-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request
 [mdn-request-cache-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
 [mdn-url-api]: https://developer.mozilla.org/en-US/docs/Web/API/URL
 [mdn-abortcontroller-api]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController

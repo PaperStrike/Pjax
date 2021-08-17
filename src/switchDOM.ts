@@ -3,28 +3,22 @@ import switchNodes from './utils/switchNodes';
 
 export default async function switchDOM(
   this: Pjax,
-  url: string,
+  requestInfo: RequestInfo,
   overrideOptions: Partial<Options> = {},
 ): Promise<void> {
   const { selectors, switches, timeout } = { ...this.options, ...overrideOptions };
 
   const eventDetail: EventDetail = {};
 
-  const parsedURL = new URL(url, document.URL);
-  eventDetail.targetURL = parsedURL.href;
-
   const signal = this.abortController?.signal || null;
   eventDetail.signal = signal;
 
   eventDetail.selectors = selectors;
-  const request = new Request(parsedURL.href, {
-    headers: {
-      'X-Requested-With': 'Fetch',
-      'X-Pjax': 'true',
-      'X-Pjax-Selectors': JSON.stringify(selectors),
-    },
-    signal,
-  });
+  const request = new Request(requestInfo, { signal });
+  request.headers.set('X-Requested-With', 'Fetch');
+  request.headers.set('X-Pjax', 'true');
+  request.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
+  eventDetail.request = request;
 
   // Set timeout
   eventDetail.timeout = timeout;
@@ -43,6 +37,7 @@ export default async function switchDOM(
       .finally(() => {
         window.clearTimeout(timeoutID);
       });
+    eventDetail.response = response;
 
     // Switch before changing URL.
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
@@ -52,7 +47,7 @@ export default async function switchDOM(
 
     // Update window location. Preserve hash as the fetch discards it.
     const newLocation = new URL(response.url);
-    newLocation.hash = parsedURL.hash;
+    newLocation.hash = new URL(request.url).hash;
     if (window.location.href !== newLocation.href) {
       window.history.pushState({}, document.title, newLocation.href);
     }

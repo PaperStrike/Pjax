@@ -1,7 +1,7 @@
 import 'cross-fetch/polyfill';
 import nock from 'nock';
 
-import MockedPjax from '..';
+import MockedPjax, { Options } from '..';
 import switchDOM from '../switchDOM';
 
 /**
@@ -21,7 +21,22 @@ afterEach(() => {
 
 jest.mock('..');
 class Pjax extends MockedPjax {
-  switchDOM = switchDOM;
+  /**
+   * Proxy to absolute URLs.
+   * For node-fetch, upstream of cross-fetch, doesn't support
+   * both relative URLs and base configuration. - Aug 17, 2021
+   * @see https://github.com/node-fetch/node-fetch/issues/481
+   */
+  switchDOM = (
+    requestInfo: RequestInfo,
+    overrideOptions?: Partial<Options>,
+  ): Promise<void> => {
+    if (typeof requestInfo === 'string') {
+      return switchDOM.bind(this)(new URL(requestInfo, document.URL).href, overrideOptions);
+    }
+    const absoluteRequest = new Request(new URL(requestInfo.url, document.URL).href, requestInfo);
+    return switchDOM.bind(this)(absoluteRequest, overrideOptions);
+  };
 }
 
 test('partial document response', async () => {
@@ -48,6 +63,20 @@ test('empty body response', async () => {
   await pjax.switchDOM('/empty');
   expect(document.body.children).toHaveLength(0);
   expect(window.location.pathname).toBe('/empty');
+});
+
+test('accept Request object', async () => {
+  nock(window.location.origin)
+    .post('/request')
+    .reply(200);
+
+  const pjax = new Pjax();
+
+  await pjax.switchDOM(new Request('/request', {
+    method: 'POST',
+  }));
+  expect(document.body.children).toHaveLength(0);
+  expect(window.location.pathname).toBe('/request');
 });
 
 test('redirect request and preserve hash', async () => {
