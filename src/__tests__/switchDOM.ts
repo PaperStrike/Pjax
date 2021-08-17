@@ -65,6 +65,20 @@ test('empty body response', async () => {
   expect(window.location.pathname).toBe('/empty');
 });
 
+test('accept Request object', async () => {
+  nock(window.location.origin)
+    .post('/request')
+    .reply(200);
+
+  const pjax = new Pjax();
+
+  await pjax.switchDOM(new Request('/request', {
+    method: 'POST',
+  }));
+  expect(document.body.children).toHaveLength(0);
+  expect(window.location.pathname).toBe('/request');
+});
+
 test('redirect request and preserve hash', async () => {
   nock(window.location.origin)
     .get('/from')
