@@ -36,9 +36,10 @@ export interface History {
 }
 
 export interface EventDetail {
-  targetURL?: string;
   signal?: AbortSignal | null;
   selectors?: Options['selectors'];
+  request?: Request;
+  response?: Response;
   timeout?: Options['timeout'];
   timeoutID?: number;
   switches?: Options['switches'];
@@ -140,7 +141,7 @@ export class Pjax {
   }
 
   switchDOM: (
-    url: string,
+    requestInfo: RequestInfo,
     overrideOptions?: Partial<Options>
   ) => Promise<void> = switchDOM;
 
@@ -150,19 +151,19 @@ export class Pjax {
   ) => Promise<void> = preparePage;
 
   weakLoadURL: (
-    url: string,
+    requestInfo: RequestInfo,
     overrideOptions?: Partial<Options>
   ) => Promise<void> = weakLoadURL;
 
   /**
    * Load a URL in Pjax way. Navigate normally on errors except AbortError.
    */
-  async loadURL(url: string, overrideOptions: Partial<Options> = {}): Promise<void> {
+  async loadURL(requestInfo: RequestInfo, overrideOptions: Partial<Options> = {}): Promise<void> {
     try {
-      await this.weakLoadURL(url, overrideOptions);
+      await this.weakLoadURL(requestInfo, overrideOptions);
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') throw e;
-      window.location.assign(url);
+      window.location.assign(typeof requestInfo === 'string' ? requestInfo : requestInfo.url);
     }
   }
 }

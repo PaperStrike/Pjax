@@ -5,16 +5,9 @@ import type { Pjax, Options } from '.';
  */
 export default async function weakLoadURL(
   this: Pjax,
-  url: string,
+  requestInfo: RequestInfo,
   overrideOptions: Partial<Options> = {},
 ): Promise<void> {
-  const parsedURL = new URL(url, document.URL);
-
-  // External URL.
-  if (parsedURL.origin !== window.location.origin) {
-    throw new DOMException('Not same origin', 'SecurityError');
-  }
-
   // Store scroll position.
   this.storeScrollPosition();
 
@@ -23,19 +16,29 @@ export default async function weakLoadURL(
   this.abortController?.abort();
   this.abortController = abortController;
 
-  // Find path difference.
-  const targetPath = parsedURL.pathname + parsedURL.search;
-  const currentPath = this.location.pathname + this.location.search;
+  // Whether to switch current DOM or not.
+  let switchDOM = true;
 
-  if (targetPath === currentPath) {
-    // Directly pushState on same path.
-    if (window.location.href !== parsedURL.href) {
-      window.history.pushState({}, document.title, parsedURL.href);
+  if (typeof requestInfo === 'string') {
+    const parsedURL = new URL(requestInfo);
+
+    // Find path (pathname + search string, e.g. /abc?d=1) difference.
+    const targetPath = parsedURL.pathname + parsedURL.search;
+    const currentPath = this.location.pathname + this.location.search;
+
+    // Directly prepare, no DOM switch on same path.
+    if (targetPath === currentPath) {
+      // pushState on different hash.
+      if (window.location.hash !== parsedURL.hash) {
+        window.history.pushState({}, document.title, parsedURL.href);
+      }
+      await this.preparePage(null, overrideOptions);
+      switchDOM = false;
     }
-    await this.preparePage(null, overrideOptions);
-  } else {
-    // Fetch and switch on different path.
-    await this.switchDOM(url, overrideOptions);
+  }
+
+  if (switchDOM) {
+    await this.switchDOM(requestInfo, overrideOptions);
   }
 
   // Update Pjax location and prepare the page.
