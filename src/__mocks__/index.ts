@@ -26,11 +26,11 @@ export default class MockedPjax implements Pjax {
 
   switchDOM = jest.fn();
 
-  weakLoadURL = jest.fn();
+  weakLoad = jest.fn();
 
   fire = jest.fn();
 
-  loadURL = jest.fn();
+  load = jest.fn();
 
   storeScrollPosition = jest.fn();
 }

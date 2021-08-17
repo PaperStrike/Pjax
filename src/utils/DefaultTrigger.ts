@@ -58,7 +58,7 @@ export default class DefaultTrigger {
 
     event.preventDefault();
 
-    this.pjax.loadURL(link.href).catch(() => {});
+    this.pjax.load(link.href).catch(() => {});
   }
 
   onFormSubmit(event: SubmitEvent): void {
@@ -80,7 +80,7 @@ export default class DefaultTrigger {
     if (url.origin !== window.location.origin) return;
 
     event.preventDefault();
-    this.pjax.loadURL(requestInfo).catch(() => {});
+    this.pjax.load(requestInfo).catch(() => {});
   }
 
   register(): void {

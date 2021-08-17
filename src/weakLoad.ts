@@ -3,7 +3,7 @@ import type { Pjax, Options } from '.';
 /**
  * Load a URL in Pjax way. Throw all errors.
  */
-export default async function weakLoadURL(
+export default async function weakLoad(
   this: Pjax,
   requestInfo: RequestInfo,
   overrideOptions: Partial<Options> = {},
