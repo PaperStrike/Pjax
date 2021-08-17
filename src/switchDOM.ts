@@ -14,14 +14,10 @@ export default async function switchDOM(
   eventDetail.signal = signal;
 
   eventDetail.selectors = selectors;
-  const request = new Request(requestInfo, {
-    headers: {
-      'X-Requested-With': 'Fetch',
-      'X-Pjax': 'true',
-      'X-Pjax-Selectors': JSON.stringify(selectors),
-    },
-    signal,
-  });
+  const request = new Request(requestInfo, { signal });
+  request.headers.set('X-Requested-With', 'Fetch');
+  request.headers.set('X-Pjax', 'true');
+  request.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
   eventDetail.request = request;
 
   // Set timeout
