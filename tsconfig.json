@@ -2,6 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": ["es2021"],
     "module": "commonjs",
     "skipLibCheck": true,
     "strict": true,
