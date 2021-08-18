@@ -15,95 +15,61 @@
 /**
  * A valid history state object.
  */
-export interface State {
+export interface HistoryState {
   [name: string]: unknown;
 }
 
-class LazyHistory {
+class LazyHistory<State> {
   /**
-   * Used to generate unique keys.
+   * The index of current state.
    */
-  private count = 0;
+  declare private index: number;
 
   /**
-   * The prefix of the generated key.
+   * The key used in `window.history.state` and session storage.
    */
-  declare idPrefix: string;
-
-  /**
-   * The key used in `window.history.state`.
-   */
-  declare historyKey: string;
-
-  /**
-   * The session key reflecting the current state.
-   */
-  declare sessionKey: string;
+  declare key: string;
 
   /**
    * The current state.
    */
-  declare state: State;
+  declare state: State | null;
 
-  constructor(idPrefix: string, historyKey: string = idPrefix) {
-    this.idPrefix = idPrefix;
-    this.historyKey = historyKey;
+  constructor(key: string) {
+    this.key = key;
 
-    // Initialize current history entry.
-    window.history.replaceState(this.sign(), document.title);
-  }
-
-  /**
-   * Save current state to session storage.
-   */
-  private save() {
-    window.sessionStorage.setItem(this.sessionKey, JSON.stringify(this.state));
-  }
-
-  /**
-   * Prepare a new session key and attach to current or given state.
-   */
-  private sign(state: State | null = window.history.state as State | null): State {
-    if (this.count > 0) this.save();
-
-    // Generate a new key.
-    const sessionKey = `${this.idPrefix}_${this.count}`;
-    this.count += 1;
-
-    // Generate attached state.
-    const SignedState = {
-      ...state || {},
-      [this.historyKey]: sessionKey,
-    };
-
-    this.sessionKey = sessionKey;
-    this.state = SignedState;
-
-    return SignedState;
-  }
-
-  /**
-   * Push to history entry.
-   */
-  push(state: State, title: string, url: string): void {
-    window.history.pushState(this.sign(state), title, url);
+    this.pull();
   }
 
   /**
    * Keep up with current browser history entry.
    */
   pull(): void {
-    this.save();
+    // Get new state index.
+    const historyState = window.history.state as HistoryState | null;
+    const pulledIndex = historyState?.[this.key] as number | undefined;
 
-    const sessionKey = (window.history.state as State | null)
-      ?.[this.historyKey] as string | undefined;
-    if (!sessionKey) {
-      // Initialize if haven't.
-      window.history.replaceState(this.sign(), document.title);
+    // Return if up-to-date.
+    if (pulledIndex !== undefined && this.index === pulledIndex) return;
+
+    // Get stored states.
+    const stateListStr = window.sessionStorage.getItem(this.key);
+    const stateList = stateListStr ? JSON.parse(stateListStr) as (State | null)[] : [];
+
+    // Store current state.
+    stateList[this.index] = this.state;
+    window.sessionStorage.setItem(this.key, JSON.stringify(stateList));
+
+    if (pulledIndex === undefined) {
+      this.index = stateList.length;
+      this.state = null;
+      window.history.replaceState({
+        ...historyState,
+        [this.key]: this.index,
+      }, '');
     } else {
-      this.sessionKey = sessionKey;
-      const savedState = window.sessionStorage.getItem(sessionKey);
-      this.state = savedState ? JSON.parse(savedState) as State : {};
+      this.index = pulledIndex;
+      this.state = stateListStr ? stateList[pulledIndex] : null;
     }
   }
 }
