@@ -32,5 +32,5 @@ export default class MockedPjax implements Pjax {
 
   load = jest.fn();
 
-  storeScrollPosition = jest.fn();
+  storeHistory = jest.fn();
 }

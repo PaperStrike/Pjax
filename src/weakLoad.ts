@@ -9,7 +9,7 @@ export default async function weakLoad(
   overrideOptions: Partial<Options> = {},
 ): Promise<void> {
   // Store scroll position.
-  this.storeScrollPosition();
+  this.storeHistory();
 
   // Setup abort controller.
   const abortController = new AbortController();

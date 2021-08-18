@@ -102,7 +102,7 @@ export class Pjax {
        */
 
       // Store scroll position and then update the lazy state.
-      this.storeScrollPosition();
+      this.storeHistory();
       this.history.pull();
 
       // hashchange events trigger popstate with a null `event.state`.
@@ -117,7 +117,7 @@ export class Pjax {
     });
   }
 
-  storeScrollPosition(): void {
+  storeHistory(): void {
     this.history.state = {
       scrollPos: [window.scrollX, window.scrollY],
     };
