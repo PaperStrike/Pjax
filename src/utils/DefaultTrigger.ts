@@ -1,15 +1,6 @@
 import type { Pjax } from '..';
 import Submission from '../libs/Submission';
 
-/**
- * Here until
- * https://github.com/microsoft/TypeScript/issues/40811
- */
-interface SubmitEvent extends Event {
-  readonly submitter: HTMLElement | null;
-  readonly target: HTMLFormElement;
-}
-
 type Link = HTMLAnchorElement | HTMLAreaElement;
 
 /**
@@ -95,11 +86,7 @@ export default class DefaultTrigger {
     // Lacking browser compatibility and small polyfill. - August 2, 2021
     if ('SubmitEvent' in window) {
       document.addEventListener('submit', (event) => {
-        /**
-         * A as until
-         * https://github.com/microsoft/TypeScript/issues/40811
-         */
-        this.onFormSubmit(event as SubmitEvent);
+        this.onFormSubmit(event);
       });
     }
   }

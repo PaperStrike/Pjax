@@ -19,9 +19,5 @@
     "@typescript-eslint",
     "jest"
   ],
-  "root": true,
-  "rules": {
-    // https://github.com/typescript-eslint/typescript-eslint/issues/3712
-    "@typescript-eslint/no-throw-literal": "off"
-  }
+  "root": true
 }
