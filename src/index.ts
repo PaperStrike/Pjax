@@ -25,14 +25,13 @@ export interface SwitchesResult {
   focusCleared: boolean;
 }
 
-export interface HistoryState {
-  [key: string]: unknown;
-  scrollPos?: [number, number];
+interface State {
+  scrollPos: [number, number];
 }
 
 export interface History {
+  state: State | null;
   pull(): void;
-  state: HistoryState;
 }
 
 export interface EventDetail {
@@ -110,11 +109,8 @@ export class Pjax {
       if (event.state === null) return;
 
       const overrideOptions: Partial<Options> = {};
-      if (this.options.scrollRestoration) {
-        const { scrollPos } = this.history.state;
-        if (scrollPos) {
-          overrideOptions.scrollTo = this.history.state.scrollPos;
-        }
+      if (this.options.scrollRestoration && this.history.state) {
+        overrideOptions.scrollTo = this.history.state.scrollPos;
       }
 
       this.load(window.location.href, overrideOptions).catch(() => {});
@@ -122,7 +118,9 @@ export class Pjax {
   }
 
   storeScrollPosition(): void {
-    this.history.state.scrollPos = [window.scrollX, window.scrollY];
+    this.history.state = {
+      scrollPos: [window.scrollX, window.scrollY],
+    };
   }
 
   /**
