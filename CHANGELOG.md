@@ -1,3 +1,16 @@
+# 2.0.0
+
+## 💥 Breaking Changes
+
+* Support Request objects in methods ([#103](https://github.com/PaperStrike/Pjax/pull/103))
+
+## 🚀 Enhancements
+
+* Simplify history state storage ([#107](https://github.com/PaperStrike/Pjax/pull/107))
+* Use declare fields to reduce bundle size ([#104](https://github.com/PaperStrike/Pjax/pull/104))
+* Support Request objects in methods ([#103](https://github.com/PaperStrike/Pjax/pull/103))
+* Eval directly selected scripts in page switch ([#99](https://github.com/PaperStrike/Pjax/pull/99))
+
 # 1.1.0
 
 ## 🚀 Enhancements
