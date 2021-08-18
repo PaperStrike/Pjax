@@ -39,18 +39,18 @@ export default async function switchDOM(
       });
     eventDetail.response = response;
 
-    // Switch before changing URL.
+    // Push history state. Preserve hash as the fetch discards it.
+    const newLocation = new URL(response.url);
+    newLocation.hash = new URL(request.url).hash;
+    if (window.location.href !== newLocation.href) {
+      window.history.pushState(null, '', newLocation.href);
+    }
+
+    // Switch elements.
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
     eventDetail.switches = switches;
     const switchesResult = await switchNodes(newDocument, { selectors, switches, signal });
     eventDetail.switchesResult = switchesResult;
-
-    // Update window location. Preserve hash as the fetch discards it.
-    const newLocation = new URL(response.url);
-    newLocation.hash = new URL(request.url).hash;
-    if (window.location.href !== newLocation.href) {
-      window.history.pushState({}, document.title, newLocation.href);
-    }
 
     // Simulate initial page load.
     await this.preparePage(switchesResult, overrideOptions);

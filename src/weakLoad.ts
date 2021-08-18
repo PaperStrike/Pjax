@@ -30,7 +30,7 @@ export default async function weakLoad(
     if (targetPath === currentPath) {
       // pushState on different hash.
       if (window.location.hash !== parsedURL.hash) {
-        window.history.pushState({}, document.title, parsedURL.href);
+        window.history.pushState(null, '', parsedURL.href);
       }
       await this.preparePage(null, overrideOptions);
       switchDOM = false;

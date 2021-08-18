@@ -82,5 +82,8 @@ export default async function preparePage(
 
     // Scroll.
     if (parsedScrollTo) window.scrollTo(parsedScrollTo[0], parsedScrollTo[1]);
+
+    // Set history state title for Safari.
+    window.history.replaceState(window.history.state, document.title);
   }
 }
