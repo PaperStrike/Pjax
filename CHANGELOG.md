@@ -1,3 +1,9 @@
+# 2.0.1
+
+## 🚀 Enhancements
+
+* Conform with standard History API ([#109](https://github.com/PaperStrike/Pjax/pull/109))
+
 # 2.0.0
 
 ## 💥 Breaking Changes
