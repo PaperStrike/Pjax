@@ -66,7 +66,7 @@ class LazyHistory<State> {
       window.history.replaceState({
         ...historyState,
         [this.key]: this.index,
-      }, '');
+      }, document.title);
     } else {
       this.index = pulledIndex;
       this.state = stateListStr ? stateList[pulledIndex] : null;
