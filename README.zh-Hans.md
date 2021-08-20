@@ -1,5 +1,5 @@
 <div align="end"><sub>
-  <a title="英语" href="README.md">ENGLISH</a>,
+  <a title="英文" href="README.md">ENGLISH</a>,
   简体中文
 </sub></div>
 
@@ -25,7 +25,7 @@ Pjax 致力于提供 原生 APP 一般 的冲浪效果。抛去整页刷新，�
 
 #### jsDelivr
 
-进入 [https://www.jsdelivr.com/package/npm/@sliphua/pjax](https://www.jsdelivr.com/package/npm/@sliphua/pjax) 浏览
+进入 [https://www.jsdelivr.com/package/npm/@sliphua/pjax](https://www.jsdelivr.com/package/npm/@sliphua/pjax) 浏览。
 
 #### npm
 
@@ -152,7 +152,7 @@ const pjax = new Pjax({
 
 现在，在兼容 Pjax 的浏览器里点击一个链接，上述元素就会更新使用目标链接 DOM 里的对应内容。
 
-嗒哒！完成啦！ **后端不用动！**
+嗒哒！完成啦！**后端不用动！**
 
 ## 兼容性
 
@@ -413,7 +413,7 @@ const customSwitch = (oldEle, newEle) => {
 };
 ```
 
-**注意：** Pjax 在一次切页过程中会等待切换函数的完成，但会立即处理下一个切页事件，不论当前切页完成与否。尝试在切页过程中屏蔽用户操作的变通方案可能行不通，因为用户总能使用 “返回”、“前进” 之类的按钮。
+**注意：** Pjax 在一次切页过程中会等待切换函数的完成，但会立即处理下一个切页事件，不论当前切页完成与否。尝试在切页过程中屏蔽用户操作的变通方案往往行不通，因为用户总能使用 “返回”、“前进” 之类的按钮。
 
 ### scripts
 
@@ -505,7 +505,7 @@ Pjax 在发送网络请求时，会触发一系列事件。
 2. Pjax 切换 DOM。[`switchDOM`](#switchdom) 方法有详细描述。
 3. 若步骤二中有错误，`pjax:error` 事件。
 4. `pjax:complete` 事件，步骤二完成时触发（不论是否有错误）。
-5. 若 步骤二无错误，`pjax:success` 事件。
+5. 若步骤二中无错误，`pjax:success` 事件。
 
 如果页面里有加载指示器 (如 [topbar](https://buunguyen.github.io/topbar/)) ，结合 `send` 和 `complete` 事件会是不错的选择。
 
