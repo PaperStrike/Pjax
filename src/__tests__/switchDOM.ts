@@ -147,6 +147,28 @@ test('request headers', async () => {
   expect(sentHeaders.get('X-Pjax-Selectors')).toBe(JSON.stringify(pjax.options.selectors));
 });
 
+// Assertion commented out as node-fetch, upstream of cross-fetch,
+// doesn't support Request.cache and completely ignores it - Aug 20, 2021
+// https://github.com/node-fetch/node-fetch/issues/68
+// eslint-disable-next-line jest/expect-expect
+test('cache mode', async () => {
+  nock(window.location.origin)
+    .get('/cache-mode')
+    .reply(200);
+  const fetchSpy = jest.spyOn(global, 'fetch');
+
+  const pjax = new Pjax({
+    cache: 'no-cache',
+  });
+
+  await pjax.switchDOM('/cache-mode');
+
+  // const request = new Request(...fetchSpy.mock.calls[0]);
+  // expect(request.cache).toBe('no-cache');
+
+  fetchSpy.mockRestore();
+});
+
 test('throw on abort', async () => {
   nock(window.location.origin)
     .get('/delay')
