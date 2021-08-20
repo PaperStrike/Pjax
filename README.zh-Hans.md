@@ -299,7 +299,7 @@ Pjax.reload();
 [scripts](#scripts) | **string** | `script[data-pjax]`
 [scrollTo](#scrollto) | **number &#124; \[number, number\] &#124; boolean** | `true`
 [scrollRestoration](#scrollrestoration) | **boolean** | `true`
-[cacheMode](#cachemode) | **[RequestCache][mdn-request-cache-api]** | `'default'`
+[cache](#cache) | **[RequestCache][mdn-request-cache-api]** | `'default'`
 [timeout](#timeout) | **number** | `0`
 
 ### defaultTrigger
@@ -458,7 +458,7 @@ const pjax = new Pjax({
 
 在设为 `true` 时，Pjax 会尝试在前进、后退时恢复上次的页面滚动位置状态。
 
-### cacheMode
+### cache
 
 此选项控制 Pjax 请求所使用的缓存模式，与 [`Request.cache`][mdn-request-cache-api] 的可取值及意义一致。
 

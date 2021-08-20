@@ -17,7 +17,7 @@ export interface Options {
   scripts: string,
   scrollTo: number | [number, number] | boolean,
   scrollRestoration: boolean,
-  cacheMode: RequestCache,
+  cache: RequestCache,
   timeout: number,
 }
 
@@ -64,7 +64,7 @@ export class Pjax {
     scripts: 'script[data-pjax]',
     scrollTo: true,
     scrollRestoration: true,
-    cacheMode: 'default',
+    cache: 'default',
     timeout: 0,
   };
 
