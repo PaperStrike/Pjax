@@ -300,7 +300,7 @@ Name | Type | Default Value
 [scripts](#scripts) | **string** | `script[data-pjax]`
 [scrollTo](#scrollto) | **number &#124; \[number, number\] &#124; boolean** | `true`
 [scrollRestoration](#scrollrestoration) | **boolean** | `true`
-[cacheMode](#cachemode) | **[RequestCache][mdn-request-cache-api]** | `'default'`
+[cache](#cache) | **[RequestCache][mdn-request-cache-api]** | `'default'`
 [timeout](#timeout) | **number** | `0`
 
 ### defaultTrigger
@@ -459,7 +459,7 @@ Set this to `false` to disable all scrolling by Pjax.
 
 When set to `true`, Pjax attempts to restore the page scroll status when navigating backward or forward.
 
-### cacheMode
+### cache
 
 This contains the cache mode of Pjax requests, which shares the same available values with [`Request.cache`][mdn-request-cache-api].
 

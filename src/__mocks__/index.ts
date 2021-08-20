@@ -14,7 +14,7 @@ export default class MockedPjax implements Pjax {
     scripts: '',
     scrollTo: false,
     scrollRestoration: false,
-    cacheMode: 'default',
+    cache: 'default',
     timeout: 0,
   };
 
