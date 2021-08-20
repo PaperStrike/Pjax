@@ -1,3 +1,8 @@
+<div align="end"><sub>
+  ENGLISH,
+  <a title="Simplified Chinese" href="README.zh-Hans.md">简体中文</a>
+</sub></div>
+
 # ES6+ Pjax
 
 [![Build Status](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml/badge.svg)](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml)
