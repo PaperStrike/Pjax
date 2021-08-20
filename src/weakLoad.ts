@@ -1,4 +1,5 @@
-import type { Pjax, Options } from '.';
+import type Pjax from '.';
+import type { Options } from '.';
 
 /**
  * Load a URL in Pjax way. Throw all errors.

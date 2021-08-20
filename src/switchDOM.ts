@@ -1,4 +1,5 @@
-import type { Pjax, Options, EventDetail } from '.';
+import type Pjax from '.';
+import type { Options, EventDetail } from '.';
 import switchNodes from './utils/switchNodes';
 
 export default async function switchDOM(
