@@ -267,7 +267,7 @@ It returns a promise that resolves when all the following steps have done:
 1. Focus the first [`autofocus`](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autofocus) if `focusCleared` (in the given switches result) evaluates to `true`.
 2. Execute all newly-loaded and targeted scripts in document order.
 3. Wait until the blocking scripts got executed (e.g., inline scripts).
-4. Scroll to the position given by `scrollTo` option.
+4. Scroll to the position given by [`scrollTo`](#scrollto) option.
 
 #### Type SwitchesResult
 
