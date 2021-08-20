@@ -1,4 +1,4 @@
-import type { Pjax } from '..';
+import type Pjax from '..';
 import Submission from '../libs/Submission';
 
 type Link = HTMLAnchorElement | HTMLAreaElement;

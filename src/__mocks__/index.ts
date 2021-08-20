@@ -1,4 +1,5 @@
-import type { Pjax, Options } from '..';
+import type Pjax from '..';
+import type { Options } from '..';
 
 export default class MockedPjax implements Pjax {
   history!: Pjax['history'];

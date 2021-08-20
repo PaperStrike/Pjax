@@ -1,4 +1,5 @@
-import type { Pjax, Options, SwitchesResult } from '.';
+import type Pjax from '.';
+import type { Options, SwitchesResult } from '.';
 
 import executeScripts from './libs/executeScripts';
 

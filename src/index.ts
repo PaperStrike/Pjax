@@ -45,7 +45,7 @@ export interface EventDetail {
   error?: unknown;
 }
 
-export class Pjax {
+class Pjax {
   static switches = Switches;
 
   static reload(): void {
