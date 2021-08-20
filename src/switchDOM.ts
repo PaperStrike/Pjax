@@ -13,7 +13,6 @@ export default async function switchDOM(
   const signal = this.abortController?.signal || null;
   eventDetail.signal = signal;
 
-  eventDetail.selectors = selectors;
   const request = new Request(requestInfo, { signal });
   request.headers.set('X-Requested-With', 'Fetch');
   request.headers.set('X-Pjax', 'true');

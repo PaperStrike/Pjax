@@ -36,7 +36,6 @@ export interface History {
 
 export interface EventDetail {
   signal?: AbortSignal | null;
-  selectors?: Options['selectors'];
   request?: Request;
   response?: Response;
   timeout?: Options['timeout'];
