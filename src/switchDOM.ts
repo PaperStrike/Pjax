@@ -6,14 +6,22 @@ export default async function switchDOM(
   requestInfo: RequestInfo,
   overrideOptions: Partial<Options> = {},
 ): Promise<void> {
-  const { selectors, switches, timeout } = { ...this.options, ...overrideOptions };
+  const {
+    selectors,
+    switches,
+    cacheMode,
+    timeout,
+  } = { ...this.options, ...overrideOptions };
 
   const eventDetail: EventDetail = {};
 
   const signal = this.abortController?.signal || null;
   eventDetail.signal = signal;
 
-  const request = new Request(requestInfo, { signal });
+  const request = new Request(requestInfo, {
+    cache: cacheMode,
+    signal,
+  });
   request.headers.set('X-Requested-With', 'Fetch');
   request.headers.set('X-Pjax', 'true');
   request.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
