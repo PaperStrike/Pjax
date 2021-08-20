@@ -1,7 +1,7 @@
-<div align="end"><small>
+<div align="end"><sub>
   <a title="英语" href="README.md">ENGLISH</a>,
   简体中文
-</small></div>
+</sub></div>
 
 # ES6+ Pjax
 
