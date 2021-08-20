@@ -1,7 +1,7 @@
-<div align="end"><sub>
+<div align="end"><small>
   ENGLISH,
   <a title="Simplified Chinese" href="README.zh-Hans.md">简体中文</a>
-</sub></div>
+</small></div>
 
 # ES6+ Pjax
 
