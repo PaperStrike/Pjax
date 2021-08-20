@@ -8,6 +8,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:jest/recommended",
+    "airbnb-base",
     "airbnb-typescript/base"
   ],
   "ignorePatterns": ["dist"],
