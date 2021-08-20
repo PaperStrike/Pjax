@@ -1,8 +1,8 @@
 # ES6+ Pjax
 
 [![Build Status](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml/badge.svg)](https://github.com/PaperStrike/Pjax/actions/workflows/test.yml)
-[![npm Package](https://img.shields.io/npm/v/@sliphua/pjax?logo=npm)](https://www.npmjs.com/package/@sliphua/pjax)
-[![Compressed Minified Size](https://img.badgesize.io/https:/cdn.jsdelivr.net/npm/@sliphua/pjax@latest/dist/pjax.esm.min.js?compression=brotli&label=minzipped&color=ff69b4 "dist/pjax.esm.min.js, Brotli compressed")](#pick-a-script-in-dist-folder)
+[![npm Package](https://img.shields.io/npm/v/@sliphua/pjax?logo=npm)](https://www.npmjs.com/package/@sliphua/pjax "@sliphua/pjax")
+[![Compressed Minified Size](https://img.badgesize.io/https:/cdn.jsdelivr.net/npm/@sliphua/pjax@latest/dist/pjax.esm.min.js?compression=brotli&label=minzipped&color=ff69b4)](#pick-a-script-in-dist-folder "dist/pjax.esm.min.js, Brotli compressed")
 
 Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API)).
 
@@ -64,17 +64,17 @@ import Pjax from './dist/pjax.esm.js';
 
 _In short, ONE fetch with a `pushState` call._
 
-Pjax fetches the new content, switches parts of your page, updates the URL, executes newly added scripts and scroll to the right position _without_ refreshing the whole thing.
+Pjax fetches the new content, updates the URL, switches parts of your page, executes newly added scripts and scroll to the right position _without_ refreshing the whole thing.
 
 ## How Pjax Works
 
 1. Listen to simple redirections.
 2. Fetch the target page via `fetch`.
-3. Render the DOM tree using [`DOMParser`](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser).
-4. Check if defined selectors select the same amount of elements in current DOM and the new DOM.
+3. Update current URL using `pushState`.
+4. Render the DOM tree using [`DOMParser`](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser).
+5. Check if defined selectors select the same amount of elements in current DOM and the new DOM.
     - If no, Pjax uses standard navigation.
     - If yes, Pjax switches the elements in index order.
-5. Update current URL using `pushState`.
 6. Execute all newly-added or targeted scripts in document order.
 7. Scroll to the defined position.
 
@@ -387,7 +387,7 @@ When it returns a promise, Pjax recognizes when the switch has done. Newly added
 
 Your callback function can do whatever you want. But remember to keep the amount of the elements selected by the [`selectors`](#selectors) option remain the same.
 
-In the example below, `.current` class marks the only switching element, so that the switch elements' amount won't change. Before the returned promise resolves, Pjax will neither update the URL, execute the script elements nor scroll the page.
+In the example below, `.current` class marks the only switching element, so that the switch elements' amount won't change. Before the returned promise resolves, Pjax will neither execute the script elements nor scroll the page.
 
 ```js
 const pjax = new Pjax({
@@ -498,7 +498,7 @@ All events fire from the _document_, not the clicked anchor nor the caller funct
 An ordered list showing the types of these events, and the moment they happen:
 
 1. `pjax:send` event when Pjax sends the request.
-2. Pjax switches the DOM. See `switchDOM` method for details.
+2. Pjax switches the DOM. See [`switchDOM`](#switchdom) method for details.
 3. `pjax:error` event if any error happens to step 2.
 4. `pjax:complete` event when step 2 finishes.
 5. `pjax:success` event if step 2 finishes without any error.
@@ -517,7 +517,7 @@ Pjax uses several custom headers when it sends HTTP requests.
 - `X-Requested-With: Fetch`
 - `X-PJAX: true`
 - `X-PJAX-Selectors` —
-  A serialized JSON array of selectors, taken from `options.selectors`. You can use this to send back only the elements that Pjax will use to switch, instead of sending the whole page. Note that you may need to deserialize this on the server (Such as by using `JSON.parse`)
+  A serialized JSON array of selectors, taken from [`selectors`](#selectors). You can use this to send back only the elements that Pjax will use to switch, instead of sending the whole page. Note that you may need to deserialize this on the server (Such as by using `JSON.parse`)
 
 ## DOM Ready State
 
