@@ -94,7 +94,7 @@ Pjax 获取新内容，更新 URL，更新页面元素，执行新内容中的�
 <html lang="">
 <head>
   <title>我的博客真是太酷了</title>
-  <meta name="description" content="Welcome to My Cool Blog">
+  <meta name="description" content="来呀来呀">
   <link href="/styles.css" rel="stylesheet">
 </head>
 
