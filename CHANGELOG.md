@@ -1,3 +1,11 @@
+# 2.0.2
+
+* Add Simplified Chinese README ([#113](https://github.com/PaperStrike/Pjax/pull/113))
+
+## 🐛 Bug Fixes
+
+* Fix broken cacheMode option and rename to cache ([#114](https://github.com/PaperStrike/Pjax/pull/114))
+
 # 2.0.1
 
 ## 🚀 Enhancements
