@@ -253,9 +253,9 @@ This method accepts the URL string or the [Request][mdn-request-api] object to f
 
 It returns a promise that resolves when all the following steps have done:
 
-1. Transform elements selected by [`selectors`](#selectors) with switches defined in [`switches`](#switches).
-2. Set _focusCleared_ to `true` if previous step has cleared the page focus, otherwise, `false`.
-3. Call `pushState` to update the URL.
+1. Call `pushState` to update the URL.
+2. Transform elements selected by [`selectors`](#selectors) with switches defined in [`switches`](#switches).
+3. Set _focusCleared_ to `true` if previous step has cleared the page focus, otherwise, `false`.
 4. Call and await [`preparePage`](#preparepage) with a new [SwitchesResult](#type-switchesresult) that contains _focusCleared_.
 
 ### preparePage
