@@ -5,7 +5,7 @@ const commonOptions = {
   switches: {},
 };
 
-test('switchNodes with same structures', async () => {
+test('same structures', async () => {
   document.body.innerHTML = '<p>Original para</p><span>Original span</span>';
 
   const sourceDoc = document.implementation.createHTMLDocument();
@@ -15,7 +15,7 @@ test('switchNodes with same structures', async () => {
   expect(document.body.innerHTML).toBe('<p>New para</p><span>Original span</span>');
 });
 
-test('switchNodes with focus to clear', async () => {
+test('focus to clear', async () => {
   document.body.innerHTML = '<p><input>Original para</p><span>Original span</span>';
   (document.body.querySelector('input') as HTMLInputElement).focus();
 
@@ -27,7 +27,7 @@ test('switchNodes with focus to clear', async () => {
   expect([document.body, null]).toContain(document.activeElement);
 });
 
-test('switchNodes with different structures', async () => {
+test('different structures', async () => {
   document.body.innerHTML = '<p>Original para</p><span>Original span</span>';
 
   const sourceDoc = document.implementation.createHTMLDocument();
@@ -36,7 +36,68 @@ test('switchNodes with different structures', async () => {
   await expect(switchNodes(sourceDoc, commonOptions)).rejects.toThrow(DOMException);
 });
 
-test('switchNodes on abort', async () => {
+describe('switch function', () => {
+  const generateDoc = () => {
+    const doc = document.implementation.createHTMLDocument();
+    doc.body.innerHTML = '<p>New para</p><span>New span</span>';
+    return doc;
+  };
+
+  beforeEach(() => {
+    document.body.innerHTML = '<p>Original para</p><span>Original span</span>';
+  });
+
+  describe('return value', () => {
+    test('could be non-promise', async () => {
+      const spy = jest.fn(() => {});
+      const switchPromise = switchNodes(generateDoc(), {
+        ...commonOptions,
+        switches: {
+          p: spy,
+        },
+      });
+      await expect(switchPromise).resolves.not.toThrow();
+      expect(spy).toHaveBeenCalled();
+    });
+
+    test('being awaited if is promise', async () => {
+      jest.useFakeTimers();
+
+      const race = Promise.race([
+        switchNodes(generateDoc(), {
+          ...commonOptions,
+          switches: {
+            p: () => new Promise((resolve) => window.setTimeout(resolve, 20)),
+          },
+        }),
+        new Promise((resolve) => window.setTimeout(resolve, 10)).then(() => 'first'),
+      ]);
+
+      jest.advanceTimersByTime(30);
+      await expect(race).resolves.toBe('first');
+      jest.useRealTimers();
+    });
+  });
+
+  test('errors being ignored', async () => {
+    await expect(switchNodes(generateDoc(), {
+      ...commonOptions,
+      switches: {
+        p: () => {
+          throw new Error();
+        },
+      },
+    })).resolves.not.toThrow();
+    await expect(switchNodes(generateDoc(), {
+      ...commonOptions,
+      switches: {
+        p: () => Promise.reject(),
+      },
+    })).resolves.not.toThrow();
+  });
+});
+
+test('on abort', async () => {
   document.body.innerHTML = '<p>Original para</p>';
 
   const sourceDoc = document.implementation.createHTMLDocument();
@@ -61,7 +122,7 @@ test('switchNodes on abort', async () => {
   expect(document.body.innerHTML).toBe('<p>New para</p>');
 });
 
-test('switchNodes with aborted signal', async () => {
+test('aborted signal', async () => {
   document.body.innerHTML = '<p>Original para</p>';
 
   const sourceDoc = document.implementation.createHTMLDocument();
