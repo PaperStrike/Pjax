@@ -11,7 +11,7 @@
 
 Easily enable fast AJAX navigation ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API)).
 
-Pjax aims to deliver _app-like_ browsing experiences. No more full page reloads, no more multiple HTTP requests. It does not rely on other libraries, like jQuery or similar. Written in pure TS, transpiled by [Babel](https://babel.dev/) and [webpack](https://webpack.js.org/).
+Pjax aims to deliver _app-like_ browsing experiences. No more full page reloads, no more multiple HTTP requests. It does not rely on other libraries, like jQuery or similar. Written in pure TS, transpiled by [Babel](https://babel.dev/) and [Rollup](https://rollupjs.org/).
 
 A maintained, modern, and smaller version of [MoOx/pjax](https://github.com/MoOx/pjax).
 

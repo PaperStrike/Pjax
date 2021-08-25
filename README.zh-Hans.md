@@ -11,7 +11,7 @@
 
 轻松丝滑 AJAX 切页体验 ([Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) + [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API)) 。
 
-Pjax 致力于提供 原生 APP 一般 的冲浪效果。抛去整页刷新，减少网路请求。不需要 jQuery 等第三方库。以纯 TS 编写，由 [Babel](https://babel.dev/) 和 [webpack](https://webpack.js.org/) 编译和打包。
+Pjax 致力于提供 原生 APP 一般 的冲浪效果。抛去整页刷新，减少网路请求。不需要 jQuery 等第三方库。以纯 TS 编写，由 [Babel](https://babel.dev/) 和 [Rollup](https://rollupjs.org/) 编译和打包。
 
 基于 [MoOx/pjax](https://github.com/MoOx/pjax) 的全新版本。
 
