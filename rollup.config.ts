@@ -21,7 +21,7 @@ const common: RollupOptions = {
       extensions: ['.ts'],
     }),
     babel({
-      babelHelpers: 'runtime',
+      babelHelpers: 'bundled',
       extensions: ['.ts'],
     }),
   ],
