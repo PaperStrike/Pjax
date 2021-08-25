@@ -1,3 +1,7 @@
+# 2.0.3
+
+* Small improvements to distributions
+
 # 2.0.2
 
 * Add Simplified Chinese README ([#113](https://github.com/PaperStrike/Pjax/pull/113))
