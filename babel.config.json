@@ -1,4 +1,8 @@
 {
+  "assumptions": {
+    "setPublicClassFields": true,
+    "noDocumentAll": true
+  },
   "presets": [
     ["@babel/preset-env", {
       "bugfixes": true
