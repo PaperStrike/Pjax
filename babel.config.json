@@ -12,9 +12,6 @@
     }]
   ],
   "plugins": [
-    ["@babel/transform-runtime", {
-      "version": "^7.15.0"
-    }],
     ["polyfill-corejs3", {
       "method": "usage-pure",
       "exclude": [

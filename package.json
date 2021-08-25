@@ -45,10 +45,8 @@
     "@ampproject/rollup-plugin-closure-compiler": "^0.27.0",
     "@babel/cli": "^7.14.3",
     "@babel/core": "^7.14.3",
-    "@babel/plugin-transform-runtime": "^7.15.0",
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-typescript": "^7.14.5",
-    "@babel/runtime": "^7.15.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/jest": "^27.0.0",
@@ -73,7 +71,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"runtime\\\"}",
+    "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"bundled\\\"}",
     "test": "jest",
     "coverage": "jest --coverage",
     "prepare": "npm run build"
