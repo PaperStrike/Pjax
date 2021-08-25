@@ -51,7 +51,6 @@
     "@babel/runtime": "^7.15.0",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
-    "@rollup/plugin-typescript": "^8.2.5",
     "@types/jest": "^27.0.0",
     "@types/web": "^0.0.24",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
@@ -74,7 +73,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "build": "rollup --config rollup.config.ts --configPlugin typescript",
+    "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"runtime\\\"}",
     "test": "jest",
     "coverage": "jest --coverage",
     "prepare": "npm run build"
