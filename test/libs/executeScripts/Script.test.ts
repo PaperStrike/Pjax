@@ -87,9 +87,9 @@ test.describe('script', () => {
     const scriptEle = document.createElement('script');
     scriptEle.id = uid;
     scriptEle.text = `
-    const script = document.getElementById('${uid}');
-    script.parentNode.removeChild(script);
-  `;
+      const script = document.getElementById('${uid}');
+      script.parentNode.removeChild(script);
+    `;
 
     await expect(new Script(scriptEle).eval()).resolves.not.toThrow();
     expect(scriptEle.isConnected).toBeFalsy();

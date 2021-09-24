@@ -62,19 +62,19 @@ test.describe('prepare page', () => {
           `document.getElementById('${uid}').title += '${text}'`
         );
         container.innerHTML = `
-        <script data-pjax>${mark('1')}</script>
-        <p>
-          <script>${mark(' 2')}</script>
-          <script>${mark(' 3')}</script>
-        </p>
-        <div>
-          <pre data-pjax>${mark(' should ignore')}</pre>
-          <script data-pjax>${mark(' 4')}</script>
-          <script>${mark(' 5')}</script>
-        </div>
-        <script data-in-selector>${mark(' 6')}</script>
-        <script>${mark(' 7')}</script>
-      `;
+          <script data-pjax>${mark('1')}</script>
+          <p>
+            <script>${mark(' 2')}</script>
+            <script>${mark(' 3')}</script>
+          </p>
+          <div>
+            <pre data-pjax>${mark(' should ignore')}</pre>
+            <script data-pjax>${mark(' 4')}</script>
+            <script>${mark(' 5')}</script>
+          </div>
+          <script data-in-selector>${mark(' 6')}</script>
+          <script>${mark(' 7')}</script>
+        `;
         document.body.append(container);
 
         await use(() => container.title);

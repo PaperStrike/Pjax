@@ -15,9 +15,9 @@ test.describe('execute scripts', () => {
   test('in non-array iterables', async ({ uid }) => {
     const container = document.createElement('div');
     container.innerHTML = `
-    <script>window.dispatchEvent(new Event('${uid}'))</script>
-    <script>window.dispatchEvent(new Event('${uid}'))</script>
-  `;
+      <script>window.dispatchEvent(new Event('${uid}'))</script>
+      <script>window.dispatchEvent(new Event('${uid}'))</script>
+    `;
 
     let count = 0;
     const listener = () => {
@@ -49,10 +49,10 @@ test.describe('execute scripts', () => {
 
     const container = document.createElement('div');
     container.innerHTML = `
-    <script>window.dispatchEvent(new Event('${uid}'))</script>
-    <script async src="/async.js"></script>
-    <script>window.dispatchEvent(new Event('${uid}'))</script>
-  `;
+      <script>window.dispatchEvent(new Event('${uid}'))</script>
+      <script async src="/async.js"></script>
+      <script>window.dispatchEvent(new Event('${uid}'))</script>
+    `;
 
     let count = 0;
     const listener = () => {
@@ -78,16 +78,16 @@ test.describe('execute scripts', () => {
 
     const container = document.createElement('div');
     container.innerHTML = `
-    <script async src="/async.js"></script>
-    <script defer src="/async.js"></script>
-    <script>${scriptText('execute')}</script>
-    <script async src="/async.js"></script>
-    <script defer src="/async.js"></script>
-    <script src="/blocking.js"></script>
-    <script async src="/async.js"></script>
-    <script defer src="/async.js"></script>
-    <script>${scriptText(' done')}</script>
-  `;
+      <script async src="/async.js"></script>
+      <script defer src="/async.js"></script>
+      <script>${scriptText('execute')}</script>
+      <script async src="/async.js"></script>
+      <script defer src="/async.js"></script>
+      <script src="/blocking.js"></script>
+      <script async src="/async.js"></script>
+      <script defer src="/async.js"></script>
+      <script>${scriptText(' done')}</script>
+    `;
 
     document.body.className = '';
     await expect(executeScripts(container.children as HTMLCollectionOf<HTMLScriptElement>))
@@ -105,10 +105,10 @@ test.describe('execute scripts', () => {
 
     const container = document.createElement('div');
     container.innerHTML = `
-    <script>${scriptText(uid)};window.dispatchEvent(new Event('${uid}'))</script>
-    <script src="/delayed.js"></script>
-    <script>${scriptText(' wrong')}</script>
-  `;
+      <script>${scriptText(uid)};window.dispatchEvent(new Event('${uid}'))</script>
+      <script src="/delayed.js"></script>
+      <script>${scriptText(' wrong')}</script>
+    `;
 
     const abortController = new AbortController();
 
