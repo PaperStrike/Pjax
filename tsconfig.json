@@ -3,6 +3,7 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "Node",
     "noEmit": true,
