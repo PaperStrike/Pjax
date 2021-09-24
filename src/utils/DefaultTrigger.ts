@@ -86,8 +86,7 @@ export default class DefaultTrigger {
     // Lacking browser compatibility and small polyfill. - August 2, 2021
     if ('SubmitEvent' in window) {
       document.addEventListener('submit', (event) => {
-        // A as until typescript's internal dom lib updates or support lib overriding.
-        this.onFormSubmit(event as SubmitEvent);
+        this.onFormSubmit(event);
       });
     }
   }
