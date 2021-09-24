@@ -42,7 +42,8 @@
   ],
   "browser": {
     "expect": "@sliphua/expect",
-    "mocha": "mocha/mocha-es2018.js"
+    "mocha": "mocha/mocha-es2018.js",
+    "util": false
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.27.0",
@@ -55,9 +56,9 @@
     "@sinonjs/fake-timers": "^7.1.2",
     "@sliphua/expect": "^27.1.1",
     "@types/mocha": "^9.0.0",
-    "@typescript/dom": "npm:@types/web@^0.0.37",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.29.0",
+    "@typescript/dom": "npm:@types/web@^0.0.37",
     "babel-plugin-polyfill-corejs3": "^0.2.0",
     "eslint": "^7.26.0",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -71,8 +72,7 @@
     "playwright-fixtures": "^0.3.2",
     "playwright-test": "^7.1.0",
     "rollup": "^2.56.3",
-    "typescript": "^4.5.0-dev.20210924",
-    "util": "^0.12.4"
+    "typescript": "^4.5.0-dev.20210924"
   },
   "engines": {
     "node": "^14.15.0 || >=15.0.0"
