@@ -5,7 +5,7 @@ import {
 } from '#tester';
 import Script from '#libs/executeScripts/Script';
 
-test.describe('Script', () => {
+test.describe('script', () => {
   test('without both src attribute and content', () => {
     const emptyScriptEle = document.createElement('script');
 

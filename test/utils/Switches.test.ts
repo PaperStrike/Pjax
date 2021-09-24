@@ -17,7 +17,7 @@ const test = base.extend<{ target: HTMLElement, replacer: HTMLElement }>({
   },
 });
 
-test.describe('Switches', () => {
+test.describe('switches', () => {
   test('replaceWith switch', async ({ target, replacer }) => {
     target.dataset.attr = 'remove';
     replacer.id = `replacer_${Math.random().toFixed(6)}`;
