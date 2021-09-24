@@ -18,13 +18,13 @@ const test = base.extend<{ target: HTMLElement, replacer: HTMLElement }>({
 });
 
 test.describe('switches', () => {
-  test('replaceWith switch', async ({ target, replacer }) => {
+  test('replaceWith switch', async ({ target, replacer, uid }) => {
     target.dataset.attr = 'remove';
-    replacer.id = `replacer_${Math.random().toFixed(6)}`;
+    replacer.id = uid;
 
     await Switches.replaceWith(target, replacer);
 
-    const switched = document.getElementById(replacer.id);
+    const switched = document.getElementById(uid);
     expect(switched?.innerHTML).toBe('New Text');
     expect(switched?.dataset.attr).not.toBe('remove');
   });

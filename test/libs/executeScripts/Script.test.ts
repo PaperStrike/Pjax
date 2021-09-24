@@ -70,11 +70,7 @@ test.describe('script', () => {
     expect(externalScript.blocking).toBe(true);
   });
 
-  const uidTest = test.extend<{ uid: string }>({
-    uid: (_, use) => use(Math.random().toFixed(6)),
-  });
-
-  uidTest('eval method', async ({ uid }) => {
+  test('eval method', async ({ uid }) => {
     let executed = false;
     window.addEventListener(uid, () => {
       executed = true;
@@ -87,7 +83,7 @@ test.describe('script', () => {
     expect(executed).toBeTruthy();
   });
 
-  uidTest('no throw if the script removed itself', async ({ uid }) => {
+  test('no throw if the script removed itself', async ({ uid }) => {
     const scriptEle = document.createElement('script');
     scriptEle.id = uid;
     scriptEle.text = `
@@ -102,7 +98,7 @@ test.describe('script', () => {
   test.describe('document.currentScript match', () => {
     ['external', 'inline'].forEach((scriptType) => {
       ['current', 'other', undefined].forEach((connectedDoc) => {
-        uidTest(
+        test(
           `${scriptType} script ${connectedDoc ? `connected in ${connectedDoc} doc` : 'unconnected'}`,
           async ({ uid }) => {
             let matched = false;

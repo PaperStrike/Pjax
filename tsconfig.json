@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["ESNext"],
     "module": "ESNext",
@@ -15,8 +16,5 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext"
-  },
-  "exclude": [
-    "node_modules"
-  ]
+  }
 }

@@ -12,11 +12,7 @@ import executeScripts from '#libs/executeScripts';
 const scriptText = (mark: string) => `document.body.className += '${mark}'`;
 
 test.describe('execute scripts', () => {
-  const uidTest = test.extend<{ uid: string }>({
-    uid: (_, use) => use(Math.random().toFixed(6)),
-  });
-
-  uidTest('in non-array iterables', async ({ uid }) => {
+  test('in non-array iterables', async ({ uid }) => {
     const container = document.createElement('div');
     container.innerHTML = `
     <script>window.dispatchEvent(new Event('${uid}'))</script>
@@ -44,7 +40,7 @@ test.describe('execute scripts', () => {
     window.removeEventListener(uid, listener);
   });
 
-  uidTest('ignore non-blocking execution time', async ({ uid }) => {
+  test('ignore non-blocking execution time', async ({ uid }) => {
     // Lock the time.
     const clock = FakeTimers.install();
     onfetch('/async.js')
@@ -100,7 +96,7 @@ test.describe('execute scripts', () => {
       .toBe('execute external blocking done');
   });
 
-  uidTest('integrated with given signal', async ({ uid }) => {
+  test('integrated with given signal', async ({ uid }) => {
     // Lock the time.
     const clock = FakeTimers.install();
     onfetch('/delayed.js')

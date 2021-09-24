@@ -52,15 +52,14 @@ test.describe('prepare page', () => {
   });
 
   test.describe('scripts', () => {
-    const scriptsTest = test.extend<{ id: string, getMarkedText:() => string }>({
-      id: (_, use) => use(`test_${Math.random().toFixed(6).slice(2)}`),
-      getMarkedText: async ({ id }, use) => {
+    const scriptsTest = test.extend<{ getMarkedText:() => string }>({
+      getMarkedText: async ({ uid }, use) => {
         const container = document.createElement('section');
         container.title = '';
-        container.id = id;
+        container.id = uid;
 
         const mark = (text: string) => (
-          `document.getElementById('${id}').title += '${text}'`
+          `document.getElementById('${uid}').title += '${text}'`
         );
         container.innerHTML = `
         <script data-pjax>${mark('1')}</script>
@@ -84,18 +83,18 @@ test.describe('prepare page', () => {
       },
     });
 
-    scriptsTest('switched or labeled being evaluated and only evaluate once', async ({ pjax, id, getMarkedText }) => {
+    scriptsTest('switched or labeled being evaluated and only evaluate once', async ({ pjax, uid, getMarkedText }) => {
       await pjax.preparePage({ focusCleared: false }, {
-        selectors: [`#${id} p`, `#${id} div`, `#${id} [data-in-selector]`],
-        scripts: `#${id} [data-pjax]`,
+        selectors: [`#${uid} p`, `#${uid} div`, `#${uid} [data-in-selector]`],
+        scripts: `#${uid} [data-pjax]`,
       });
       expect(getMarkedText()).toBe('1 2 3 4 5 6');
     });
 
-    scriptsTest('unordered selected being evaluated in order', async ({ pjax, id, getMarkedText }) => {
+    scriptsTest('unordered selected being evaluated in order', async ({ pjax, uid, getMarkedText }) => {
       await pjax.preparePage({ focusCleared: false }, {
-        selectors: [`#${id} [data-in-selector]`, `#${id} div`, `#${id} p`],
-        scripts: `#${id} [data-pjax]`,
+        selectors: [`#${uid} [data-in-selector]`, `#${uid} div`, `#${uid} p`],
+        scripts: `#${uid} [data-pjax]`,
       });
       expect(getMarkedText()).toBe('1 2 3 4 5 6');
     });
@@ -170,6 +169,34 @@ test.describe('prepare page', () => {
           });
         });
       });
+    });
+  });
+
+  test.describe('abort', () => {
+    type PjaxWithController = Pjax & { abortController: AbortController };
+    const abortTest = test.extend<{ pjax: PjaxWithController }>({
+      pjax: async ({ pjax }: { pjax: Pjax }, use: (pjax: PjaxWithController) => Promise<void>) => {
+        pjax.abortController = new AbortController();
+        await use(pjax as PjaxWithController);
+      },
+    });
+
+    abortTest('already', async ({ pjax, uid }) => {
+      let executed = false;
+      window.addEventListener(uid, () => {
+        executed = true;
+      });
+      const container = document.createElement('div');
+      container.id = uid;
+      container.innerHTML = `
+        <script>window.dispatchEvent(new Event('${uid}'))</script>
+      `;
+      pjax.abortController.abort();
+      const preparePromise = pjax.preparePage({ focusCleared: false }, {
+        selectors: [`#${uid} script`],
+      });
+      await expect(preparePromise).rejects.toMatchObject({ name: 'AbortError' });
+      expect(executed).toBeFalsy();
     });
   });
 });

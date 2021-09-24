@@ -53,7 +53,7 @@ export default async function preparePage(
     ));
 
     // Execute.
-    await executeScripts(scripts, { signal: this.abortController?.signal });
+    await executeScripts(scripts, { signal: this.abortController?.signal || null });
   }
 
   // Parse required scroll position.

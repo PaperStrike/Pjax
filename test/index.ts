@@ -58,8 +58,9 @@ const wrappedTest = wrap(
   }),
 );
 
-const rootTest = wrappedTest.extend<{ MockedPjax: typeof Pjax }>({
+const rootTest = wrappedTest.extend<{ MockedPjax: typeof Pjax, uid: `test_${string}` }>({
   MockedPjax: async (context, use) => use(MockedPjax),
+  uid: (_, use) => use(`test_${Math.random().toFixed(12).slice(2)}`),
 });
 
 export { rootTest as test };
