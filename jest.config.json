@@ -1,7 +1,0 @@
-{
-  "coverageDirectory": "coverage",
-  "testEnvironment": "jsdom",
-  "testEnvironmentOptions": {
-    "resources": "usable"
-  }
-}

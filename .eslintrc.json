@@ -2,12 +2,11 @@
   "env": {
     "browser": true,
     "es2021": true,
-    "jest": true
+    "mocha": true
   },
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:jest/recommended",
     "airbnb-base",
     "airbnb-typescript/base"
   ],
@@ -17,8 +16,20 @@
     "project": "./tsconfig.json"
   },
   "plugins": [
-    "@typescript-eslint",
-    "jest"
+    "@typescript-eslint"
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "overrides": [
+    {
+      "files": ["**/?(*.)+(spec|test).[jt]s?(x)"],
+      "rules": {
+        "no-param-reassign": "off"
+      }
+    }
   ],
   "root": true
 }

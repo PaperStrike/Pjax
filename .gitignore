@@ -9,6 +9,7 @@ desktop.ini
 node_modules/
 
 # Generate in development
+.nyc_output/
 coverage/
+build/
 dist/
-*.log
