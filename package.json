@@ -40,7 +40,10 @@
     "opera >= 53",
     "safari >= 12.2"
   ],
-  "sideEffects": false,
+  "browser": {
+    "expect": "@sliphua/expect",
+    "mocha": "mocha/mocha-es2018.js"
+  },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.27.0",
     "@babel/cli": "^7.14.3",
@@ -49,22 +52,26 @@
     "@babel/preset-typescript": "^7.14.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
-    "@types/jest": "^27.0.0",
-    "@types/web": "^0.0.24",
+    "@sinonjs/fake-timers": "^7.1.2",
+    "@sliphua/expect": "^27.1.1",
+    "@types/mocha": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.29.0",
     "babel-plugin-polyfill-corejs3": "^0.2.0",
-    "cross-fetch": "^3.1.4",
     "eslint": "^7.26.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-airbnb-typescript": "^14.0.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.24.1",
-    "eslint-plugin-jest": "^24.4.0",
-    "jest": "^27.0.1",
-    "jest-environment-jsdom": "^27.0.1",
-    "nock": "^13.0.11",
+    "expect": "^27.2.0",
+    "mocha": "^9.1.0",
+    "nyc": "^15.1.0",
+    "onfetch": "^0.4.3",
+    "playwright-fixtures": "^0.3.2",
+    "playwright-test": "^7.1.0",
     "rollup": "^2.56.3",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.3",
+    "util": "^0.12.4"
   },
   "engines": {
     "node": "^14.15.0 || >=15.0.0"
@@ -72,8 +79,8 @@
   "scripts": {
     "lint": "eslint .",
     "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"bundled\\\"}",
-    "test": "jest",
-    "coverage": "jest --coverage",
+    "test": "playwright-test test/**/*.test.* --sw test/sw.ts",
+    "coverage": "npm test -- --cov && nyc report",
     "prepare": "npm run build"
   }
 }
