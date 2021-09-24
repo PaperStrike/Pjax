@@ -16,8 +16,6 @@
     "dist",
     "src",
     "tsconfig.json",
-    "*.config.*",
-    ".eslintrc.*",
     "CHANGELOG.*"
   ],
   "exports": {
