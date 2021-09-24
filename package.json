@@ -79,7 +79,7 @@
   "scripts": {
     "lint": "eslint .",
     "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"bundled\\\"}",
-    "test": "playwright-test test/**/*.test.* --sw test/sw.ts",
+    "test": "playwright-test \"test/**/*.test.*\" --sw test/sw.ts",
     "coverage": "npm test -- --cov && nyc report",
     "prepare": "npm run build"
   }
