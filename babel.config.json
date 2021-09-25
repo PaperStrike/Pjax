@@ -16,6 +16,7 @@
       "method": "usage-pure",
       "exclude": [
         "web.url",
+        "web.url-search-params",
         "es.array.reduce",
         "es.array.sort",
         "es.promise"

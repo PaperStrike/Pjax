@@ -21,14 +21,14 @@ export default async function weakLoad(
   let switchDOM = true;
 
   if (typeof requestInfo === 'string') {
-    const parsedURL = new URL(requestInfo);
+    const parsedURL = new URL(requestInfo, document.URL);
 
     // Find path (pathname + search string, e.g. /abc?d=1) difference.
     const targetPath = parsedURL.pathname + parsedURL.search;
     const currentPath = this.location.pathname + this.location.search;
 
-    // Directly prepare, no DOM switch on same path.
-    if (targetPath === currentPath) {
+    // For same-path links with a `#`, prepare without switching the DOM.
+    if (targetPath === currentPath && parsedURL.href.includes('#')) {
       // pushState on different hash.
       if (window.location.hash !== parsedURL.hash) {
         window.history.pushState(null, '', parsedURL.href);

@@ -1,4 +1,4 @@
-import { expect, test as base } from '#tester';
+import { expect, onfetch, test as base } from '#tester';
 import preparePage from '#preparePage';
 import type Pjax from '#';
 
@@ -111,92 +111,139 @@ test.describe('prepare page', () => {
       },
     });
 
-    scrollTest('to target position', async ({ pjax }) => {
-      window.scrollTo(0, 0);
-
-      await pjax.preparePage(null, {
-        scrollTo: [10, 20],
-      });
-      expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 20]);
-
-      await pjax.preparePage(null, {
-        scrollTo: 30,
-      });
-      expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 30]);
-    });
-
-    scrollTest('to element with match hash. Disable on desire', async ({ pjax }) => {
-      document.body.innerHTML = '';
-      const target = document.createElement('p');
-      target.id = 'new';
-      target.style.cssText = 'margin: 10px 0 0 20px';
-      document.body.append(target);
-      window.location.hash = '#new';
-
-      window.scrollTo(0, 0);
-      await pjax.preparePage(null, {
-        scrollTo: true,
-      });
-      const rect = target.getBoundingClientRect();
-      expect([rect.x, rect.y].map(Math.round)).toMatchObject([0, 0]);
-
-      window.scrollTo(0, 0);
-      await pjax.preparePage(null, {
-        scrollTo: false,
-      });
-      expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([0, 0]);
-      window.location.hash = '';
-    });
-
     ([
-      ['same', null, [10, 10]],
-      ['different', { focusCleared: false }, [0, 0]],
-    ] as [string, Parameters<typeof preparePage>[0], [number, number]][]).forEach(([
+      ['same', null, false],
+      ['switched', { focusCleared: false }, true],
+    ] as const).forEach(([
       pageType,
       switchesResult,
-      expectedPosition,
+      defaultToTop,
     ]) => {
       scrollTest.describe(`on ${pageType} page`, () => {
-        ['#no-match', '#', ''].forEach((hash) => {
-          scrollTest(`to ${expectedPosition.join()} when hash changes to "${hash}"`, async ({ pjax }) => {
+        scrollTest('to target position', async ({ pjax }) => {
+          window.scrollTo(0, 0);
+
+          await pjax.preparePage(switchesResult, {
+            scrollTo: [10, 20],
+          });
+          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 20]);
+
+          await pjax.preparePage(switchesResult, {
+            scrollTo: 30,
+          });
+          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 30]);
+        });
+
+        scrollTest('to target element and can be disabled', async ({ pjax }) => {
+          document.body.innerHTML = '';
+          const target = document.createElement('p');
+          target.id = 'new';
+          target.style.cssText = 'margin: 10px 0 0 20px';
+          document.body.append(target);
+          window.location.hash = '#new';
+
+          window.scrollTo(0, 0);
+          await pjax.preparePage(switchesResult, {
+            scrollTo: true,
+          });
+          const rect = target.getBoundingClientRect();
+          expect([rect.x, rect.y].map(Math.round)).toMatchObject([0, 0]);
+
+          window.scrollTo(0, 0);
+          await pjax.preparePage(switchesResult, {
+            scrollTo: false,
+          });
+          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([0, 0]);
+          window.location.hash = '';
+        });
+
+        ['#', '', '#top', '#toP'].forEach((hash) => {
+          scrollTest(`to top when hash changes to "${hash}"`, async ({ pjax }) => {
             window.location.hash = hash;
             window.scrollTo(10, 10);
             await pjax.preparePage(switchesResult, {
               scrollTo: true,
             });
             expect([window.scrollX, window.scrollY].map(Math.round))
-              .toMatchObject(expectedPosition);
+              .toMatchObject([0, 0]);
           });
         });
+
+        scrollTest(
+          `${defaultToTop ? 'to top even' : 'no scroll'} when hash changes to "#no-match"`,
+          async ({ pjax }) => {
+            window.location.hash = '#no-match';
+            window.scrollTo(20, 20);
+            await pjax.preparePage(switchesResult, {
+              scrollTo: true,
+            });
+            expect([window.scrollX, window.scrollY].map(Math.round))
+              .toMatchObject(defaultToTop ? [0, 0] : [20, 20]);
+          },
+        );
       });
     });
   });
 
   test.describe('abort', () => {
-    type PjaxWithController = Pjax & { abortController: AbortController };
-    const abortTest = test.extend<{ pjax: PjaxWithController }>({
-      pjax: async ({ pjax }: { pjax: Pjax }, use: (pjax: PjaxWithController) => Promise<void>) => {
-        pjax.abortController = new AbortController();
-        await use(pjax as PjaxWithController);
+    const abortTest = test.extend<{ controller: AbortController, container: HTMLElement }>({
+      controller: (_, use) => use(new AbortController()),
+      pjax: async ({ pjax, controller, uid }, use) => {
+        pjax.abortController = controller;
+        pjax.options.selectors = [`#${uid} script`];
+        await use(pjax);
+      },
+      container: async ({ uid }, use) => {
+        const container = document.createElement('div');
+        container.id = uid;
+        container.innerHTML = `
+          <script>window.dispatchEvent(new Event('${uid}'))</script>
+        `;
+        const listener = () => {
+          container.title = 'executed';
+        };
+        window.addEventListener(uid, listener);
+        document.body.append(container);
+        await use(container);
+        window.removeEventListener(uid, listener);
+        container.remove();
       },
     });
 
-    abortTest('already', async ({ pjax, uid }) => {
-      let executed = false;
-      window.addEventListener(uid, () => {
-        executed = true;
-      });
-      const container = document.createElement('div');
-      container.id = uid;
-      container.innerHTML = `
-        <script>window.dispatchEvent(new Event('${uid}'))</script>
-      `;
-      pjax.abortController.abort();
-      const preparePromise = pjax.preparePage({ focusCleared: false }, {
-        selectors: [`#${uid} script`],
-      });
+    abortTest('already', async ({ controller, pjax, container }) => {
+      controller.abort();
+      const preparePromise = pjax.preparePage({ focusCleared: false });
       await expect(preparePromise).rejects.toMatchObject({ name: 'AbortError' });
-      expect(executed).toBeFalsy();
+      expect(container.title).not.toBe('executed');
+    });
+
+    abortTest('ongoing', async ({
+      controller,
+      pjax,
+      container,
+      uid,
+    }) => {
+      // Append a pending-controllable script.
+      // Resolve instead of reject at the end
+      // as browsers won't abort the fetch or cancel the evaluation due to the removal
+      // and if we reject there will be a network error or a syntax error.
+      let stopPending = () => {};
+      const pendingPromise = new Promise<never>((_, reject) => {
+        stopPending = reject;
+      }).catch(() => null);
+      onfetch('/pending.js').reply(() => pendingPromise);
+      const pendingScript = document.createElement('script');
+      pendingScript.src = '/pending.js';
+      container.append(pendingScript);
+
+      // Abort on the first script's execution.
+      const preparePromise = pjax.preparePage({ focusCleared: false });
+      window.addEventListener(uid, () => controller.abort(), { once: true });
+
+      await expect(preparePromise).rejects.toMatchObject({ name: 'AbortError' });
+      expect(container.title).toBe('executed');
+
+      stopPending();
     });
   });
 });
