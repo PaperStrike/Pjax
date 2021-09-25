@@ -51,6 +51,8 @@ export default async function switchDOM(
       window.history.pushState(null, '', newLocation.href);
     }
 
+    this.fire('response', eventDetail);
+    
     // Switch elements.
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
     eventDetail.switches = switches;
