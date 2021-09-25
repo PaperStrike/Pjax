@@ -495,7 +495,7 @@ document.addEventListener('example', () => {
 
 ## 事件
 
-Pjax 在发送网络请求时，会触发一系列事件。
+在调用 Pjax 时，Pjax 可能会触发一系列事件。
 
 这些事件都触发于 _document_，与所点击的链接或调用函数无关。你可以通过 `event.detail` 得到事件详情。
 
