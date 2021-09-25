@@ -496,7 +496,7 @@ document.addEventListener('example', () => {
 
 ## Events
 
-When calling Pjax to load a URL that within the same origin while with different path or search string, Pjax fires a number of events.
+When calling Pjax, Pjax may fire a number of events.
 
 All events fire from the _document_, not the clicked anchor nor the caller function. You can get more detail of the event via `event.detail`.
 

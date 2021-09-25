@@ -111,63 +111,76 @@ test.describe('prepare page', () => {
       },
     });
 
-    scrollTest('to target position', async ({ pjax }) => {
-      window.scrollTo(0, 0);
-
-      await pjax.preparePage(null, {
-        scrollTo: [10, 20],
-      });
-      expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 20]);
-
-      await pjax.preparePage(null, {
-        scrollTo: 30,
-      });
-      expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 30]);
-    });
-
-    scrollTest('to element with match hash. Disable on desire', async ({ pjax }) => {
-      document.body.innerHTML = '';
-      const target = document.createElement('p');
-      target.id = 'new';
-      target.style.cssText = 'margin: 10px 0 0 20px';
-      document.body.append(target);
-      window.location.hash = '#new';
-
-      window.scrollTo(0, 0);
-      await pjax.preparePage(null, {
-        scrollTo: true,
-      });
-      const rect = target.getBoundingClientRect();
-      expect([rect.x, rect.y].map(Math.round)).toMatchObject([0, 0]);
-
-      window.scrollTo(0, 0);
-      await pjax.preparePage(null, {
-        scrollTo: false,
-      });
-      expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([0, 0]);
-      window.location.hash = '';
-    });
-
     ([
-      ['same', null, [10, 10]],
-      ['different', { focusCleared: false }, [0, 0]],
-    ] as [string, Parameters<typeof preparePage>[0], [number, number]][]).forEach(([
+      ['same', null, false],
+      ['switched', { focusCleared: false }, true],
+    ] as const).forEach(([
       pageType,
       switchesResult,
-      expectedPosition,
+      defaultToTop,
     ]) => {
       scrollTest.describe(`on ${pageType} page`, () => {
-        ['#no-match', '#', ''].forEach((hash) => {
-          scrollTest(`to ${expectedPosition.join()} when hash changes to "${hash}"`, async ({ pjax }) => {
+        scrollTest('to target position', async ({ pjax }) => {
+          window.scrollTo(0, 0);
+
+          await pjax.preparePage(switchesResult, {
+            scrollTo: [10, 20],
+          });
+          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 20]);
+
+          await pjax.preparePage(switchesResult, {
+            scrollTo: 30,
+          });
+          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 30]);
+        });
+
+        scrollTest('to target element and can be disabled', async ({ pjax }) => {
+          document.body.innerHTML = '';
+          const target = document.createElement('p');
+          target.id = 'new';
+          target.style.cssText = 'margin: 10px 0 0 20px';
+          document.body.append(target);
+          window.location.hash = '#new';
+
+          window.scrollTo(0, 0);
+          await pjax.preparePage(switchesResult, {
+            scrollTo: true,
+          });
+          const rect = target.getBoundingClientRect();
+          expect([rect.x, rect.y].map(Math.round)).toMatchObject([0, 0]);
+
+          window.scrollTo(0, 0);
+          await pjax.preparePage(switchesResult, {
+            scrollTo: false,
+          });
+          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([0, 0]);
+          window.location.hash = '';
+        });
+
+        ['#', '', '#top', '#toP'].forEach((hash) => {
+          scrollTest(`to top when hash changes to "${hash}"`, async ({ pjax }) => {
             window.location.hash = hash;
             window.scrollTo(10, 10);
             await pjax.preparePage(switchesResult, {
               scrollTo: true,
             });
             expect([window.scrollX, window.scrollY].map(Math.round))
-              .toMatchObject(expectedPosition);
+              .toMatchObject([0, 0]);
           });
         });
+
+        scrollTest(
+          `${defaultToTop ? 'to top even' : 'no scroll'} when hash changes to "#no-match"`,
+          async ({ pjax }) => {
+            window.location.hash = '#no-match';
+            window.scrollTo(20, 20);
+            await pjax.preparePage(switchesResult, {
+              scrollTo: true,
+            });
+            expect([window.scrollX, window.scrollY].map(Math.round))
+              .toMatchObject(defaultToTop ? [0, 0] : [20, 20]);
+          },
+        );
       });
     });
   });
