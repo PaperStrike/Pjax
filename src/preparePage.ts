@@ -72,12 +72,19 @@ export default async function preparePage(
       // Parse target.
       const hashId = decodeURIComponent(window.location.hash.slice(1));
 
-      if (hashId) {
-        const target = document.getElementById(hashId) || document.getElementsByName(hashId)[0];
-        if (target) {
-          target.scrollIntoView();
-          parsedScrollTo = false;
-        }
+      /**
+       * The indicated part of the document.
+       * Not using :target pseudo class here as it may not be updated by pushState.
+       * @see [The indicated part of the document | HTML Standard]{@link https://html.spec.whatwg.org/multipage/browsing-the-web.html#the-indicated-part-of-the-document}
+       */
+      const target = document.getElementById(hashId) || document.getElementsByName(hashId)[0]
+        || ((!window.location.hash || window.location.hash.toLowerCase() === '#top')
+          ? document.scrollingElement
+          : null);
+
+      if (target) {
+        target.scrollIntoView();
+        parsedScrollTo = false;
       }
     }
 
