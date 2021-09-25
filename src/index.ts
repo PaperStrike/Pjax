@@ -125,7 +125,7 @@ class Pjax {
   /**
    * Fire Pjax related events.
    */
-  fire(type: 'send' | 'error' | 'success' | 'complete', detail: EventDetail): void {
+  fire(type: 'send' | 'response' | 'error' | 'success' | 'complete', detail: EventDetail): void {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,
