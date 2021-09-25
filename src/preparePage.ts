@@ -4,6 +4,19 @@ import type { Options, SwitchesResult } from '.';
 import executeScripts from './libs/executeScripts';
 
 /**
+ * Get the indicated part of the document.
+ * Not using :target pseudo class here as it may not be updated by pushState.
+ * @see [The indicated part of the document | HTML Standard]{@link https://html.spec.whatwg.org/multipage/browsing-the-web.html#the-indicated-part-of-the-document}
+ */
+const getIndicatedPart = () => {
+  let target: Element | null = null;
+  const hashId = decodeURIComponent(window.location.hash.slice(1));
+  if (hashId) target = document.getElementById(hashId) || document.getElementsByName(hashId)[0];
+  if (!target && (!hashId || hashId.toLowerCase() === 'top')) target = document.scrollingElement;
+  return target;
+};
+
+/**
  * After page elements are updated.
  */
 export default async function preparePage(
@@ -69,18 +82,7 @@ export default async function preparePage(
     } else if (typeof scrollTo === 'number') {
       parsedScrollTo = [window.scrollX, scrollTo];
     } else {
-      // Parse target.
-      const hashId = decodeURIComponent(window.location.hash.slice(1));
-
-      /**
-       * The indicated part of the document.
-       * Not using :target pseudo class here as it may not be updated by pushState.
-       * @see [The indicated part of the document | HTML Standard]{@link https://html.spec.whatwg.org/multipage/browsing-the-web.html#the-indicated-part-of-the-document}
-       */
-      const target = document.getElementById(hashId) || document.getElementsByName(hashId)[0]
-        || ((!window.location.hash || window.location.hash.toLowerCase() === '#top')
-          ? document.scrollingElement
-          : null);
+      const target = getIndicatedPart();
 
       if (target) {
         target.scrollIntoView();
