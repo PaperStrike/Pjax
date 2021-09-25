@@ -1,3 +1,9 @@
+# 2.1.0
+
+## 🚀 Enhancements
+
+* Conform with standard fragment navigation ([#171](https://github.com/PaperStrike/Pjax/pull/171))
+
 # 2.0.3
 
 * Small improvements to distributions
