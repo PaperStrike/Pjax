@@ -1,4 +1,4 @@
-import { expect, test as base } from '#tester';
+import { expect, onfetch, test as base } from '#tester';
 import preparePage from '#preparePage';
 import type Pjax from '#';
 
@@ -173,30 +173,64 @@ test.describe('prepare page', () => {
   });
 
   test.describe('abort', () => {
-    type PjaxWithController = Pjax & { abortController: AbortController };
-    const abortTest = test.extend<{ pjax: PjaxWithController }>({
-      pjax: async ({ pjax }: { pjax: Pjax }, use: (pjax: PjaxWithController) => Promise<void>) => {
-        pjax.abortController = new AbortController();
-        await use(pjax as PjaxWithController);
+    const abortTest = test.extend<{ controller: AbortController, container: HTMLElement }>({
+      controller: (_, use) => use(new AbortController()),
+      pjax: async ({ pjax, controller, uid }, use) => {
+        pjax.abortController = controller;
+        pjax.options.selectors = [`#${uid} script`];
+        await use(pjax);
+      },
+      container: async ({ uid }, use) => {
+        const container = document.createElement('div');
+        container.id = uid;
+        container.innerHTML = `
+          <script>window.dispatchEvent(new Event('${uid}'))</script>
+        `;
+        const listener = () => {
+          container.title = 'executed';
+        };
+        window.addEventListener(uid, listener);
+        document.body.append(container);
+        await use(container);
+        window.removeEventListener(uid, listener);
+        container.remove();
       },
     });
 
-    abortTest('already', async ({ pjax, uid }) => {
-      let executed = false;
-      window.addEventListener(uid, () => {
-        executed = true;
-      });
-      const container = document.createElement('div');
-      container.id = uid;
-      container.innerHTML = `
-        <script>window.dispatchEvent(new Event('${uid}'))</script>
-      `;
-      pjax.abortController.abort();
-      const preparePromise = pjax.preparePage({ focusCleared: false }, {
-        selectors: [`#${uid} script`],
-      });
+    abortTest('already', async ({ controller, pjax, container }) => {
+      controller.abort();
+      const preparePromise = pjax.preparePage({ focusCleared: false });
       await expect(preparePromise).rejects.toMatchObject({ name: 'AbortError' });
-      expect(executed).toBeFalsy();
+      expect(container.title).not.toBe('executed');
+    });
+
+    abortTest('ongoing', async ({
+      controller,
+      pjax,
+      container,
+      uid,
+    }) => {
+      // Append a pending-controllable script.
+      // Resolve instead of reject at the end
+      // as browsers won't abort the fetch or cancel the evaluation due to the removal
+      // and if we reject there will be a network error or a syntax error.
+      let stopPending = () => {};
+      const pendingPromise = new Promise<never>((_, reject) => {
+        stopPending = reject;
+      }).catch(() => null);
+      onfetch('/pending.js').reply(() => pendingPromise);
+      const pendingScript = document.createElement('script');
+      pendingScript.src = '/pending.js';
+      container.append(pendingScript);
+
+      // Abort on the first script's execution.
+      const preparePromise = pjax.preparePage({ focusCleared: false });
+      window.addEventListener(uid, () => controller.abort(), { once: true });
+
+      await expect(preparePromise).rejects.toMatchObject({ name: 'AbortError' });
+      expect(container.title).toBe('executed');
+
+      stopPending();
     });
   });
 });
