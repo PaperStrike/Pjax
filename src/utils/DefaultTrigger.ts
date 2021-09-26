@@ -49,7 +49,7 @@ export default class DefaultTrigger {
 
     // Check if excluded
     let matchedExclusion = false;
-    this.pjax.options.excludedTriggers.every((selector) => {
+    this.pjax.options.triggersOptions.excludedTriggers.every((selector) => {
       if (link.matches(selector)) {
         matchedExclusion = true;
         return false;

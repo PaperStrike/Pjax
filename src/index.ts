@@ -11,8 +11,7 @@ export type Switch<T extends Element = Element>
   = (oldEle: T, newEle: T) => (Promise<void> | void);
 
 export interface Options {
-  defaultTrigger: boolean,
-  excludedTriggers: string[],
+  triggersOptions: TriggersOptions,
   selectors: string[],
   switches: Record<string, Switch>,
   scripts: string,
@@ -47,6 +46,11 @@ export interface EventDetail {
   error?: unknown;
 }
 
+export interface TriggersOptions {
+  defaultTrigger: boolean,
+  excludedTriggers: string[],
+}
+
 class Pjax {
   static switches = Switches;
 
@@ -58,8 +62,10 @@ class Pjax {
    * Options default values.
    */
   readonly options: Options = {
-    defaultTrigger: true,
-    excludedTriggers: ['a[data-no-pjax]'],
+    triggersOptions: {
+      defaultTrigger: true,
+      excludedTriggers: ['a[data-no-pjax]'],
+    },
     selectors: ['title', '.pjax'],
     switches: {
       abc: Switches.default,
@@ -93,7 +99,7 @@ class Pjax {
       });
     }
 
-    if (this.options.defaultTrigger) new DefaultTrigger(this).register();
+    if (this.options.triggersOptions.defaultTrigger) new DefaultTrigger(this).register();
 
     window.addEventListener('popstate', (event) => {
       /**
