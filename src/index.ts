@@ -20,6 +20,7 @@ export interface Options {
   scrollRestoration: boolean,
   cache: RequestCache,
   timeout: number,
+  additionalHeaders: Record<string, string>,
 }
 
 export interface SwitchesResult {
@@ -68,6 +69,7 @@ class Pjax {
     scrollRestoration: true,
     cache: 'default',
     timeout: 0,
+    additionalHeaders: {},
   };
 
   readonly history: History = new LazyHistory('pjax');

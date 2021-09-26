@@ -23,6 +23,11 @@ export default async function switchDOM(
   request.headers.set('X-Requested-With', 'Fetch');
   request.headers.set('X-Pjax', 'true');
   request.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
+  // Setting additional request headers
+  Object.keys(this.options.additionalHeaders).forEach((headerName) => {
+    request.headers.set(headerName, this.options.additionalHeaders[headerName]);
+  });
+
   eventDetail.request = request;
 
   // Set timeout
