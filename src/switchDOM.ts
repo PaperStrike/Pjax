@@ -50,7 +50,7 @@ export default async function switchDOM(
     if (window.location.href !== newLocation.href) {
       window.history.pushState(null, '', newLocation.href);
     }
-    
+
     this.fire('response', eventDetail);
 
     // Switch elements.
