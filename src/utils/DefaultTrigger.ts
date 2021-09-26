@@ -47,9 +47,21 @@ export default class DefaultTrigger {
     // External.
     if (link.origin !== window.location.origin) return;
 
+    // Check if excluded
+    let matchedExclusion = false;
+    this.pjax.options.excludedTriggers.every((selector) => {
+      if (link.matches(selector)) {
+        matchedExclusion = true;
+        return false;
+      }
+      return true;
+    });
+    if (matchedExclusion) return;
+
     event.preventDefault();
 
-    this.pjax.load(link.href).catch(() => {});
+    this.pjax.load(link.href).catch(() => {
+    });
   }
 
   onFormSubmit(event: SubmitEvent): void {

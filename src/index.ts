@@ -12,6 +12,7 @@ export type Switch<T extends Element = Element>
 
 export interface Options {
   defaultTrigger: boolean,
+  excludedTriggers: string[],
   selectors: string[],
   switches: Record<string, Switch>,
   scripts: string,
@@ -57,6 +58,7 @@ class Pjax {
    */
   readonly options: Options = {
     defaultTrigger: true,
+    excludedTriggers: ['a[data-no-pjax]'],
     selectors: ['title', '.pjax'],
     switches: {
       abc: Switches.default,

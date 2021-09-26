@@ -21,6 +21,7 @@ class MockedPjax implements Pjax {
 
   options: Pjax['options'] = {
     defaultTrigger: false,
+    excludedTriggers: [],
     selectors: [],
     switches: {},
     scripts: '',
