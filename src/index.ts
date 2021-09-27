@@ -10,7 +10,7 @@ import weakLoad from './weakLoad';
 export type Switch<T extends Element = Element>
   = (oldEle: T, newEle: T) => (Promise<void> | void);
 
-export type Hook<T> = (input: T) => T | Promise<T> | void | Promise<void>;
+export type Hook<T> = (input: T) => T | void | Promise<T | void>;
 
 export interface Hooks {
   request?: Hook<Request>;
