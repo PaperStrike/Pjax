@@ -20,9 +20,9 @@ class MockedPjax implements Pjax {
   abortController = null;
 
   options: Pjax['options'] = {
-    triggersOptions: {
-      defaultTrigger: true,
-      excludedTriggers: ['a[data-no-pjax]'],
+    defaultTrigger: {
+      enable: true,
+      exclude: ['a[data-no-pjax]'],
     },
     selectors: [],
     switches: {},
@@ -31,7 +31,6 @@ class MockedPjax implements Pjax {
     scrollRestoration: false,
     cache: 'default',
     timeout: 0,
-    additionalHeaders: {},
   };
 
   constructor(options: Partial<Pjax['options']> = {}) {

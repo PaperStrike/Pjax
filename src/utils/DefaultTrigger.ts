@@ -48,15 +48,18 @@ export default class DefaultTrigger {
     if (link.origin !== window.location.origin) return;
 
     // Check if excluded
-    let matchedExclusion = false;
-    this.pjax.options.triggersOptions.excludedTriggers.every((selector) => {
-      if (link.matches(selector)) {
-        matchedExclusion = true;
-        return false;
-      }
-      return true;
-    });
-    if (matchedExclusion) return;
+    if (typeof this.pjax.options.defaultTrigger === 'object' && !Array.isArray(this.pjax.options.defaultTrigger)
+        && this.pjax.options.defaultTrigger !== null && 'exclude' in this.pjax.options.defaultTrigger) {
+      let matchedExclusion = false;
+      this.pjax.options.defaultTrigger.exclude.every((selector) => {
+        if (link.matches(selector)) {
+          matchedExclusion = true;
+          return false;
+        }
+        return true;
+      });
+      if (matchedExclusion) return;
+    }
 
     event.preventDefault();
 

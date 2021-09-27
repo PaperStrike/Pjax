@@ -39,10 +39,23 @@ export default async function preparePage(
 
     // List newly added and labeled scripts.
     const scripts: HTMLScriptElement[] = [];
+    let exclusions: string[] = [];
     if (options.scripts) {
-      document.querySelectorAll(options.scripts).forEach((element) => {
-        if (element instanceof HTMLScriptElement) scripts.push(element);
-      });
+      if (typeof options.scripts === 'object' && !Array.isArray(options.scripts)) {
+        if ('forceLoad' in options.scripts) {
+          document.querySelectorAll(options.scripts.forceLoad).forEach((element) => {
+            if (element instanceof HTMLScriptElement) scripts.push(element);
+          });
+        }
+        if ('exclude' in options.scripts) {
+          exclusions = options.scripts.exclude;
+        }
+      }
+      if (typeof options.scripts === 'string') {
+        document.querySelectorAll(options.scripts).forEach((element) => {
+          if (element instanceof HTMLScriptElement) scripts.push(element);
+        });
+      }
     }
     options.selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
@@ -51,6 +64,17 @@ export default async function preparePage(
         } else {
           element.querySelectorAll('script').forEach((script) => {
             if (scripts.includes(script)) return;
+            if (exclusions.length > 1) {
+              let matchedExclusion = false;
+              exclusions.every((exclusionSelector) => {
+                if (script.matches(exclusionSelector)) {
+                  matchedExclusion = true;
+                  return false;
+                }
+                return true;
+              });
+              if (matchedExclusion) return;
+            }
             scripts.push(script);
           });
         }

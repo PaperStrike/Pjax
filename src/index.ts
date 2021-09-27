@@ -11,15 +11,14 @@ export type Switch<T extends Element = Element>
   = (oldEle: T, newEle: T) => (Promise<void> | void);
 
 export interface Options {
-  triggersOptions: TriggersOptions,
+  defaultTrigger: TriggersOptions | boolean,
   selectors: string[],
   switches: Record<string, Switch>,
-  scripts: string,
+  scripts: string | ScriptsOptions,
   scrollTo: number | [number, number] | boolean,
   scrollRestoration: boolean,
   cache: RequestCache,
   timeout: number,
-  additionalHeaders: Record<string, string>,
 }
 
 export interface SwitchesResult {
@@ -47,8 +46,13 @@ export interface EventDetail {
 }
 
 export interface TriggersOptions {
-  defaultTrigger: boolean,
-  excludedTriggers: string[],
+  enable: boolean,
+  exclude: string[],
+}
+
+export interface ScriptsOptions {
+  forceLoad: string,
+  exclude: string[],
 }
 
 class Pjax {
@@ -62,10 +66,7 @@ class Pjax {
    * Options default values.
    */
   readonly options: Options = {
-    triggersOptions: {
-      defaultTrigger: true,
-      excludedTriggers: ['a[data-no-pjax]'],
-    },
+    defaultTrigger: true,
     selectors: ['title', '.pjax'],
     switches: {
       abc: Switches.default,
@@ -75,7 +76,6 @@ class Pjax {
     scrollRestoration: true,
     cache: 'default',
     timeout: 0,
-    additionalHeaders: {},
   };
 
   readonly history: History = new LazyHistory('pjax');
@@ -99,7 +99,9 @@ class Pjax {
       });
     }
 
-    if (this.options.triggersOptions.defaultTrigger) new DefaultTrigger(this).register();
+    if (typeof this.options.defaultTrigger === 'object' && !Array.isArray(this.options.defaultTrigger) && this.options.defaultTrigger !== null) {
+      if (this.options.defaultTrigger.enable) new DefaultTrigger(this).register();
+    } else if (this.options.defaultTrigger === true) { new DefaultTrigger(this).register(); }
 
     window.addEventListener('popstate', (event) => {
       /**
@@ -135,7 +137,7 @@ class Pjax {
   /**
    * Fire Pjax related events.
    */
-  fire(type: 'send' | 'response' | 'error' | 'success' | 'complete', detail: EventDetail): void {
+  fire(type: 'send' | 'receive' | 'error' | 'success' | 'complete', detail: EventDetail): void {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,

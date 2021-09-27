@@ -23,10 +23,6 @@ export default async function switchDOM(
   request.headers.set('X-Requested-With', 'Fetch');
   request.headers.set('X-Pjax', 'true');
   request.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
-  // Setting additional request headers
-  Object.keys(this.options.additionalHeaders).forEach((headerName) => {
-    request.headers.set(headerName, this.options.additionalHeaders[headerName]);
-  });
 
   eventDetail.request = request;
 
@@ -56,7 +52,7 @@ export default async function switchDOM(
       window.history.pushState(null, '', newLocation.href);
     }
 
-    this.fire('response', eventDetail);
+    this.fire('receive', eventDetail);
 
     // Switch elements.
     const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
