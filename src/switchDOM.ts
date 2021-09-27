@@ -57,9 +57,13 @@ export default async function switchDOM(
     }
 
     // Switch elements.
-    const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const rawDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const document = await hooks.document?.(rawDocument) || rawDocument;
+
     eventDetail.switches = switches;
-    const switchesResult = await switchNodes(newDocument, { selectors, switches, signal });
+    const rawSwitchesResult = await switchNodes(document, { selectors, switches, signal });
+
+    const switchesResult = await hooks.switchesResult?.(rawSwitchesResult) || rawSwitchesResult;
     eventDetail.switchesResult = switchesResult;
 
     // Simulate initial page load.
