@@ -28,6 +28,7 @@ class MockedPjax implements Pjax {
     scrollRestoration: false,
     cache: 'default',
     timeout: 0,
+    hooks: {},
   };
 
   constructor(options: Partial<Pjax['options']> = {}) {

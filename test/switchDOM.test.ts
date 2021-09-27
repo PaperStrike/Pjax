@@ -6,6 +6,7 @@ import {
 } from '#tester';
 import switchDOM from '#switchDOM';
 import type Pjax from '#';
+import type { Hooks } from '#';
 
 const test = base.extend<{ pjax: Pjax }>({
   pjax: async ({ MockedPjax }, use) => {
@@ -150,6 +151,67 @@ test.describe('switch DOM', () => {
       .rejects.toMatchObject({ name: 'AbortError' });
   });
 
+  test('hooks', async ({ pjax, uid }) => {
+    let requestHooked = false;
+    onfetch('/request-hook')
+      .reply((request) => {
+        requestHooked = request.headers.get('hook') === 'set';
+        return null;
+      });
+
+    // setTimeout to check if the hooks are awaited.
+    let stopPending = () => {};
+    const pendingPromise = new Promise<void>((resolve) => {
+      stopPending = resolve;
+    });
+    const hooks: Hooks = {
+      async request(request) {
+        await pendingPromise;
+        request.headers.set('hook', 'set');
+      },
+      async response() {
+        onfetch('/response-hook')
+          .reply(`<section id="${uid}"><p>hooked-response</p></section>`);
+        await pendingPromise;
+        return fetch('response-hook');
+      },
+      async document(doc) {
+        await pendingPromise;
+        const p = doc.createElement('p');
+        p.innerHTML = 'hooked-document';
+        doc.getElementById(uid)?.append(p);
+      },
+      async switchesResult() {
+        await pendingPromise;
+        return { focusCleared: true };
+      },
+    };
+
+    let switchesResultHooked = false;
+    pjax.preparePage = async (switchesResult) => {
+      if (switchesResult?.focusCleared) switchesResultHooked = true;
+    };
+
+    const section = document.createElement('section');
+    section.id = uid;
+    document.body.append(section);
+    const switchPromise = pjax.switchDOM('/request-hook', {
+      selectors: [`#${uid}`],
+      hooks,
+    });
+    stopPending();
+
+    await expect(switchPromise).resolves.not.toThrow();
+    expect(requestHooked).toBeTruthy();
+
+    const switchedSection = document.getElementById(uid);
+    expect(switchedSection?.firstElementChild?.innerHTML).toBe('hooked-response');
+    expect(switchedSection?.lastElementChild?.innerHTML).toBe('hooked-document');
+    expect(switchesResultHooked).toBeTruthy();
+
+    switchedSection?.remove();
+  });
+
   const clockTest = test.extend<{ clock: FakeTimers.Clock }>({
     clock: async (_, use) => {
       const clock = FakeTimers.install();
@@ -160,17 +222,18 @@ test.describe('switch DOM', () => {
   });
 
   clockTest('do abort on timeout while pending', async ({ pjax, clock }) => {
-    onfetch('/delay')
-      .delay(500)
-      .reply('Not Aborted.', { status: 500 });
+    onfetch('/abort-pending')
+      .reply(async () => {
+        clock.tick(100);
+        return Response.error();
+      });
 
     pjax.abortController = new AbortController();
 
-    const timeoutPromise = pjax.switchDOM('/delay', {
+    const timeoutPromise = pjax.switchDOM('/abort-pending', {
       timeout: 50,
     });
 
-    clock.tick(100);
     await expect(timeoutPromise).rejects.toMatchObject({ name: 'AbortError' });
     expect(pjax.abortController.signal.aborted).toBe(true);
   });
