@@ -49,14 +49,14 @@ export default async function switchDOM(
     const response = await hooks.response?.(rawResponse) || rawResponse;
     eventDetail.response = response;
 
+    this.fire('receive', eventDetail);
+
     // Push history state. Preserve hash as the fetch discards it.
     const newLocation = new URL(response.url);
     newLocation.hash = new URL(request.url).hash;
     if (window.location.href !== newLocation.href) {
       window.history.pushState(null, '', newLocation.href);
     }
-
-    this.fire('receive', eventDetail);
 
     // Switch elements.
     const rawDocument = new DOMParser().parseFromString(await response.text(), 'text/html');

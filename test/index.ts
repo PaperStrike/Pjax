@@ -20,10 +20,7 @@ class MockedPjax implements Pjax {
   abortController = null;
 
   options: Pjax['options'] = {
-    defaultTrigger: {
-      enable: true,
-      exclude: ['a[data-no-pjax]'],
-    },
+    defaultTrigger: false,
     selectors: [],
     switches: {},
     scripts: '',

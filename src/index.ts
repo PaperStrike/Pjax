@@ -19,8 +19,18 @@ export interface Hooks {
   switchesResult?: Hook<SwitchesResult>;
 }
 
+export interface TriggerOptions {
+  enable: boolean,
+  exclude: string,
+}
+
+export interface ScriptsOptions {
+  include: string,
+  exclude: string,
+}
+
 export interface Options {
-  defaultTrigger: TriggersOptions | boolean,
+  defaultTrigger: boolean | TriggerOptions,
   selectors: string[],
   switches: Record<string, Switch>,
   scripts: string | ScriptsOptions,
@@ -53,16 +63,6 @@ export interface EventDetail {
   switches?: Options['switches'];
   switchesResult?: SwitchesResult;
   error?: unknown;
-}
-
-export interface TriggersOptions {
-  enable: boolean,
-  exclude: string[],
-}
-
-export interface ScriptsOptions {
-  forceLoad: string,
-  exclude: string[],
 }
 
 class Pjax {
@@ -110,9 +110,10 @@ class Pjax {
       });
     }
 
-    if (typeof this.options.defaultTrigger === 'object' && !Array.isArray(this.options.defaultTrigger) && this.options.defaultTrigger !== null) {
-      if (this.options.defaultTrigger.enable) new DefaultTrigger(this).register();
-    } else if (this.options.defaultTrigger === true) { new DefaultTrigger(this).register(); }
+    const { defaultTrigger } = this.options;
+    if (defaultTrigger === true || (defaultTrigger !== false && defaultTrigger.enable)) {
+      new DefaultTrigger(this).register();
+    }
 
     window.addEventListener('popstate', (event) => {
       /**

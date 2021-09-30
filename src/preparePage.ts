@@ -38,59 +38,49 @@ export default async function preparePage(
     }
 
     // List newly added and labeled scripts.
-    const scripts: HTMLScriptElement[] = [];
-    let exclusions: string[] = [];
-    if (options.scripts) {
-      if (typeof options.scripts === 'object' && !Array.isArray(options.scripts)) {
-        if ('forceLoad' in options.scripts) {
-          document.querySelectorAll(options.scripts.forceLoad).forEach((element) => {
-            if (element instanceof HTMLScriptElement) scripts.push(element);
-          });
-        }
-        if ('exclude' in options.scripts) {
-          exclusions = options.scripts.exclude;
-        }
+    const scripts: Set<HTMLScriptElement> = new Set();
+    const { include, exclude } = typeof options.scripts === 'string'
+      ? {
+        include: options.scripts,
+        exclude: '',
       }
-      if (typeof options.scripts === 'string') {
-        document.querySelectorAll(options.scripts).forEach((element) => {
-          if (element instanceof HTMLScriptElement) scripts.push(element);
-        });
-      }
+      : options.scripts;
+
+    if (include) {
+      document.querySelectorAll(include).forEach((element) => {
+        if (element instanceof HTMLScriptElement) scripts.add(element);
+      });
     }
+
     options.selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
         if (element instanceof HTMLScriptElement) {
-          scripts.push(element);
+          scripts.add(element);
         } else {
           element.querySelectorAll('script').forEach((script) => {
-            if (scripts.includes(script)) return;
-            if (exclusions.length > 1) {
-              let matchedExclusion = false;
-              exclusions.every((exclusionSelector) => {
-                if (script.matches(exclusionSelector)) {
-                  matchedExclusion = true;
-                  return false;
-                }
-                return true;
-              });
-              if (matchedExclusion) return;
-            }
-            scripts.push(script);
+            scripts.add(script);
           });
         }
       });
     });
 
+    // Exclude the unwanted ones.
+    if (exclude) {
+      scripts.forEach((script) => {
+        if (script.matches(exclude)) scripts.delete(script);
+      });
+    }
+
     // Sort in document order.
     // https://stackoverflow.com/a/22613028
-    scripts.sort((a, b) => (
+    const sortedScripts = [...scripts].sort((a, b) => (
       // Bitwise AND operator is required here.
       // eslint-disable-next-line no-bitwise
       a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING || -1
     ));
 
     // Execute.
-    await executeScripts(scripts, { signal: this.abortController?.signal || null });
+    await executeScripts(sortedScripts, { signal: this.abortController?.signal || null });
   }
 
   // Parse required scroll position.
