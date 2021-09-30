@@ -61,8 +61,7 @@ export default class DefaultTrigger {
 
     event.preventDefault();
 
-    this.pjax.load(link.href).catch(() => {
-    });
+    this.pjax.load(link.href).catch(() => {});
   }
 
   onFormSubmit(event: SubmitEvent): void {
