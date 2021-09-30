@@ -302,6 +302,7 @@ Name | Type | Default Value
 [scrollRestoration](#scrollrestoration) | **boolean** | `true`
 [cache](#cache) | **[RequestCache][mdn-request-cache-api]** | `'default'`
 [timeout](#timeout) | **number** | `0`
+[hooks](#hooks) | **[Hooks](#type-hooks)** | `{}`
 
 ### defaultTrigger
 
@@ -467,6 +468,39 @@ This contains the cache mode of Pjax requests, which shares the same available v
 
 The time in _milliseconds_ to abort the fetch requests. Set to `0` to disable.
 
+### hooks
+
+This option defines hooks (each of type [Hook](#type-hook)) for modifying the [_request_][mdn-request-api] sent, the [_response_][mdn-response-api] received, the [_document_][mdn-document-api] parsed and the [_switchResult_](#type-switchesresult) created in Pjax. An example for adding a custom header for Pjax requests:
+
+```js
+const pjax = new Pjax({
+  hooks: {
+    request: (request) => {
+      request.headers.set('My-Custom-Header', 'ready');
+    },
+  },
+});
+```
+
+#### Type Hook
+
+A function that returns `undefined`, the hooked input, or a promise resolving to one of them.
+
+```ts
+type Hook<T> = (input: T) => T | void | Promise<T | void>;
+```
+
+#### Type Hooks
+
+```ts
+interface Hooks {
+  request?: Hook<Request>;
+  response?: Hook<Response>;
+  document?: Hook<Document>;
+  switchesResult?: Hook<SwitchesResult>;
+}
+```
+
 ## Status
 
 Accessible by calling on the Pjax instance.
@@ -555,6 +589,7 @@ document.addEventListener('pjax:success', whenDOMReady);
 [mdn-document-api]: https://developer.mozilla.org/en-US/docs/Web/API/Document
 [mdn-request-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request
 [mdn-request-cache-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
+[mdn-response-api]: https://developer.mozilla.org/en-US/docs/Web/API/Response
 [mdn-url-api]: https://developer.mozilla.org/en-US/docs/Web/API/URL
 [mdn-abortcontroller-api]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 

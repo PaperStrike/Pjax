@@ -12,6 +12,7 @@ export default async function switchDOM(
     switches,
     cache,
     timeout,
+    hooks,
   } = { ...this.options, ...overrideOptions };
 
   const eventDetail: EventDetail = {};
@@ -19,11 +20,12 @@ export default async function switchDOM(
   const signal = this.abortController?.signal || null;
   eventDetail.signal = signal;
 
-  const request = new Request(requestInfo, { cache, signal });
-  request.headers.set('X-Requested-With', 'Fetch');
-  request.headers.set('X-Pjax', 'true');
-  request.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
+  const rawRequest = new Request(requestInfo, { cache, signal });
+  rawRequest.headers.set('X-Requested-With', 'Fetch');
+  rawRequest.headers.set('X-Pjax', 'true');
+  rawRequest.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
 
+  const request = await hooks.request?.(rawRequest) || rawRequest;
   eventDetail.request = request;
 
   // Set timeout
@@ -39,10 +41,12 @@ export default async function switchDOM(
   this.fire('send', eventDetail);
 
   try {
-    const response = await fetch(request)
+    const rawResponse = await fetch(request)
       .finally(() => {
         window.clearTimeout(timeoutID);
       });
+
+    const response = await hooks.response?.(rawResponse) || rawResponse;
     eventDetail.response = response;
 
     // Push history state. Preserve hash as the fetch discards it.
@@ -55,9 +59,13 @@ export default async function switchDOM(
     this.fire('receive', eventDetail);
 
     // Switch elements.
-    const newDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const rawDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const document = await hooks.document?.(rawDocument) || rawDocument;
+
     eventDetail.switches = switches;
-    const switchesResult = await switchNodes(newDocument, { selectors, switches, signal });
+    const rawSwitchesResult = await switchNodes(document, { selectors, switches, signal });
+
+    const switchesResult = await hooks.switchesResult?.(rawSwitchesResult) || rawSwitchesResult;
     eventDetail.switchesResult = switchesResult;
 
     // Simulate initial page load.
