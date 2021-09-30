@@ -301,6 +301,7 @@ Pjax.reload();
 [scrollRestoration](#scrollrestoration) | **boolean** | `true`
 [cache](#cache) | **[RequestCache][mdn-request-cache-api]** | `'default'`
 [timeout](#timeout) | **number** | `0`
+[hooks](#hooks) | **[Hooks](#type-hooks)** | `{}`
 
 ### defaultTrigger
 
@@ -466,6 +467,39 @@ const pjax = new Pjax({
 
 为 fetch 请求附加一个中止时间，以毫秒为单位。设为 `0` 不附加。
 
+### hooks
+
+此选项指定一系列 [Hook](#type-hook) 钩子函数，用于更改 Pjax 中发送的请求 [_request_][mdn-request-api]、接收的响应 [_response_][mdn-response-api]、解析的文档 [_document_][mdn-document-api] 和 生成的 [_switchResult_](#type-switchesresult)。下面是一个为 Pjax 请求添加自定义请求头的例子：
+
+```js
+const pjax = new Pjax({
+  hooks: {
+    request: (request) => {
+      request.headers.set('My-Custom-Header', 'ready');
+    },
+  },
+});
+```
+
+#### Type Hook
+
+一个函数，返回值可为 `undefined`、给定值的同类型值、或解析后为这二者之一的 Promise。
+
+```ts
+type Hook<T> = (input: T) => T | void | Promise<T | void>;
+```
+
+#### Type Hooks
+
+```ts
+interface Hooks {
+  request?: Hook<Request>;
+  response?: Hook<Response>;
+  document?: Hook<Document>;
+  switchesResult?: Hook<SwitchesResult>;
+}
+```
+
 ## 状态
 
 可在 Pjax 实例上读取。
@@ -554,6 +588,7 @@ document.addEventListener('pjax:success', whenDOMReady);
 [mdn-document-api]: https://developer.mozilla.org/en-US/docs/Web/API/Document
 [mdn-request-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request
 [mdn-request-cache-api]: https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
+[mdn-response-api]: https://developer.mozilla.org/en-US/docs/Web/API/Response
 [mdn-url-api]: https://developer.mozilla.org/en-US/docs/Web/API/URL
 [mdn-abortcontroller-api]: https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 

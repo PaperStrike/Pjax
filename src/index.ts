@@ -10,6 +10,15 @@ import weakLoad from './weakLoad';
 export type Switch<T extends Element = Element>
   = (oldEle: T, newEle: T) => (Promise<void> | void);
 
+export type Hook<T> = (input: T) => T | void | Promise<T | void>;
+
+export interface Hooks {
+  request?: Hook<Request>;
+  response?: Hook<Response>;
+  document?: Hook<Document>;
+  switchesResult?: Hook<SwitchesResult>;
+}
+
 export interface Options {
   defaultTrigger: boolean,
   selectors: string[],
@@ -19,6 +28,7 @@ export interface Options {
   scrollRestoration: boolean,
   cache: RequestCache,
   timeout: number,
+  hooks: Hooks,
 }
 
 export interface SwitchesResult {
@@ -66,6 +76,7 @@ class Pjax {
     scrollRestoration: true,
     cache: 'default',
     timeout: 0,
+    hooks: {},
   };
 
   readonly history: History = new LazyHistory('pjax');
