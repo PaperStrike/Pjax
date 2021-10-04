@@ -39,9 +39,8 @@
     "safari >= 12.2"
   ],
   "browser": {
-    "graceful-fs": false,
+    "jest-message-util": false,
     "mocha": "mocha/mocha-es2018.js",
-    "module": false,
     "util": false
   },
   "devDependencies": {
