@@ -39,8 +39,9 @@
     "safari >= 12.2"
   ],
   "browser": {
-    "expect": "@sliphua/expect",
+    "graceful-fs": false,
     "mocha": "mocha/mocha-es2018.js",
+    "module": false,
     "util": false
   },
   "devDependencies": {
@@ -51,9 +52,9 @@
     "@babel/preset-typescript": "^7.14.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
-    "@sinonjs/fake-timers": "^7.1.2",
-    "@sliphua/expect": "^27.1.1",
+    "@sinonjs/fake-timers": "^8.0.1",
     "@types/mocha": "^9.0.0",
+    "@types/sinonjs__fake-timers": "^6.0.4",
     "@types/web": "^0.0.37",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.29.0",
@@ -66,7 +67,7 @@
     "expect": "^27.2.0",
     "mocha": "^9.1.0",
     "nyc": "^15.1.0",
-    "onfetch": "^0.4.4",
+    "onfetch": "^0.7.0",
     "playwright-fixtures": "^0.3.5",
     "playwright-test": "^7.1.0",
     "rollup": "^2.56.3",

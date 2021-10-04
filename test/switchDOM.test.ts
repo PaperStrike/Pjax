@@ -212,10 +212,11 @@ test.describe('switch DOM', () => {
     switchedSection?.remove();
   });
 
-  const clockTest = test.extend<{ clock: FakeTimers.Clock }>({
+  type InstalledClock = FakeTimers.BrowserClock & FakeTimers.InstalledMethods;
+  const clockTest = test.extend<{ clock: InstalledClock }>({
     clock: async (_, use) => {
       const clock = FakeTimers.install();
-      await use(clock);
+      await use(clock as InstalledClock);
       clock.uninstall();
       clock.runToLast();
     },
