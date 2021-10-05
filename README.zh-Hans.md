@@ -555,10 +555,11 @@ document.addEventListener('example', () => {
 下表依序展示了各事件的触发时机：
 
 1. `pjax:send` 事件，在 Pjax 发送请求前触发。
-2. Pjax 切换 DOM。[`switchDOM`](#switchdom) 方法有详细描述。
-3. 若步骤二中有错误，`pjax:error` 事件。
-4. `pjax:complete` 事件，步骤二完成时触发（不论是否有错误）。
-5. 若步骤二中无错误，`pjax:success` 事件。
+2. `pjax:receive` 事件，在 Pjax 收到响应后触发。
+3. Pjax 切换 DOM。[`switchDOM`](#switchdom) 方法有详细描述。
+4. 若前面的步骤中有错误，`pjax:error` 事件。
+5. `pjax:complete` 事件，前面的步骤完成时触发（不论是否有错误）。
+6. 若前面的步骤中无错误，`pjax:success` 事件。
 
 如果页面里有加载指示器 (如 [topbar](https://buunguyen.github.io/topbar/)) ，结合 `send` 和 `complete` 事件会是不错的选择。
 

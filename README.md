@@ -556,10 +556,11 @@ All events fire from the _document_, not the clicked anchor nor the caller funct
 An ordered list showing the types of these events, and the moment they happen:
 
 1. `pjax:send` event when Pjax sends the request.
-2. Pjax switches the DOM. See [`switchDOM`](#switchdom) method for details.
-3. `pjax:error` event if any error happens to step 2.
-4. `pjax:complete` event when step 2 finishes.
-5. `pjax:success` event if step 2 finishes without any error.
+2. `pjax:receive` event when Pjax receives the response.
+3. Pjax switches the DOM. See [`switchDOM`](#switchdom) method for details.
+4. `pjax:error` event if any error happens to previous steps.
+5. `pjax:complete` event when previous steps finish.
+6. `pjax:success` event if previous steps finish without any error.
 
 If you use a loading indicator (e.g. [topbar](https://buunguyen.github.io/topbar/)), a pair of `send` and `complete` events may suit you well.
 
