@@ -293,7 +293,7 @@ Pjax.reload();
 
 名称 | 类型 | 默认值
 ---- | ---- | ----
-[defaultTrigger](#defaulttrigger) | **boolean** | `true`
+[defaultTrigger](#defaulttrigger) | **boolean &#124; [TriggerOptions](#type-TriggerOptions)** | `true`
 [selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
 [switches](#switches) | **Record<string, [Switch](#type-switch)>** | `{}`
 [scripts](#scripts) | **string** | `script[data-pjax]`
@@ -305,7 +305,7 @@ Pjax.reload();
 
 ### defaultTrigger
 
-在设为 `false` 时，禁用默认 Pjax 触发器。
+在设为 `false` 或一个有 `enable: false` 的对象时，禁用默认 Pjax 触发器。
 
 默认触发器拦截处理下列带来页面切换的事件：
 
@@ -324,6 +324,25 @@ document.addEventListener('example', (event) => {
   event.preventDefault();
   pjax.load('/bingo');
 });
+```
+
+使用 `exclude` 子选项可以只对特定元素禁用该触发器：
+
+```js
+const pjax = new Pjax({
+  defaultTrigger: {
+    exclude: 'a[data-no-pjax]',
+  },
+});
+```
+
+#### Type TriggerOptions
+
+```ts
+interface TriggerOptions {
+  enable?: boolean,
+  exclude?: string,
+}
 ```
 
 ### selectors

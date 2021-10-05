@@ -294,7 +294,7 @@ Pjax.reload();
 
 Name | Type | Default Value
 ---- | ---- | ----
-[defaultTrigger](#defaulttrigger) | **boolean** | `true`
+[defaultTrigger](#defaulttrigger) | **boolean &#124; [TriggerOptions](#type-TriggerOptions)** | `true`
 [selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
 [switches](#switches) | **Record<string, [Switch](#type-switch)>** | `{}`
 [scripts](#scripts) | **string** | `script[data-pjax]`
@@ -306,7 +306,7 @@ Name | Type | Default Value
 
 ### defaultTrigger
 
-When set to `false`, disable the default Pjax trigger.
+When set to `false` or an object with `enable: false`, disable the default Pjax trigger.
 
 The default trigger alters these redirections:
 
@@ -325,6 +325,25 @@ document.addEventListener('example', (event) => {
   event.preventDefault();
   pjax.load('/bingo');
 });
+```
+
+Use the `exclude` sub-option to disable the trigger only for specific elements:
+
+```js
+const pjax = new Pjax({
+  defaultTrigger: {
+    exclude: 'a[data-no-pjax]',
+  },
+});
+```
+
+#### Type TriggerOptions
+
+```ts
+interface TriggerOptions {
+  enable?: boolean,
+  exclude?: string,
+}
 ```
 
 ### selectors
