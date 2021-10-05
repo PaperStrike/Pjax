@@ -44,7 +44,6 @@ export default async function preparePage(
         if (element instanceof HTMLScriptElement) scripts.push(element);
       });
     }
-
     options.selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
         if (element instanceof HTMLScriptElement) {
