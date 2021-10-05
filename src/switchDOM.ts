@@ -49,6 +49,8 @@ export default async function switchDOM(
     const response = await hooks.response?.(rawResponse) || rawResponse;
     eventDetail.response = response;
 
+    this.fire('receive', eventDetail);
+
     // Push history state. Preserve hash as the fetch discards it.
     const newLocation = new URL(response.url);
     newLocation.hash = new URL(request.url).hash;

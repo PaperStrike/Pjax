@@ -19,8 +19,13 @@ export interface Hooks {
   switchesResult?: Hook<SwitchesResult>;
 }
 
+export interface TriggerOptions {
+  enable?: boolean,
+  exclude?: string,
+}
+
 export interface Options {
-  defaultTrigger: boolean,
+  defaultTrigger: boolean | TriggerOptions,
   selectors: string[],
   switches: Record<string, Switch>,
   scripts: string,
@@ -100,7 +105,10 @@ class Pjax {
       });
     }
 
-    if (this.options.defaultTrigger) new DefaultTrigger(this).register();
+    const { defaultTrigger } = this.options;
+    if (defaultTrigger === true || (defaultTrigger !== false && defaultTrigger.enable !== false)) {
+      new DefaultTrigger(this).register();
+    }
 
     window.addEventListener('popstate', (event) => {
       /**
@@ -136,7 +144,7 @@ class Pjax {
   /**
    * Fire Pjax related events.
    */
-  fire(type: 'send' | 'error' | 'success' | 'complete', detail: EventDetail): void {
+  fire(type: 'send' | 'receive' | 'error' | 'success' | 'complete', detail: EventDetail): void {
     const event = new CustomEvent(`pjax:${type}`, {
       bubbles: true,
       cancelable: false,
