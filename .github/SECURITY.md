@@ -1,10 +1,10 @@
 # Security
 
-Pjax' maintainers take all security bugs in Pjax seriously.
+Pjax's maintainers take all security bugs in Pjax seriously.
 
 ## Reporting a bug
 
-Report security bugs in Pjax by emailing [WangHuaPD@outlook.com](mailto:WangHuaPD@outlook.com).
+Report security bugs in Pjax by emailing [sliphua@outlook.com](mailto:sliphua@outlook.com).
 
 The lead maintainer will acknowledge your email within 48 hours, and will send a more detailed response within 72 hours indicating the next steps in handling your report.
 
@@ -25,4 +25,4 @@ The security report is assigned a primary handler when received. This
 
 If you have suggestions on how this process could be improved please submit a
 [pull request](https://github.com/PaperStrike/Pjax/pulls) or
-go to [Discussions](https://github.com/PaperStrike/Pjax/discussions) to discuss.
+discuss in [Discussions](https://github.com/PaperStrike/Pjax/discussions).
