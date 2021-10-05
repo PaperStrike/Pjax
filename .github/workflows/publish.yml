@@ -6,26 +6,14 @@ on:
 
 jobs:
   npm:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
-      - name: Cache dependencies
-        uses: actions/cache@v2
+      - uses: actions/setup-node@v2
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-${{ runner.os }}-
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
+          cache: 'npm'
           node-version: 14
           registry-url: https://registry.npmjs.org/
-
       - run: npm ci
       - run: npm publish --access public
         env:
