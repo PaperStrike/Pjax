@@ -1,7 +1,8 @@
-const capitalize = (str: string) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
+const capitalize = <T extends string>(str: T) => (
+  `${str.charAt(0).toUpperCase()}${str.slice(1)}` as Capitalize<T>
+);
 
 type FormContentAttributeNames = 'action' | 'enctype' | 'method' | 'target';
-type SubmitterButtonContentAttributeNames = `form${Capitalize<FormContentAttributeNames>}`;
 
 class Submission {
   declare form: HTMLFormElement;
@@ -23,7 +24,7 @@ class Submission {
   getAttribute(name: FormContentAttributeNames): string {
     const { submitterButton, form } = this;
     if (submitterButton && submitterButton.hasAttribute(`form${name}`)) {
-      const overrideValue = submitterButton[`form${capitalize(name)}` as SubmitterButtonContentAttributeNames];
+      const overrideValue = submitterButton[`form${capitalize(name)}`];
       if (overrideValue) return overrideValue;
     }
     return form[name];
