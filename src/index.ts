@@ -24,16 +24,11 @@ export interface TriggerOptions {
   exclude: string,
 }
 
-export interface ScriptsOptions {
-  include: string,
-  exclude: string,
-}
-
 export interface Options {
   defaultTrigger: boolean | TriggerOptions,
   selectors: string[],
   switches: Record<string, Switch>,
-  scripts: string | ScriptsOptions,
+  scripts: string,
   scrollTo: number | [number, number] | boolean,
   scrollRestoration: boolean,
   cache: RequestCache,

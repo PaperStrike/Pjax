@@ -38,49 +38,36 @@ export default async function preparePage(
     }
 
     // List newly added and labeled scripts.
-    const scripts: Set<HTMLScriptElement> = new Set();
-    const { include, exclude } = typeof options.scripts === 'string'
-      ? {
-        include: options.scripts,
-        exclude: '',
-      }
-      : options.scripts;
-
-    if (include) {
-      document.querySelectorAll(include).forEach((element) => {
-        if (element instanceof HTMLScriptElement) scripts.add(element);
+    const scripts: HTMLScriptElement[] = [];
+    if (options.scripts) {
+      document.querySelectorAll(options.scripts).forEach((element) => {
+        if (element instanceof HTMLScriptElement) scripts.push(element);
       });
     }
 
     options.selectors.forEach((selector) => {
       document.querySelectorAll(selector).forEach((element) => {
         if (element instanceof HTMLScriptElement) {
-          scripts.add(element);
+          scripts.push(element);
         } else {
           element.querySelectorAll('script').forEach((script) => {
-            scripts.add(script);
+            if (scripts.includes(script)) return;
+            scripts.push(script);
           });
         }
       });
     });
 
-    // Exclude the unwanted ones.
-    if (exclude) {
-      scripts.forEach((script) => {
-        if (script.matches(exclude)) scripts.delete(script);
-      });
-    }
-
     // Sort in document order.
     // https://stackoverflow.com/a/22613028
-    const sortedScripts = [...scripts].sort((a, b) => (
+    scripts.sort((a, b) => (
       // Bitwise AND operator is required here.
       // eslint-disable-next-line no-bitwise
       a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING || -1
     ));
 
     // Execute.
-    await executeScripts(sortedScripts, { signal: this.abortController?.signal || null });
+    await executeScripts(scripts, { signal: this.abortController?.signal || null });
   }
 
   // Parse required scroll position.
