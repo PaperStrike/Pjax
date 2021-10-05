@@ -5,26 +5,10 @@
  */
 
 /**
- * JavaScript MIME type strings.
+ * Regex for JavaScript MIME type strings.
+ * @see [JavaScript MIME type | MIME Sniffing Standard]{@link https://mimesniff.spec.whatwg.org/#javascript-mime-type}
  */
-export const MIMETypes = [
-  'application/ecmascript',
-  'application/javascript',
-  'application/x-ecmascript',
-  'application/x-javascript',
-  'text/ecmascript',
-  'text/javascript',
-  'text/javascript1.0',
-  'text/javascript1.1',
-  'text/javascript1.2',
-  'text/javascript1.3',
-  'text/javascript1.4',
-  'text/javascript1.5',
-  'text/jscript',
-  'text/livescript',
-  'text/x-ecmascript',
-  'text/x-javascript',
-];
+export const MIMETypeRegex = /^((application|text)\/(x-)?(ecma|java)script|text\/(javascript1\.[0-5]|(j|live)script))$/;
 
 export default class Script {
   declare target: HTMLScriptElement;
@@ -45,7 +29,7 @@ export default class Script {
 
     // Process type.
     const typeString = scriptEle.type ? scriptEle.type.trim().toLowerCase() : 'text/javascript';
-    if (MIMETypes.includes(typeString)) {
+    if (MIMETypeRegex.test(typeString)) {
       this.type = 'classic';
     } else if (typeString === 'module') {
       this.type = 'module';

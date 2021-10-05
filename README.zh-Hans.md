@@ -293,7 +293,7 @@ Pjax.reload();
 
 名称 | 类型 | 默认值
 ---- | ---- | ----
-[defaultTrigger](#defaulttrigger) | **boolean** | `true`
+[defaultTrigger](#defaulttrigger) | **boolean &#124; [TriggerOptions](#type-TriggerOptions)** | `true`
 [selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
 [switches](#switches) | **Record<string, [Switch](#type-switch)>** | `{}`
 [scripts](#scripts) | **string** | `script[data-pjax]`
@@ -305,7 +305,7 @@ Pjax.reload();
 
 ### defaultTrigger
 
-在设为 `false` 时，禁用默认 Pjax 触发器。
+在设为 `false` 或一个有 `enable: false` 的对象时，禁用默认 Pjax 触发器。
 
 默认触发器拦截处理下列带来页面切换的事件：
 
@@ -324,6 +324,25 @@ document.addEventListener('example', (event) => {
   event.preventDefault();
   pjax.load('/bingo');
 });
+```
+
+使用 `exclude` 子选项可以只对特定元素禁用该触发器：
+
+```js
+const pjax = new Pjax({
+  defaultTrigger: {
+    exclude: 'a[data-no-pjax]',
+  },
+});
+```
+
+#### Type TriggerOptions
+
+```ts
+interface TriggerOptions {
+  enable?: boolean,
+  exclude?: string,
+}
 ```
 
 ### selectors
@@ -536,10 +555,11 @@ document.addEventListener('example', () => {
 下表依序展示了各事件的触发时机：
 
 1. `pjax:send` 事件，在 Pjax 发送请求前触发。
-2. Pjax 切换 DOM。[`switchDOM`](#switchdom) 方法有详细描述。
-3. 若步骤二中有错误，`pjax:error` 事件。
-4. `pjax:complete` 事件，步骤二完成时触发（不论是否有错误）。
-5. 若步骤二中无错误，`pjax:success` 事件。
+2. `pjax:receive` 事件，在 Pjax 收到响应后触发。
+3. Pjax 切换 DOM。[`switchDOM`](#switchdom) 方法有详细描述。
+4. 若前面的步骤中有错误，`pjax:error` 事件。
+5. `pjax:complete` 事件，前面的步骤完成时触发（不论是否有错误）。
+6. 若前面的步骤中无错误，`pjax:success` 事件。
 
 如果页面里有加载指示器 (如 [topbar](https://buunguyen.github.io/topbar/)) ，结合 `send` 和 `complete` 事件会是不错的选择。
 

@@ -29,6 +29,16 @@ export default class DefaultTrigger {
     this.pjax = pjax;
   }
 
+  /**
+   * Check if the current trigger options apply to the element.
+   */
+  test(element: Element): boolean {
+    const { defaultTrigger } = this.pjax.options;
+    if (typeof defaultTrigger === 'boolean') return defaultTrigger;
+    const { enable, exclude } = defaultTrigger;
+    return enable !== false && (!exclude || !element.matches(exclude));
+  }
+
   onLinkOpen(event: Event): void {
     if (event.defaultPrevented) return;
 
@@ -37,6 +47,8 @@ export default class DefaultTrigger {
 
     const link: Link | null = target.closest('a[href], area[href]');
     if (!link) return;
+
+    if (!this.test(link)) return;
 
     if (event instanceof MouseEvent || event instanceof KeyboardEvent) {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -57,6 +69,8 @@ export default class DefaultTrigger {
 
     const { target: form, submitter } = event;
     if (!(form instanceof HTMLFormElement)) return;
+
+    if (!this.test(form)) return;
 
     const submission = new Submission(form, submitter);
 

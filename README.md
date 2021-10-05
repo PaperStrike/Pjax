@@ -294,7 +294,7 @@ Pjax.reload();
 
 Name | Type | Default Value
 ---- | ---- | ----
-[defaultTrigger](#defaulttrigger) | **boolean** | `true`
+[defaultTrigger](#defaulttrigger) | **boolean &#124; [TriggerOptions](#type-TriggerOptions)** | `true`
 [selectors](#selectors) | **string\[\]** | `['title', '.pjax']`
 [switches](#switches) | **Record<string, [Switch](#type-switch)>** | `{}`
 [scripts](#scripts) | **string** | `script[data-pjax]`
@@ -306,7 +306,7 @@ Name | Type | Default Value
 
 ### defaultTrigger
 
-When set to `false`, disable the default Pjax trigger.
+When set to `false` or an object with `enable: false`, disable the default Pjax trigger.
 
 The default trigger alters these redirections:
 
@@ -325,6 +325,25 @@ document.addEventListener('example', (event) => {
   event.preventDefault();
   pjax.load('/bingo');
 });
+```
+
+Use the `exclude` sub-option to disable the trigger only for specific elements:
+
+```js
+const pjax = new Pjax({
+  defaultTrigger: {
+    exclude: 'a[data-no-pjax]',
+  },
+});
+```
+
+#### Type TriggerOptions
+
+```ts
+interface TriggerOptions {
+  enable?: boolean,
+  exclude?: string,
+}
 ```
 
 ### selectors
@@ -537,10 +556,11 @@ All events fire from the _document_, not the clicked anchor nor the caller funct
 An ordered list showing the types of these events, and the moment they happen:
 
 1. `pjax:send` event when Pjax sends the request.
-2. Pjax switches the DOM. See [`switchDOM`](#switchdom) method for details.
-3. `pjax:error` event if any error happens to step 2.
-4. `pjax:complete` event when step 2 finishes.
-5. `pjax:success` event if step 2 finishes without any error.
+2. `pjax:receive` event when Pjax receives the response.
+3. Pjax switches the DOM. See [`switchDOM`](#switchdom) method for details.
+4. `pjax:error` event if any error happens to previous steps.
+5. `pjax:complete` event when previous steps finish.
+6. `pjax:success` event if previous steps finish without any error.
 
 If you use a loading indicator (e.g. [topbar](https://buunguyen.github.io/topbar/)), a pair of `send` and `complete` events may suit you well.
 
