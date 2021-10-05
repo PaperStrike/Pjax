@@ -1,8 +1,7 @@
 {
   "env": {
     "browser": true,
-    "es2021": true,
-    "mocha": true
+    "es2021": true
   },
   "extends": [
     "plugin:@typescript-eslint/recommended",
@@ -10,17 +9,19 @@
     "airbnb-base",
     "airbnb-typescript/base"
   ],
-  "ignorePatterns": ["dist"],
+  "ignorePatterns": ["coverage", "dist"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": ["./tsconfig.json", "./test/tsconfig.json"]
   },
   "plugins": [
     "@typescript-eslint"
   ],
   "settings": {
     "import/resolver": {
-      "typescript": {}
+      "typescript": {
+        "project": ["./tsconfig.json", "./test/tsconfig.json"]
+      }
     }
   },
   "overrides": [
