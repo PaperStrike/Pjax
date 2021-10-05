@@ -1,3 +1,15 @@
+# 2.2.0
+
+## 🚀 Enhancements
+
+* Use regex to match script types ([#191](https://github.com/PaperStrike/Pjax/pull/191))
+* 'exclude' option for triggers, 'receive' event ([#176](https://github.com/PaperStrike/Pjax/pull/176))
+* Support hooks ([#177](https://github.com/PaperStrike/Pjax/pull/177))
+
+## 🐛 Bug Fixes
+
+* Use case-insensitive match to parse script type ([#192](https://github.com/PaperStrike/Pjax/pull/192))
+
 # 2.1.0
 
 ## 🚀 Enhancements
