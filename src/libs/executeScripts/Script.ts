@@ -28,7 +28,7 @@ export default class Script {
     if (!scriptEle.hasAttribute('src') && !scriptEle.text) return;
 
     // Process type.
-    const typeString = scriptEle.type ? scriptEle.type.trim() : 'text/javascript';
+    const typeString = scriptEle.type ? scriptEle.type.trim().toLowerCase() : 'text/javascript';
     if (MIMETypeRegex.test(typeString)) {
       this.type = 'classic';
     } else if (typeString === 'module') {
