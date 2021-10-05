@@ -40,14 +40,16 @@ test.describe('script', () => {
   });
 
   test('normal module', () => {
-    const moduleScriptEle = document.createElement('script');
-    moduleScriptEle.text = '()';
-    moduleScriptEle.type = 'module';
+    ['module', 'modUle'].forEach((validModuleTypeStrings) => {
+      const moduleScriptEle = document.createElement('script');
+      moduleScriptEle.text = '()';
+      moduleScriptEle.type = validModuleTypeStrings;
 
-    const moduleScript = new Script(moduleScriptEle);
-    expect(moduleScript.type).toBe('module');
-    expect(moduleScript.evaluable).toBe(true);
-    expect(moduleScript.blocking).toBe(false);
+      const moduleScript = new Script(moduleScriptEle);
+      expect(moduleScript.type).toBe('module');
+      expect(moduleScript.evaluable).toBe(true);
+      expect(moduleScript.blocking).toBe(false);
+    });
   });
 
   test('normal internal', () => {
