@@ -20,8 +20,8 @@ export interface Hooks {
 }
 
 export interface TriggerOptions {
-  enable: boolean,
-  exclude: string,
+  enable?: boolean,
+  exclude?: string,
 }
 
 export interface Options {
@@ -106,7 +106,7 @@ class Pjax {
     }
 
     const { defaultTrigger } = this.options;
-    if (defaultTrigger === true || (defaultTrigger !== false && defaultTrigger.enable)) {
+    if (defaultTrigger === true || (defaultTrigger !== false && defaultTrigger.enable !== false)) {
       new DefaultTrigger(this).register();
     }
 

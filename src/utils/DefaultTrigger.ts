@@ -36,7 +36,7 @@ export default class DefaultTrigger {
     const { defaultTrigger } = this.pjax.options;
     if (typeof defaultTrigger === 'boolean') return defaultTrigger;
     const { enable, exclude } = defaultTrigger;
-    return enable && (!exclude || !element.matches(exclude));
+    return enable !== false && (!exclude || !element.matches(exclude));
   }
 
   onLinkOpen(event: Event): void {
