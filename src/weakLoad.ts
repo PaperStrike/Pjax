@@ -21,7 +21,7 @@ export default async function weakLoad(
    * The URL object of the target resource.
    * Used to identify fragment navigations.
    */
-  const url = new URL(typeof requestInfo === 'string' ? requestInfo : requestInfo.url, document.URL);
+  const url = new URL(typeof requestInfo === 'string' ? requestInfo : requestInfo.url, document.baseURI);
   const path = url.pathname + url.search;
   const currentPath = this.location.pathname + this.location.search;
 

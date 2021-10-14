@@ -54,7 +54,7 @@ export default class Script {
 
       try {
         // eslint-disable-next-line no-new
-        new URL(src, document.URL);
+        new URL(src, document.baseURI);
       } catch {
         return;
       }
