@@ -1,3 +1,13 @@
+# 2.3.0
+
+## 🚀 Enhancements
+
+* Support fragment navigation in Request weakLoad ([#202](https://github.com/PaperStrike/Pjax/pull/202))
+
+## 🐛 Bug Fixes
+
+* Differentiate base URL from URL ([#203](https://github.com/PaperStrike/Pjax/pull/203))
+
 # 2.2.0
 
 ## 🚀 Enhancements
