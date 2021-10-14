@@ -82,7 +82,7 @@ class Submission {
    */
   getRequestInfo(): RequestInfo | null {
     const action = this.getAttribute('action');
-    const actionURL = new URL(action, document.URL);
+    const actionURL = new URL(action, document.baseURI);
 
     // Only 'http' and 'https' schemes are supported.
     if (!/^https?:$/.test(actionURL.protocol)) return null;
