@@ -17,28 +17,30 @@ export default async function weakLoad(
   this.abortController?.abort();
   this.abortController = abortController;
 
-  // Whether to switch current DOM or not.
-  let switchDOM = true;
+  /**
+   * The URL object of the target resource.
+   * Used to identify fragment navigations.
+   */
+  const url = new URL(typeof requestInfo === 'string' ? requestInfo : requestInfo.url, document.URL);
+  const path = url.pathname + url.search;
+  const currentPath = this.location.pathname + this.location.search;
 
-  if (typeof requestInfo === 'string') {
-    const parsedURL = new URL(requestInfo, document.URL);
-
-    // Find path (pathname + search string, e.g. /abc?d=1) difference.
-    const targetPath = parsedURL.pathname + parsedURL.search;
-    const currentPath = this.location.pathname + this.location.search;
-
-    // For same-path links with a `#`, prepare without switching the DOM.
-    if (targetPath === currentPath && parsedURL.href.includes('#')) {
-      // pushState on different hash.
-      if (window.location.hash !== parsedURL.hash) {
-        window.history.pushState(null, '', parsedURL.href);
-      }
-      await this.preparePage(null, overrideOptions);
-      switchDOM = false;
+  /**
+   * Identify fragment navigations.
+   * Not using `.hash` here as it becomes the empty string for both empty and null fragment.
+   * @see [Navigate fragment step | HTML Standard]{@link https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate-fragid-step}
+   * @see [URL hash getter | URL Standard]{@link https://url.spec.whatwg.org/#dom-url-hash}
+   */
+  if (path === currentPath && url.href.includes('#')) {
+    // pushState on different hash.
+    if (window.location.hash !== url.hash) {
+      window.history.pushState(null, '', url.href);
     }
-  }
 
-  if (switchDOM) {
+    // Directly prepare for fragment navigation.
+    await this.preparePage(null, overrideOptions);
+  } else {
+    // Switch DOM for normal navigation.
     await this.switchDOM(requestInfo, overrideOptions);
   }
 
