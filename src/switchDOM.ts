@@ -20,7 +20,22 @@ export default async function switchDOM(
   const signal = this.abortController?.signal || null;
   eventDetail.signal = signal;
 
-  const rawRequest = new Request(requestInfo, { cache, signal });
+  /**
+   * Specify request cache mode and abort signal.
+   */
+  const requestInit: RequestInit = { cache, signal };
+
+  /**
+   * Specify original referrer and referrerPolicy
+   * since the later Request constructor steps discard the original ones.
+   * @see [Request constructor steps | Fetch Standard]{@link https://fetch.spec.whatwg.org/#dom-request}
+   */
+  if (requestInfo instanceof Request) {
+    requestInit.referrer = requestInfo.referrer;
+    requestInit.referrerPolicy = requestInfo.referrerPolicy;
+  }
+
+  const rawRequest = new Request(requestInfo, requestInit);
   rawRequest.headers.set('X-Requested-With', 'Fetch');
   rawRequest.headers.set('X-Pjax', 'true');
   rawRequest.headers.set('X-Pjax-Selectors', JSON.stringify(selectors));
@@ -28,7 +43,7 @@ export default async function switchDOM(
   const request = await hooks.request?.(rawRequest) || rawRequest;
   eventDetail.request = request;
 
-  // Set timeout
+  // Set timeout.
   eventDetail.timeout = timeout;
   let timeoutID: number | undefined;
   if (timeout > 0) {
