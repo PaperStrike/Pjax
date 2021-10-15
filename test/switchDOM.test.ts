@@ -111,6 +111,26 @@ test.describe('switch DOM', () => {
     expect(sentHeaders.get('X-Pjax-Selectors')).toBe(JSON.stringify(pjax.options.selectors));
   });
 
+  test('preserve referrer and referrerPolicy', async ({ pjax }) => {
+    let sentReferrer = '';
+    let sentReferrerPolicy: ReferrerPolicy = '';
+    onfetch('/referrer')
+      .reply((request) => {
+        sentReferrer = request.referrer;
+        sentReferrerPolicy = request.referrerPolicy;
+        return null;
+      });
+
+    const request = new Request('/referrer', {
+      referrer: '/specified-referrer',
+      referrerPolicy: 'no-referrer-when-downgrade',
+    });
+    await pjax.switchDOM(request);
+
+    expect(new URL(sentReferrer).pathname).toBe('/specified-referrer');
+    expect(sentReferrerPolicy).toBe('no-referrer-when-downgrade');
+  });
+
   test('cache mode', async ({ pjax }) => {
     let requestCache = '';
     onfetch('/cache-mode')
