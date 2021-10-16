@@ -73,9 +73,7 @@ class Pjax {
   readonly options: Options = {
     defaultTrigger: true,
     selectors: ['title', '.pjax'],
-    switches: {
-      abc: Switches.default,
-    },
+    switches: {},
     scripts: 'script[data-pjax]',
     scrollTo: true,
     scrollRestoration: true,
