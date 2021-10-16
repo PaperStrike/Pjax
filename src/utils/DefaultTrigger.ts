@@ -63,8 +63,8 @@ export default class DefaultTrigger {
     if (referrerPolicy !== undefined) requestInit.referrerPolicy = referrerPolicy as ReferrerPolicy;
 
     /**
-     * Use no-referrer if specified in the link types.
-     * Not reading from `.relList` here as it is not landed for forms yet.
+     * Use no referrer if specified in the link types.
+     * Not reading from `.relList` here as browsers haven't shipped it for forms yet.
      * @see [Add &lt;form rel&gt; initial compat data · mdn/browser-compat-data]{@link https://github.com/mdn/browser-compat-data/pull/9130}
      */
     if (subject.getAttribute('rel')?.split(/\s+/)
