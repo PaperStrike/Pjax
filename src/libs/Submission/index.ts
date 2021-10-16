@@ -41,6 +41,22 @@ class Submission {
   }
 
   /**
+   * Construct the entry list and return in FormData format.
+   * Manually append submitter entry before we can directly specify the submitter button.
+   * The manual way has the limitation that the submitter entry always comes last.
+   * @see [Constructing the entry list | HTML Standard]{@link https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#constructing-form-data-set}
+   * @see [FormData: Add ability to specify submitter in addition to &lt;form&gt; · whatwg/xhr]{@link https://github.com/whatwg/xhr/issues/262}
+   */
+  getEntryList(): FormData {
+    const { form, submitterButton } = this;
+    const formData = new FormData(form);
+    if (submitterButton && !submitterButton.disabled && submitterButton.name) {
+      formData.append(submitterButton.name, submitterButton.value);
+    }
+    return formData;
+  }
+
+  /**
    * The application/x-www-form-urlencoded and text/plain encoding algorithms
    * take a list of name-value pairs, where the values must be strings,
    * rather than an entry list where the value can be a File.
@@ -48,7 +64,7 @@ class Submission {
    */
   private getNameValuePairs(): [string, string][] {
     return Array.from(
-      new FormData(this.form),
+      this.getEntryList(),
       ([key, value]) => (
         [key, value instanceof File ? value.name : value]
       ),
@@ -110,7 +126,7 @@ class Submission {
             body = this.getURLSearchParams();
             break;
           case 'multipart/form-data':
-            body = new FormData(this.form);
+            body = this.getEntryList();
             break;
           case 'text/plain':
             body = this.getTextPlain();
