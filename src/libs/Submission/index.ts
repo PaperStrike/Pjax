@@ -43,6 +43,7 @@ class Submission {
   /**
    * Construct the entry list and return in FormData format.
    * Manually append submitter entry before we can directly specify the submitter button.
+   * The manual way has the limitation that the submitter entry always comes last.
    * @see [Constructing the entry list | HTML Standard]{@link https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#constructing-form-data-set}
    * @see [FormData: Add ability to specify submitter in addition to &lt;form&gt; · whatwg/xhr]{@link https://github.com/whatwg/xhr/issues/262}
    */
