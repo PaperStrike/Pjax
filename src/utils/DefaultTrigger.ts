@@ -54,7 +54,7 @@ export default class DefaultTrigger {
     const requestInit: RequestInit = {};
 
     /**
-     * Referrer Policy that specified on the element.
+     * Referrer policy that specified on the element.
      * Will cause a TypeError in the later Request constructing step if the attribute is invalid.
      * Not bypassing forms here as it is supposed to be supported in the future.
      * @see [Add referrerpolicy to &lt;form&gt; · whatwg/html]{@link https://github.com/whatwg/html/issues/4320}
@@ -63,12 +63,14 @@ export default class DefaultTrigger {
     if (referrerPolicy !== undefined) requestInit.referrerPolicy = referrerPolicy as ReferrerPolicy;
 
     /**
-     * link types that applies to the element.
-     * Not reading from `.relList` here as it is not usable in forms yet.
+     * Use no-referrer if specified in the link types.
+     * Not reading from `.relList` here as it is not landed for forms yet.
      * @see [Add &lt;form rel&gt; initial compat data · mdn/browser-compat-data]{@link https://github.com/mdn/browser-compat-data/pull/9130}
      */
-    const linkTypes = subject.getAttribute('rel')?.split(/\s+/);
-    if (linkTypes?.some((type) => type.toLowerCase() === 'noreferrer')) requestInit.referrer = '';
+    if (subject.getAttribute('rel')?.split(/\s+/)
+      .some((type) => type.toLowerCase() === 'noreferrer')) {
+      requestInit.referrer = '';
+    }
 
     this.pjax.load(new Request(resource, requestInit)).catch(() => {});
   }
