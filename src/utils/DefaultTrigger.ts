@@ -39,6 +39,40 @@ export default class DefaultTrigger {
     return enable !== false && (!exclude || !element.matches(exclude));
   }
 
+  /**
+   * Load a resource with element attribute support.
+   * @see [Follow the hyperlink | HTML Standard]{@link https://html.spec.whatwg.org/multipage/links.html#following-hyperlinks-2}
+   * @see [Plan to navigate | HTML Standard]{@link https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#plan-to-navigate}
+   */
+  load(
+    resource: RequestInfo,
+    subject: Link | HTMLFormElement,
+  ): void {
+    /**
+     * The RequestInit to align the request to send by the element.
+     */
+    const requestInit: RequestInit = {};
+
+    /**
+     * Referrer Policy that specified on the element.
+     * Will cause a TypeError in the later Request constructing step if the attribute is invalid.
+     * Not bypassing forms here as it is supposed to be supported in the future.
+     * @see [Add referrerpolicy to &lt;form&gt; · whatwg/html]{@link https://github.com/whatwg/html/issues/4320}
+     */
+    const referrerPolicy = subject.getAttribute('referrerpolicy')?.toLowerCase();
+    if (referrerPolicy !== undefined) requestInit.referrerPolicy = referrerPolicy as ReferrerPolicy;
+
+    /**
+     * link types that applies to the element.
+     * Not reading from `.relList` here as it is not usable in forms yet.
+     * @see [Add &lt;form rel&gt; initial compat data · mdn/browser-compat-data]{@link https://github.com/mdn/browser-compat-data/pull/9130}
+     */
+    const linkTypes = subject.getAttribute('rel')?.split(/\s+/).map((str) => str.toLowerCase());
+    if (linkTypes?.includes('noreferrer')) requestInit.referrer = '';
+
+    this.pjax.load(new Request(resource, requestInit)).catch(() => {});
+  }
+
   onLinkOpen(event: Event): void {
     if (event.defaultPrevented) return;
 
@@ -61,7 +95,7 @@ export default class DefaultTrigger {
 
     event.preventDefault();
 
-    this.pjax.load(link.href).catch(() => {});
+    this.load(link.href, link);
   }
 
   onFormSubmit(event: SubmitEvent): void {
@@ -85,7 +119,8 @@ export default class DefaultTrigger {
     if (url.origin !== window.location.origin) return;
 
     event.preventDefault();
-    this.pjax.load(requestInfo).catch(() => {});
+
+    this.load(requestInfo, form);
   }
 
   register(): void {
