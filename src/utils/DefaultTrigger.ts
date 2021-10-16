@@ -67,8 +67,8 @@ export default class DefaultTrigger {
      * Not reading from `.relList` here as it is not usable in forms yet.
      * @see [Add &lt;form rel&gt; initial compat data · mdn/browser-compat-data]{@link https://github.com/mdn/browser-compat-data/pull/9130}
      */
-    const linkTypes = subject.getAttribute('rel')?.split(/\s+/).map((str) => str.toLowerCase());
-    if (linkTypes?.includes('noreferrer')) requestInit.referrer = '';
+    const linkTypes = subject.getAttribute('rel')?.split(/\s+/);
+    if (linkTypes?.some((type) => type.toLowerCase() === 'noreferrer')) requestInit.referrer = '';
 
     this.pjax.load(new Request(resource, requestInit)).catch(() => {});
   }
