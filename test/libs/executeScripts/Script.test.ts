@@ -28,17 +28,6 @@ test.describe('script', () => {
     expect(new Script(noModuleScriptEle).evaluable).toBe(false);
   });
 
-  test('with invalid src attribute', () => {
-    const srcInvalidScriptEle = document.createElement('script');
-    srcInvalidScriptEle.text = 'somethingMakeItNotEmpty()';
-
-    ['', 'https://'].forEach((invalidValue) => {
-      srcInvalidScriptEle.setAttribute('src', invalidValue);
-
-      expect(new Script(srcInvalidScriptEle).evaluable).toBe(false);
-    });
-  });
-
   test('normal module', () => {
     ['module', 'modUle'].forEach((validModuleTypeStrings) => {
       const moduleScriptEle = document.createElement('script');
@@ -112,10 +101,10 @@ test.describe('script', () => {
                 window.dispatchEvent(new Event('${uid}'));
               }
             `;
+            onfetch(`/${uid}`).reply(scriptEleText).persist();
             const scriptEle = document.createElement('script');
             scriptEle.id = uid;
             if (scriptType === 'external') {
-              onfetch(uid).reply(scriptEleText);
               scriptEle.src = uid;
             } else {
               scriptEle.text = scriptEleText;
