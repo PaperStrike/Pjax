@@ -43,31 +43,23 @@ export default class Script {
     }
 
     // Process external.
-    if (scriptEle.hasAttribute('src')) {
-      const src = scriptEle.getAttribute('src');
-
-      // An empty src attribute not results in external status
-      // and the script is not executable.
-      if (!src) return;
-
+    if (scriptEle.src) {
       this.external = true;
-
-      try {
-        // eslint-disable-next-line no-new
-        new URL(src, document.baseURI);
-      } catch {
-        return;
-      }
     }
 
     // Process blocking.
+    // It's minifier plugins' job to merge conditions. We split them out for readability.
     this.blocking = true;
     if (this.type !== 'classic') {
       this.blocking = false;
     } else if (this.external) {
+      /**
+       * The async IDL attribute may not reflect the async content attribute.
+       * @see [The async IDL attribute | HTML Standard]{@link https://html.spec.whatwg.org/multipage/scripting.html#dom-script-async}
+       */
       if (scriptEle.hasAttribute('async')) {
         this.blocking = false;
-      } else if (scriptEle.hasAttribute('defer')) {
+      } else if (scriptEle.defer) {
         this.blocking = false;
       }
     }
@@ -82,23 +74,21 @@ export default class Script {
 
       newEle.addEventListener('error', reject);
 
-      // Clone attributes and inner text.
+      /**
+       * Clone attributes and inner text.
+       * Reset async since it defaults to true on dynamically created scripts.
+       */
+      newEle.async = false;
       oldEle.getAttributeNames().forEach((name) => {
         newEle.setAttribute(name, oldEle.getAttribute(name) || '');
       });
       newEle.text = oldEle.text;
 
-      if (this.external) {
-        // Reset async of external scripts to force synchronous loading.
-        // Needed since it defaults to true on dynamically injected scripts.
-        if (!newEle.hasAttribute('async')) newEle.async = false;
-
-        // Defer a dynamically inserted script is meaningless
-        // and may cause the script not to be executed in some environments.
-        newEle.defer = false;
-      }
-
-      // Execute.
+      /**
+       * Execute.
+       * Not using `.isConnected` here as it is also `true`
+       * for scripts connected in other documents.
+       */
       if (document.contains(oldEle)) {
         oldEle.replaceWith(newEle);
       } else {
