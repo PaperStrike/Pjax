@@ -37,6 +37,12 @@ export default class Submission {
    */
   getAttribute(name: FormContentAttributeNames): string {
     const { submitButton, form } = this;
+
+    /**
+     * Some attributes from the submit button override the form's one.
+     * Before reading the IDL value, do a hasAttribute check since the IDL may return
+     * a value (usually the default) even when the related content attribute is not present.
+     */
     if (submitButton && submitButton.hasAttribute(`form${name}`)) {
       const overrideValue = submitButton[`form${capitalize(name)}`];
       if (overrideValue) return overrideValue;
