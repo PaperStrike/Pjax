@@ -89,43 +89,55 @@ test.describe('script', () => {
   test.describe('document.currentScript match', () => {
     ['external', 'inline'].forEach((scriptType) => {
       ['current', 'other', undefined].forEach((connectedDoc) => {
-        test(
-          `${scriptType} script ${connectedDoc ? `connected in ${connectedDoc} doc` : 'unconnected'}`,
-          async ({ uid }) => {
-            let matched = false;
-            window.addEventListener(uid, () => {
-              matched = true;
-            }, { once: true });
-            const scriptEleText = `
-              if (document.currentScript.id === '${uid}') {
-                window.dispatchEvent(new Event('${uid}'));
-              }
-            `;
-            onfetch(`/${uid}`).reply(scriptEleText).persist();
-            const scriptEle = document.createElement('script');
-            scriptEle.id = uid;
-            if (scriptType === 'external') {
-              scriptEle.src = uid;
-            } else {
-              scriptEle.text = scriptEleText;
+        const connection = connectedDoc ? `connected in ${connectedDoc} doc` : 'unconnected';
+        test(`${scriptType} script ${connection}`, async ({ uid }) => {
+          // Becomes true if the `document.currentScript` matches ours in execution.
+          let matched = false;
+          window.addEventListener(uid, () => {
+            matched = true;
+          }, { once: true });
+          const scriptEleText = `
+            if (document.currentScript.id === '${uid}') {
+              window.dispatchEvent(new Event('${uid}'));
             }
-            switch (connectedDoc) {
-              case 'current': {
-                document.body.append(scriptEle);
-                break;
-              }
-              case 'other': {
-                document.implementation.createHTMLDocument('').body.append(scriptEle);
-                break;
-              }
-              default: {
-                break;
-              }
+          `;
+
+          // The script element to evaluate.
+          const scriptEle = document.createElement('script');
+
+          /**
+           * Append it non-emptily before setting contents to set the "already started" flag
+           * to avoid premature evaluation of our script.
+           */
+          scriptEle.text = '\'something\'';
+          switch (connectedDoc) {
+            case 'current': {
+              document.body.append(scriptEle);
+              break;
             }
-            await new Script(scriptEle).eval();
-            expect(matched).toBeTruthy();
-          },
-        );
+            case 'other': {
+              document.implementation.createHTMLDocument('').body.append(scriptEle);
+              break;
+            }
+            default: {
+              break;
+            }
+          }
+
+          scriptEle.id = uid;
+          if (scriptType === 'external') {
+            onfetch(uid).reply(scriptEleText);
+            scriptEle.src = uid;
+            scriptEle.text = '';
+          } else {
+            scriptEle.text = scriptEleText;
+          }
+
+          await new Script(scriptEle).eval();
+          expect(matched).toBeTruthy();
+
+          scriptEle.remove();
+        });
       });
     });
   });
