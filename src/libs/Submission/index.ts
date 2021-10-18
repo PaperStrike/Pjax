@@ -4,27 +4,31 @@ const capitalize = <T extends string>(str: T) => (
 
 type FormContentAttributeNames = 'action' | 'enctype' | 'method' | 'target';
 
-class Submission {
+/**
+ * A submit button must be a <button> or an <input type="submit">.
+ * HTML Standard didn't state this directly, but we can still tell this by reading
+ * through the elements and functions that can trigger a submission in the standard.
+ *
+ * There is also a proposal WIP to make every element a possible submitter button.
+ * We type it for type checks. May need changes when the proposal get implemented.
+ *
+ * @see [Concept submit button | HTML Standard]{@link https://html.spec.whatwg.org/multipage/forms.html#concept-submit-button}
+ * @see [Form-associated custom elements: being a submit button · Issue #814 · WICG/webcomponents]{@link https://github.com/WICG/webcomponents/issues/814}
+ */
+export type SubmitButton = HTMLButtonElement | HTMLInputElement;
+
+export default class Submission {
   declare form: HTMLFormElement;
 
-  /**
-   * The "submitter button" must be a <button>, an <input>, or null.
-   * The HTML Standard didn't state this directly, but we can still tell this by reading
-   * through the elements and functions that can trigger a submission in the standard.
-   * @see [Concept submit button | HTML Standard]{@link https://html.spec.whatwg.org/multipage/forms.html#concept-submit-button}
-   */
-  declare submitterButton: HTMLButtonElement | HTMLInputElement | null;
+  declare submitButton: SubmitButton | null;
 
   /**
    * Parse the basic facilities that will be frequently used in the submission.
    * @see [Form submission algorithm | HTML Standard]{@link https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#form-submission-algorithm}
    */
-  constructor(form: HTMLFormElement, submitter: HTMLElement | null) {
+  constructor(form: HTMLFormElement, submitter: SubmitButton | null) {
     this.form = form;
-
-    this.submitterButton = submitter === form
-      ? null
-      : submitter as HTMLButtonElement | HTMLInputElement | null;
+    this.submitButton = submitter;
   }
 
   /**
@@ -32,9 +36,15 @@ class Submission {
    * @see [Form submission attributes | HTML Standard]{@link https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#form-submission-attributes}
    */
   getAttribute(name: FormContentAttributeNames): string {
-    const { submitterButton, form } = this;
-    if (submitterButton && submitterButton.hasAttribute(`form${name}`)) {
-      const overrideValue = submitterButton[`form${capitalize(name)}`];
+    const { submitButton, form } = this;
+
+    /**
+     * Some attributes from the submit button override the form's one.
+     * Before reading the IDL value, do a hasAttribute check since the IDL may return
+     * a value (usually the default) even when the related content attribute is not present.
+     */
+    if (submitButton && submitButton.hasAttribute(`form${name}`)) {
+      const overrideValue = submitButton[`form${capitalize(name)}`];
       if (overrideValue) return overrideValue;
     }
     return form[name];
@@ -48,10 +58,10 @@ class Submission {
    * @see [FormData: Add ability to specify submitter in addition to &lt;form&gt; · whatwg/xhr]{@link https://github.com/whatwg/xhr/issues/262}
    */
   getEntryList(): FormData {
-    const { form, submitterButton } = this;
+    const { form, submitButton } = this;
     const formData = new FormData(form);
-    if (submitterButton && !submitterButton.disabled && submitterButton.name) {
-      formData.append(submitterButton.name, submitterButton.value);
+    if (submitButton && !submitButton.disabled && submitButton.name) {
+      formData.append(submitButton.name, submitButton.value);
     }
     return formData;
   }
@@ -149,5 +159,3 @@ class Submission {
     }
   }
 }
-
-export default Submission;

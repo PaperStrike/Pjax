@@ -1,5 +1,5 @@
 import type Pjax from '..';
-import Submission from '../libs/Submission';
+import Submission, { SubmitButton } from '../libs/Submission';
 
 type Link = HTMLAnchorElement | HTMLAreaElement;
 
@@ -108,7 +108,7 @@ export default class DefaultTrigger {
 
     if (!this.test(form)) return;
 
-    const submission = new Submission(form, submitter);
+    const submission = new Submission(form, submitter as SubmitButton | null);
 
     if (getBrowsingContext(submission.getAttribute('target')) !== window) return;
 
