@@ -103,8 +103,8 @@ test.describe('prepare page', () => {
   test.describe('scroll', () => {
     const scrollTest = test.extend<{ prepareViewport: void }>({
       prepareViewport: async (_, use) => {
-        document.body.style.width = `${window.outerWidth + 100}px`;
-        document.body.style.height = `${window.outerHeight + 100}px`;
+        document.body.style.width = `${window.outerWidth * 2}px`;
+        document.body.style.height = `${window.outerHeight * 2}px`;
         await use();
         document.body.style.removeProperty('width');
         document.body.style.removeProperty('height');
@@ -126,19 +126,24 @@ test.describe('prepare page', () => {
           await pjax.preparePage(switchesResult, {
             scrollTo: [10, 20],
           });
-          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 20]);
+          expect(window).toHaveBeenScrolledToAround(10, 20);
 
           await pjax.preparePage(switchesResult, {
             scrollTo: 30,
           });
-          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([10, 30]);
+          expect(window).toHaveBeenScrolledToAround(10, 30);
         });
 
         scrollTest('to target element and can be disabled', async ({ pjax }) => {
           document.body.innerHTML = '';
           const target = document.createElement('p');
           target.id = 'new';
-          target.style.cssText = 'margin: 10px 0 0 20px';
+
+          /**
+           * When using `scrollIntoView`, webkit scrolls horizontally
+           * only if the element lies far away from the left edge.
+           */
+          target.style.cssText = `margin: ${window.outerHeight}px 0 0 ${window.outerWidth}px`;
           document.body.append(target);
           window.location.hash = '#new';
 
@@ -146,26 +151,24 @@ test.describe('prepare page', () => {
           await pjax.preparePage(switchesResult, {
             scrollTo: true,
           });
-          const rect = target.getBoundingClientRect();
-          expect([rect.x, rect.y].map(Math.round)).toMatchObject([0, 0]);
+          expect(window).toHaveBeenScrolledToAround(target);
 
           window.scrollTo(0, 0);
           await pjax.preparePage(switchesResult, {
             scrollTo: false,
           });
-          expect([window.scrollX, window.scrollY].map(Math.round)).toMatchObject([0, 0]);
+          expect(window).toHaveBeenScrolledToAround(0, 0);
           window.location.hash = '';
         });
 
         ['#', '', '#top', '#toP'].forEach((hash) => {
           scrollTest(`to top when hash changes to "${hash}"`, async ({ pjax }) => {
             window.location.hash = hash;
-            window.scrollTo(10, 10);
+            window.scrollTo(window.outerWidth, window.outerHeight);
             await pjax.preparePage(switchesResult, {
               scrollTo: true,
             });
-            expect([window.scrollX, window.scrollY].map(Math.round))
-              .toMatchObject([0, 0]);
+            expect(window).toHaveBeenScrolledToAround(0, 0);
           });
         });
 
@@ -177,8 +180,11 @@ test.describe('prepare page', () => {
             await pjax.preparePage(switchesResult, {
               scrollTo: true,
             });
-            expect([window.scrollX, window.scrollY].map(Math.round))
-              .toMatchObject(defaultToTop ? [0, 0] : [20, 20]);
+            if (defaultToTop) {
+              expect(window).toHaveBeenScrolledToAround(0, 0);
+            } else {
+              expect(window).toHaveBeenScrolledToAround(20, 20);
+            }
           },
         );
       });
@@ -234,7 +240,14 @@ test.describe('prepare page', () => {
       onfetch('/pending.js').reply(() => pendingPromise);
       const pendingScript = document.createElement('script');
       pendingScript.src = '/pending.js';
+
+      /**
+       * Append it with non-script type to set the "already started" flag
+       * to avoid premature evaluation of our script.
+       */
+      pendingScript.type = 'dont-execute-please';
       container.append(pendingScript);
+      pendingScript.type = '';
 
       // Abort on the first script's execution.
       const preparePromise = pjax.preparePage({ focusCleared: false });

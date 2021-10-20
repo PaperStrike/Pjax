@@ -105,14 +105,23 @@ test.describe('script', () => {
           // The script element to evaluate.
           const scriptEle = document.createElement('script');
 
-          /**
-           * Append it non-emptily before setting contents to set the "already started" flag
-           * to avoid premature evaluation of our script.
-           */
-          scriptEle.text = '\'something\'';
+          scriptEle.id = uid;
+          if (scriptType === 'external') {
+            onfetch(uid).reply(scriptEleText);
+            scriptEle.src = uid;
+          } else {
+            scriptEle.text = scriptEleText;
+          }
+
           switch (connectedDoc) {
             case 'current': {
+              /**
+               * Append it with non-script type to set the "already started" flag
+               * to avoid premature evaluation of our script.
+               */
+              scriptEle.type = 'dont-execute-please';
               document.body.append(scriptEle);
+              scriptEle.type = '';
               break;
             }
             case 'other': {
@@ -122,15 +131,6 @@ test.describe('script', () => {
             default: {
               break;
             }
-          }
-
-          scriptEle.id = uid;
-          if (scriptType === 'external') {
-            onfetch(uid).reply(scriptEleText);
-            scriptEle.src = uid;
-            scriptEle.text = '';
-          } else {
-            scriptEle.text = scriptEleText;
           }
 
           await new Script(scriptEle).eval();
