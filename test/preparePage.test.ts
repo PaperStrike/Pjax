@@ -2,6 +2,66 @@ import { expect, onfetch, test as base } from '#tester';
 import preparePage from '#preparePage';
 import type Pjax from '#';
 
+declare module 'expect/build/types' {
+  interface Matchers<R> {
+    toHaveBeenScrolledToAround(element: Element): R;
+    toHaveBeenScrolledToAround(left: number, top: number): R;
+    toHaveBeenScrolledToAround(top: number): R;
+  }
+}
+
+expect.extend({
+  toHaveBeenScrolledToAround(
+    received: unknown,
+    eleOrLeftOrTop: Element | number,
+    optTop?: number,
+  ) {
+    let scrollPort: Element;
+    if (received instanceof Window) {
+      scrollPort = received.document.documentElement;
+    } else if (received instanceof Element) {
+      scrollPort = received;
+    } else {
+      return {
+        message: () => `expected ${String(received)} not of type Window nor of type Element`,
+        pass: false,
+      };
+    }
+    let pass = true;
+    let message = '';
+    if (eleOrLeftOrTop instanceof Element) {
+      const rect = eleOrLeftOrTop.getBoundingClientRect();
+      const scrollRect = scrollPort.getBoundingClientRect();
+      const check = (
+        diff: number,
+        type: string,
+      ) => {
+        pass = Math.abs(diff) <= 5;
+        message += `${message ? ';' : 'expected content'} scrolled ${diff} px from the ${type} edge of the target element, ${pass ? '' : 'not '}to be around the element`;
+      };
+      check(rect.left - scrollRect.left - scrollPort.scrollLeft, 'left');
+      if (pass) check(rect.top - scrollRect.top - scrollPort.scrollTop, 'top');
+    } else {
+      const [left, top] = optTop !== undefined ? [eleOrLeftOrTop, optTop] : [null, eleOrLeftOrTop];
+      const compare = (
+        actual: number,
+        expected: number,
+        type: string,
+      ) => {
+        pass = Math.abs(actual - expected) <= 5;
+        message += `${message ? ';' : 'expected content'} scrolled ${actual} px from its ${type} edge, ${pass ? '' : 'not '}to be around ${expected} px`;
+      };
+      const { scrollLeft, scrollTop } = scrollPort;
+      if (left !== null) compare(scrollLeft, left, 'left');
+      if (pass) compare(scrollTop, top, 'top');
+    }
+    return {
+      message: () => message,
+      pass,
+    };
+  },
+});
+
 const test = base.extend<{ pjax: Pjax }>({
   pjax: async ({ MockedPjax }, use) => {
     const pjax = new MockedPjax();
@@ -203,15 +263,10 @@ test.describe('prepare page', () => {
         const container = document.createElement('div');
         container.id = uid;
         container.innerHTML = `
-          <script>window.dispatchEvent(new Event('${uid}'))</script>
+          <script>document.currentScript.parentElement.title = 'executed'</script>
         `;
-        const listener = () => {
-          container.title = 'executed';
-        };
-        window.addEventListener(uid, listener);
         document.body.append(container);
         await use(container);
-        window.removeEventListener(uid, listener);
         container.remove();
       },
     });
@@ -227,19 +282,13 @@ test.describe('prepare page', () => {
       controller,
       pjax,
       container,
-      uid,
     }) => {
-      // Append a pending-controllable script.
-      // Resolve instead of reject at the end
-      // as browsers won't abort the fetch or cancel the evaluation due to the removal
-      // and if we reject there will be a network error or a syntax error.
-      let stopPending = () => {};
-      const pendingPromise = new Promise<never>((_, reject) => {
-        stopPending = reject;
-      }).catch(() => null);
-      onfetch('/pending.js').reply(() => pendingPromise);
+      onfetch('/abort.js').reply(async () => {
+        controller.abort();
+        return null;
+      });
       const pendingScript = document.createElement('script');
-      pendingScript.src = '/pending.js';
+      pendingScript.src = '/abort.js';
 
       /**
        * Append it with non-script type to set the "already started" flag
@@ -251,12 +300,9 @@ test.describe('prepare page', () => {
 
       // Abort on the first script's execution.
       const preparePromise = pjax.preparePage({ focusCleared: false });
-      window.addEventListener(uid, () => controller.abort(), { once: true });
 
       await expect(preparePromise).rejects.toMatchObject({ name: 'AbortError' });
       expect(container.title).toBe('executed');
-
-      stopPending();
     });
   });
 });
