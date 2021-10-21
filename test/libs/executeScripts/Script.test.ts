@@ -3,6 +3,7 @@ import {
   expect,
   onfetch,
 } from '#tester';
+import { test as loggerTest } from './executeScripts.test';
 import Script from '#libs/executeScripts/Script';
 
 test.describe('script', () => {
@@ -90,22 +91,12 @@ test.describe('script', () => {
     ['external', 'inline'].forEach((scriptType) => {
       ['current', 'other', undefined].forEach((connectedDoc) => {
         const connection = connectedDoc ? `connected in ${connectedDoc} doc` : 'unconnected';
-        test(`${scriptType} script ${connection}`, async ({ uid }) => {
-          // Becomes true if the `document.currentScript` matches ours in execution.
-          let matched = false;
-          window.addEventListener(uid, () => {
-            matched = true;
-          }, { once: true });
-          const scriptEleText = `
-            if (document.currentScript.id === '${uid}') {
-              window.dispatchEvent(new Event('${uid}'));
-            }
-          `;
+        loggerTest(`${scriptType} script ${connection}`, async ({ uid, logger }) => {
+          const scriptEleText = logger.create('executed');
 
           // The script element to evaluate.
           const scriptEle = document.createElement('script');
 
-          scriptEle.id = uid;
           if (scriptType === 'external') {
             onfetch(uid).reply(scriptEleText);
             scriptEle.src = uid;
@@ -134,7 +125,7 @@ test.describe('script', () => {
           }
 
           await new Script(scriptEle).eval();
-          expect(matched).toBeTruthy();
+          expect(logger.flush()).toBe('executed');
 
           scriptEle.remove();
         });
