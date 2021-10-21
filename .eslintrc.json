@@ -28,7 +28,14 @@
     {
       "files": ["**/?(*.)+(spec|test).[jt]s?(x)"],
       "rules": {
-        "no-param-reassign": "off"
+        "no-param-reassign": ["error", {
+          "props": true,
+          "ignorePropertyModificationsFor": [
+            "pjax",
+            "target",
+            "replacer"
+          ]
+        }]
       }
     }
   ],
