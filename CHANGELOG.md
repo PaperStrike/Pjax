@@ -1,3 +1,16 @@
+# 2.4.0
+
+## 🚀 Enhancements
+
+* Simplify submit button parsing ([#215](https://github.com/PaperStrike/Pjax/pull/215))
+* Simplify script execution ([#214](https://github.com/PaperStrike/Pjax/pull/214))
+* Support rel and referrer policy attributes ([#213](https://github.com/PaperStrike/Pjax/pull/213))
+
+## 🐛 Bug Fixes
+
+* Append submitter entry in submissions ([#212](https://github.com/PaperStrike/Pjax/pull/212))
+* Preserve request referrer and referrerPolicy ([#208](https://github.com/PaperStrike/Pjax/pull/208))
+
 # 2.3.0
 
 ## 🚀 Enhancements
