@@ -54,7 +54,7 @@
     "@sinonjs/fake-timers": "^8.0.1",
     "@types/mocha": "^9.0.0",
     "@types/sinonjs__fake-timers": "^6.0.4",
-    "@types/web": "^0.0.40",
+    "@types/web": "^0.0.42",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.29.0",
     "babel-plugin-polyfill-corejs3": "^0.2.0",
