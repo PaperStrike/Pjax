@@ -79,6 +79,9 @@
     "lint": "eslint .",
     "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"bundled\\\"}",
     "test": "playwright-test \"test/**/*.test.*\" --sw test/sw.ts",
+    "test-chromium": "npm test -- --browser chromium",
+    "test-firefox": "npm test -- --browser firefox",
+    "test-webkit": "npm test -- --browser webkit",
     "coverage": "npm test -- --cov && nyc report",
     "prepare": "npm run build"
   }
