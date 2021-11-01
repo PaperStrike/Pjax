@@ -92,10 +92,15 @@ test.describe('script', () => {
       ['current', 'other', undefined].forEach((connectedDoc) => {
         const connection = connectedDoc ? `connected in ${connectedDoc} doc` : 'unconnected';
         loggerTest(`${scriptType} script ${connection}`, async ({ uid, logger }) => {
-          const scriptEleText = logger.create('executed');
+          const scriptEleText = `
+            if (document.currentScript?.id === '${uid}') {
+              ${logger.create('matched')}
+            }
+          `;
 
           // The script element to evaluate.
           const scriptEle = document.createElement('script');
+          scriptEle.id = uid;
 
           if (scriptType === 'external') {
             onfetch(uid).reply(scriptEleText);
@@ -125,7 +130,7 @@ test.describe('script', () => {
           }
 
           await new Script(scriptEle).eval();
-          expect(logger.flush()).toBe('executed');
+          expect(logger.flush()).toBe('matched');
 
           scriptEle.remove();
         });
