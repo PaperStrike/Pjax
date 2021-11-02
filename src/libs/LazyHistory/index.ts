@@ -53,12 +53,12 @@ class LazyHistory<State> {
     if (pulledIndex !== undefined && this.index === pulledIndex) return;
 
     // Get stored states.
-    const stateListStr = window.sessionStorage.getItem(this.key);
+    const stateListStr = sessionStorage.getItem(this.key);
     const stateList = stateListStr ? JSON.parse(stateListStr) as (State | null)[] : [];
 
     // Store current state.
     stateList[this.index] = this.state;
-    window.sessionStorage.setItem(this.key, JSON.stringify(stateList));
+    sessionStorage.setItem(this.key, JSON.stringify(stateList));
 
     if (pulledIndex === undefined) {
       this.index = stateList.length;

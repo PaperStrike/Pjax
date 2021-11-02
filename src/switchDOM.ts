@@ -47,7 +47,7 @@ export default async function switchDOM(
   eventDetail.timeout = timeout;
   let timeoutID: number | undefined;
   if (timeout > 0) {
-    timeoutID = window.setTimeout(() => {
+    timeoutID = setTimeout(() => {
       this.abortController?.abort();
     }, timeout);
     eventDetail.timeoutID = timeoutID;
@@ -58,7 +58,7 @@ export default async function switchDOM(
   try {
     const rawResponse = await fetch(request)
       .finally(() => {
-        window.clearTimeout(timeoutID);
+        clearTimeout(timeoutID);
       });
 
     const response = await hooks.response?.(rawResponse) || rawResponse;
