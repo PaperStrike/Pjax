@@ -74,26 +74,30 @@ test.describe('switch DOM', () => {
   });
 
   test.describe('pushState', () => {
-    test('is called once when URL not updated', async ({ pjax }) => {
+    test('is called once when URL not updated', async ({ pjax, uid }) => {
       onfetch('/call').reply();
 
-      const originalHistoryLength = window.history.length;
+      const state = { uid };
+      window.history.replaceState(state, '');
 
       await pjax.switchDOM('/call');
       expect(window.location.pathname).toBe('/call');
-      expect(window.history.length).toBe(originalHistoryLength + 1);
+      expect(window.history.state).toBe(null);
+
+      window.history.back();
+      await new Promise((resolve) => window.addEventListener('popstate', resolve));
+      expect(window.history.state).toMatchObject(state);
     });
 
-    test('is not called when URL already updated', async ({ pjax }) => {
+    test('is not called when URL already updated', async ({ pjax, uid }) => {
       onfetch('/no-call').reply();
 
-      window.history.pushState({}, '', '/no-call');
-
-      const originalHistoryLength = window.history.length;
+      const state = { uid };
+      window.history.replaceState(state, '', '/no-call');
 
       await pjax.switchDOM('/no-call');
       expect(window.location.pathname).toBe('/no-call');
-      expect(window.history.length).toBe(originalHistoryLength);
+      expect(window.history.state).toMatchObject(state);
     });
   });
 
