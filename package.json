@@ -58,7 +58,7 @@
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.29.0",
     "babel-plugin-polyfill-corejs3": "^0.2.0",
-    "eslint": "^7.26.0",
+    "eslint": "^8.2.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-airbnb-typescript": "^14.0.0",
     "eslint-import-resolver-typescript": "^2.4.0",
