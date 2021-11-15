@@ -68,10 +68,14 @@ test.describe('switch nodes', () => {
           switchNodes(switchDoc, {
             ...commonOptions,
             switches: {
-              p: () => new Promise((resolve) => clock.setTimeout(resolve, 20)),
+              p: () => new Promise((resolve) => {
+                clock.setTimeout(resolve, 20);
+              }),
             },
           }),
-          new Promise((resolve) => clock.setTimeout(resolve, 10)).then(() => 'first'),
+          new Promise((resolve) => {
+            clock.setTimeout(resolve, 10);
+          }).then(() => 'first'),
         ]);
         clock.tick(30);
         await expect(race).resolves.toBe('first');

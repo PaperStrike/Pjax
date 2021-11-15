@@ -85,7 +85,9 @@ test.describe('switch DOM', () => {
       expect(window.history.state).toBe(null);
 
       window.history.back();
-      await new Promise((resolve) => window.addEventListener('popstate', resolve));
+      await new Promise((resolve) => {
+        window.addEventListener('popstate', resolve);
+      });
       expect(window.history.state).toMatchObject(state);
     });
 
