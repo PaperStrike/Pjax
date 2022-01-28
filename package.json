@@ -51,7 +51,7 @@
     "@babel/preset-typescript": "^7.14.5",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
-    "@sinonjs/fake-timers": "^8.0.1",
+    "@sinonjs/fake-timers": "^9.0.0",
     "@types/mocha": "^9.0.0",
     "@types/sinonjs__fake-timers": "^6.0.4",
     "@types/web": "^0.0.42",
