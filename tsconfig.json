@@ -3,14 +3,13 @@
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "Node",
     "noEmit": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "types": ["web"]
+    "types": []
   },
   "include": [
     "*",
