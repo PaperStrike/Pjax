@@ -67,11 +67,11 @@
     "expect": "^28.1.1",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
-    "onfetch": "^0.8.1",
+    "onfetch": "^0.8.2",
     "playwright-fixtures": "^0.3.5",
-    "playwright-test": "^8.1.1",
     "rollup": "^2.75.7",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "wrightplay": "^0.3.3"
   },
   "engines": {
     "node": "^14.15.0 || >=15.0.0"
@@ -79,7 +79,7 @@
   "scripts": {
     "lint": "eslint .",
     "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"bundled\\\"}",
-    "test": "playwright-test \"test/**/*.test.*\" --sw test/sw.ts",
+    "test": "wrightplay \"test/**/*.test.*\" sw=./test/sw.ts",
     "test-chromium": "npm test -- --browser chromium",
     "test-firefox": "npm test -- --browser firefox",
     "test-webkit": "npm test -- --browser webkit",

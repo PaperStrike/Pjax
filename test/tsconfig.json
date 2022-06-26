@@ -1,8 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "types": ["mocha"]
+    "baseUrl": "."
   },
   "include": [
     "**/*"
