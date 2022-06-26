@@ -1,5 +1,5 @@
-import { test, expect, FakeTimers } from '#tester';
-import switchNodes from '#utils/switchNodes';
+import { test, expect, FakeTimers } from '..';
+import switchNodes from '../../src/utils/switchNodes';
 
 const commonOptions = {
   selectors: ['p'],

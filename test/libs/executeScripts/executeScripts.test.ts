@@ -2,8 +2,8 @@ import {
   test as base,
   expect,
   onfetch,
-} from '#tester';
-import executeScripts from '#libs/executeScripts';
+} from '../..';
+import executeScripts from '../../../src/libs/executeScripts';
 
 /**
  * Log script executions via events of different types on window.

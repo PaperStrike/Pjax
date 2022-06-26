@@ -1,8 +1,8 @@
-import { expect, onfetch, test as base } from '#tester';
-import preparePage from '#preparePage';
-import type Pjax from '#';
+import { expect, onfetch, test as base } from '.';
+import preparePage from '../src/preparePage';
+import type Pjax from '../src';
 
-declare module 'expect/build/types' {
+declare module 'expect' {
   interface Matchers<R> {
     toHaveBeenScrolledToAround(element: Element): R;
     toHaveBeenScrolledToAround(left: number, top: number): R;

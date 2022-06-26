@@ -2,9 +2,9 @@ import {
   test,
   expect,
   onfetch,
-} from '#tester';
+} from '../..';
 import { test as loggerTest } from './executeScripts.test';
-import Script from '#libs/executeScripts/Script';
+import Script from '../../../src/libs/executeScripts/Script';
 
 test.describe('script', () => {
   test('without both src attribute and content', () => {

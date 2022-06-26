@@ -17,6 +17,7 @@
       "exclude": [
         "web.url",
         "web.url-search-params",
+        "es.array.includes",
         "es.array.reduce",
         "es.array.sort",
         "es.promise"
