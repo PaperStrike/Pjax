@@ -18,6 +18,7 @@
     "tsconfig.json",
     "CHANGELOG.*"
   ],
+  "type": "module",
   "exports": {
     "browser": {
       "development": {

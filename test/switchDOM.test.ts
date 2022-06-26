@@ -3,10 +3,10 @@ import {
   expect,
   onfetch,
   FakeTimers,
-} from '#tester';
-import switchDOM from '#switchDOM';
-import type Pjax from '#';
-import type { Hooks } from '#';
+} from '.';
+import switchDOM from '../src/switchDOM';
+import type Pjax from '../src';
+import type { Hooks } from '../src';
 
 const test = base.extend<{ pjax: Pjax }>({
   pjax: async ({ MockedPjax }, use) => {

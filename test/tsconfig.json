@@ -2,11 +2,6 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": {
-      "#": ["../src"],
-      "#*": ["../src/*"],
-      "#tester": ["."]
-    },
     "types": ["mocha", "web"]
   },
   "include": [

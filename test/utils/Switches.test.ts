@@ -1,5 +1,5 @@
-import { test as base, expect } from '#tester';
-import Switches from '#utils/Switches';
+import { test as base, expect } from '..';
+import Switches from '../../src/utils/Switches';
 
 const test = base.extend<{ target: HTMLElement, replacer: HTMLElement }>({
   target: async (_, use) => {

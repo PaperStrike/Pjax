@@ -1,10 +1,10 @@
 import wrap, { BaseTest } from 'playwright-fixtures';
-import expect from 'expect';
+import { expect } from 'expect';
 import FakeTimers from '@sinonjs/fake-timers';
 import onfetch from 'onfetch';
 
-import type Pjax from '#';
-import Switches from '#utils/Switches';
+import type Pjax from '../src';
+import Switches from '../src/utils/Switches';
 
 const noopAsyncFunc = async (): Promise<void> => {};
 
