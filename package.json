@@ -60,13 +60,13 @@
     "@typescript-eslint/parser": "^5.29.0",
     "@typescript/lib-dom": "npm:@types/web@^0.0.68",
     "babel-plugin-polyfill-corejs3": "^0.5.2",
+    "c8": "^7.11.3",
     "eslint": "^8.18.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-import-resolver-typescript": "^3.1.0",
     "eslint-plugin-import": "^2.26.0",
     "expect": "^28.1.1",
     "mocha": "^10.0.0",
-    "nyc": "^15.1.0",
     "onfetch": "^0.8.2",
     "playwright-fixtures": "^0.3.5",
     "rollup": "^2.75.7",
@@ -83,7 +83,7 @@
     "test-chromium": "npm test -- --browser chromium",
     "test-firefox": "npm test -- --browser firefox",
     "test-webkit": "npm test -- --browser webkit",
-    "coverage": "npm test -- --cov && nyc report",
+    "coverage": "c8 -a npm test",
     "prepare": "npm run build"
   }
 }
