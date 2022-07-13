@@ -1,3 +1,5 @@
+import { onInit, done } from 'wrightplay';
+import 'mocha';
 import wrap, { BaseTest } from 'playwright-fixtures';
 import { expect } from 'expect';
 import FakeTimers from '@sinonjs/fake-timers';
@@ -48,6 +50,18 @@ class MockedPjax implements Pjax {
   static reload = (): void => {};
 }
 
+mocha.setup({
+  ui: 'bdd',
+  reporter: 'spec',
+  color: true,
+});
+
+onInit(() => {
+  mocha.run((failures) => {
+    done(failures > 0 ? 1 : 0);
+  });
+});
+
 // Playwright like test runner.
 const wrappedTest = wrap(
   Object.assign(it as BaseTest, {
@@ -63,7 +77,10 @@ const rootTest = wrappedTest.extend<{ MockedPjax: typeof Pjax, uid: `test_${stri
 });
 
 rootTest.beforeAll(async () => {
-  await onfetch.useServiceWorker();
+  await Promise.all([
+    window.navigator.serviceWorker.register('/sw.js'),
+    onfetch.useServiceWorker(),
+  ]);
 });
 
 export { rootTest as test };
