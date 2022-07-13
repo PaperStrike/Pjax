@@ -65,6 +65,12 @@ Import the default value from `pjax.esm.js` or `pjax.esm.min.js` as:
 import Pjax from './dist/pjax.esm.js';
 ```
 
+##### To import as ES module with Webpack 5 bundler
+
+```js
+import Pjax from '@sliphua/pjax'
+```
+
 ## What Pjax Does
 
 _In short, ONE fetch with a `pushState` call._
