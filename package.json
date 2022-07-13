@@ -79,7 +79,7 @@
   "scripts": {
     "lint": "eslint .",
     "build": "rollup --config rollup.config.ts --configPlugin babel={extensions:[\\\".ts\\\"],babelHelpers:\\\"bundled\\\"}",
-    "test": "wrightplay \"test/**/*.test.*\" sw=./test/sw.ts",
+    "test": "wrightplay \"test/**/*.test.*\" sw=test/sw.ts",
     "test-chromium": "npm test -- --browser chromium",
     "test-firefox": "npm test -- --browser firefox",
     "test-webkit": "npm test -- --browser webkit",
