@@ -41,7 +41,7 @@ export interface SwitchesResult {
 }
 
 interface State {
-  scrollPos: [number, number];
+  scrollPos?: [number, number];
 }
 
 export interface History {
@@ -94,15 +94,6 @@ class Pjax {
   constructor(options: Partial<Options> = {}) {
     Object.assign(this.options, options);
 
-    if (this.options.scrollRestoration) {
-      window.history.scrollRestoration = 'manual';
-
-      // Browsers' own restoration is faster and more stable on reload.
-      window.addEventListener('beforeunload', () => {
-        window.history.scrollRestoration = 'auto';
-      });
-    }
-
     const { defaultTrigger } = this.options;
     if (defaultTrigger === true || (defaultTrigger !== false && defaultTrigger.enable !== false)) {
       new DefaultTrigger(this).register();
@@ -117,16 +108,30 @@ class Pjax {
        * using a custom library seems to be the only choice.
        */
 
-      // Store scroll position and then update the lazy state.
+      // Ignore non-Pjax history entries.
+      if (!(event.state && 'pjax' in event.state)) return;
+
+      // Store history state and then update.
       this.storeHistory();
       this.history.pull();
 
-      // hashchange events trigger popstate with a null `event.state`.
-      if (event.state === null) return;
-
       const overrideOptions: Partial<Options> = {};
-      if (this.options.scrollRestoration && this.history.state) {
+
+      if (this.history.state?.scrollPos) {
         overrideOptions.scrollTo = this.history.state.scrollPos;
+
+        // Read current scroll restoration behaviour.
+        const restoration = window.history.scrollRestoration;
+
+        // Use manual scroll restoration.
+        if (restoration !== 'manual') {
+          window.history.scrollRestoration = 'manual';
+
+          // Restore original scroll restoration behaviour.
+          setTimeout(() => {
+            window.history.scrollRestoration = restoration;
+          });
+        }
       }
 
       this.load(window.location.href, overrideOptions).catch(() => {});
@@ -134,9 +139,14 @@ class Pjax {
   }
 
   storeHistory(): void {
-    this.history.state = {
-      scrollPos: [window.scrollX, window.scrollY],
-    };
+    const state: State = {};
+
+    // Store scroll position if required.
+    if (this.options.scrollRestoration) {
+      state.scrollPos = [window.scrollX, window.scrollY];
+    }
+
+    this.history.state = state;
   }
 
   /**
